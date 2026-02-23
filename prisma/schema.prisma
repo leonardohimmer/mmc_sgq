@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("USER") // ADMIN, AUDITOR, USER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  auditLogs AuditLog[]
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  code        String   @unique // ex: SGQ.POP.001
+  title       String
+  content     String
+  status      String   @default("DRAFT") // DRAFT, REVIEW, APPROVED, ARCHIVED
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // CREATE, UPDATE, DELETE, LOGIN
+  entity    String   // User, Document, etc.
+  entityId  String
+  details   String   // JSON string with exact changes
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Equipment {
+  id                  String    @id @default(cuid())
+  code                String    @unique // ex: EQ.001
+  name                String
+  manufacturer        String?
+  status              String    @default("ATIVO") // ATIVO, MANUTENÇÃO, INATIVO, VENCIDO
+  lastCalibrationDate DateTime?
+  nextCalibrationDate DateTime?
+  calibrationInterval Int?      // em dias ou meses
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
