@@ -1,0 +1,8 @@
+{
+  "apphosting": [
+    {
+      "source": ".",
+      "backendId": "mmc-sgq"
+    }
+  ]
+}

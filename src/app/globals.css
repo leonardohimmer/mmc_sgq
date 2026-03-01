@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  --primary-teal: #4DB6AC;
+  --secondary-sand: #C1B598;
+  --background-light: #F8F9FA;
+  --surface-light: #FFFFFF;
+
+  --background: #F8F9FA;
+  /* Default starts with light background */
+  --foreground: #334155;
+  /* slate-700 equivalent */
+}
+
+@theme inline {
+  --color-primary: var(--primary-teal);
+  --color-secondary: var(--secondary-sand);
+  --color-background-light: var(--background-light);
+  --color-surface-light: var(--surface-light);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-jakarta-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-xl: 12px;
+  /* For rounded-xl buttons/inputs */
+  --radius-2xl: 16px;
+  /* For rounded-2xl cards */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Forcing light theme effectively as per Stitch design (or translating to dark equivalents if needed, but sticking to light default for now) */
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background-light);
+  color: var(--foreground);
+  font-family: var(--font-jakarta-sans), Arial, Helvetica, sans-serif;
+}

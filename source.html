@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Painel Principal MMC LAB</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --primary-teal: #4DB6AC;
+            --secondary-sand: #C1B598;
+            --background-light: #F8F9FA;
+            --surface-light: #FFFFFF;
+        }
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4DB6AC",
+                        secondary: "#C1B598",
+                        "background-light": "#F8F9FA",
+                        "surface-light": "#FFFFFF",
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                    },
+                },
+            },
+        };
+    </style>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-700 transition-colors duration-200">
+<div class="flex h-screen overflow-hidden">
+<aside class="w-64 bg-primary text-white flex flex-col h-full shadow-xl z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden">
+<img alt="MMC LAB Logo" class="w-full h-full object-contain p-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfseFx9q6tcSvVPhYrP3LR2g-K-ipxw0KRS2TIjoENEm_GFGB-mXtw8oEKKdfkPjeazPhZmJIxTiXc6zAku0flvLIhKvzoPHQ0WU9nh2ixDLEhfuTRTRlzkpEMkdyDq39S040oNB-juLfDd7tm8C0TaGu50PQq9naF3yMNC8gwGgm6K5A0KK8Jq0cKk0L4wNlRvvV3Z3gLxcBRq4jCkC1T2M2SKsmXSkBUI5wJHGJbuxsu0iq8pkiRiJY9-4oQPVcjg4F-YCnk9HRG"/>
+</div>
+<div>
+<h1 class="font-extrabold text-xl tracking-tight leading-none text-white">MMC <span class="text-secondary">LAB</span></h1>
+<p class="text-[9px] uppercase tracking-widest font-bold text-white/70">ISO/IEC 17025</p>
+</div>
+</div>
+<nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+<p class="px-3 text-[10px] font-bold text-white/50 uppercase tracking-widest mb-2">Menu Principal</p>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/10 text-white font-semibold transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Painel
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+                Equipamentos
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Amostras
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">description</span>
+                Relatórios
+                <span class="ml-auto bg-secondary text-white text-[10px] px-1.5 py-0.5 rounded-full">3</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+                Auditorias
+            </a>
+<div class="pt-8">
+<p class="px-3 text-[10px] font-bold text-white/50 uppercase tracking-widest mb-2">Sistema</p>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Configurações
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+                    Suporte
+                </a>
+</div>
+</nav>
+<div class="p-4 border-t border-white/10">
+<div class="flex items-center gap-3 px-3 py-2 text-white/70">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-xs font-medium">Versão 2.4.0</span>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-hidden">
+<header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100 border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" placeholder="Buscar amostras, relatórios ou auditorias..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100">
+<span class="material-symbols-outlined">translate</span>
+</button>
+</div>
+<div class="h-8 w-px bg-slate-200"></div>
+<div class="flex items-center gap-3 cursor-pointer">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold text-slate-900 leading-tight">Daniel Morales</p>
+<p class="text-[11px] text-slate-400 font-medium">Gerente de Qualidade</p>
+</div>
+<img alt="Gerente de Qualidade" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM7x6IBFzWbbEn9ImmdYlw8swHxy1YQRFL1GjnLNx7OdNGM8UnsNFeT_H14YkSeSekOzQrHBfbkBZDPRe1ESimbgqiAhoLX43EzAf-OGKV5nMfqN6qX0ow8UOWDPViKfaYbnEz2Hnp9UWt7b9n4uPqXkX89n7rnRcIL2bjXQfzqTEg5fkOBjimKXYB3VISUS_32BOkscP-ZHD5Yjfy86NTx-iaU-tbHqblmIRV0ctpqleyTkzE8McWIU2GpYfhCBZiKKh5c9rtIiww"/>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h2 class="text-2xl font-extrabold text-slate-900">Visão Geral do Painel</h2>
+<p class="text-slate-500 text-sm">Bem-vindo ao sistema de monitoramento MMC LAB acreditado pelo Inmetro.</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600 hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-[20px]">file_download</span> Exportar
+                    </button>
+<button class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">add</span> Novo Ensaio
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+<div class="flex justify-between items-start relative z-10">
+<div>
+<p class="text-slate-400 text-sm font-medium mb-1">Calibrações Pendentes</p>
+<h3 class="text-2xl font-extrabold text-slate-900">12</h3>
+<div class="mt-2 flex items-center gap-1 text-emerald-500 text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>+3.2% vs semana passada</span>
+</div>
+</div>
+<div class="p-3 bg-primary/10 text-primary rounded-xl">
+<span class="material-symbols-outlined">build</span>
+</div>
+</div>
+<div class="mt-4 bg-primary/5 h-10 -mx-6 flex items-center px-6 text-xs text-primary font-bold cursor-pointer hover:bg-primary/10 transition-all">
+                        Ver detalhes <span class="material-symbols-outlined text-[16px] ml-auto">arrow_forward</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+<div class="flex justify-between items-start relative z-10">
+<div>
+<p class="text-slate-400 text-sm font-medium mb-1">Ensaios em Andamento</p>
+<h3 class="text-2xl font-extrabold text-slate-900">45</h3>
+<div class="mt-2 flex items-center gap-1 text-primary text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+<span>8 relatórios em finalização</span>
+</div>
+</div>
+<div class="p-3 bg-indigo-50 text-indigo-500 rounded-xl">
+<span class="material-symbols-outlined">science</span>
+</div>
+</div>
+<div class="mt-4 bg-primary/5 h-10 -mx-6 flex items-center px-6 text-xs text-primary font-bold cursor-pointer hover:bg-primary/10 transition-all">
+                        Ver detalhes <span class="material-symbols-outlined text-[16px] ml-auto">arrow_forward</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+<div class="flex justify-between items-start relative z-10">
+<div>
+<p class="text-slate-400 text-sm font-medium mb-1">Amostras em Atraso</p>
+<h3 class="text-2xl font-extrabold text-slate-900">128</h3>
+<div class="mt-2 flex items-center gap-1 text-amber-500 text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>Alta prioridade: 14</span>
+</div>
+</div>
+<div class="p-3 bg-secondary/10 text-secondary rounded-xl">
+<span class="material-symbols-outlined">inventory</span>
+</div>
+</div>
+<div class="mt-4 bg-primary/5 h-10 -mx-6 flex items-center px-6 text-xs text-primary font-bold cursor-pointer hover:bg-primary/10 transition-all">
+                        Ver detalhes <span class="material-symbols-outlined text-[16px] ml-auto">arrow_forward</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+<div class="flex justify-between items-start relative z-10">
+<div>
+<p class="text-slate-400 text-sm font-medium mb-1">Não Conformidades</p>
+<h3 class="text-2xl font-extrabold text-slate-900">03</h3>
+<div class="mt-2 flex items-center gap-1 text-red-500 text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">report_problem</span>
+<span>2 casos críticos</span>
+</div>
+</div>
+<div class="p-3 bg-red-50 text-red-500 rounded-xl">
+<span class="material-symbols-outlined">rule</span>
+</div>
+</div>
+<div class="mt-4 bg-primary/5 h-10 -mx-6 flex items-center px-6 text-xs text-primary font-bold cursor-pointer hover:bg-primary/10 transition-all">
+                        Ver detalhes <span class="material-symbols-outlined text-[16px] ml-auto">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+<div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-bold text-slate-900">Volume de Ensaios Mensal</h3>
+<select class="bg-slate-100 border-none text-xs font-bold rounded-lg focus:ring-primary">
+<option>Semanal</option>
+<option selected="">Mensal</option>
+<option>Anual</option>
+</select>
+</div>
+<div class="flex items-end justify-between h-48 gap-3">
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg h-24 group-hover:bg-primary/20 transition-all relative">
+<div class="absolute inset-x-0 bottom-0 bg-primary/60 rounded-t-lg h-16"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">Jan</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg h-32 group-hover:bg-primary/20 transition-all relative">
+<div class="absolute inset-x-0 bottom-0 bg-primary/60 rounded-t-lg h-24"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">Fev</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg h-40 group-hover:bg-primary/20 transition-all relative">
+<div class="absolute inset-x-0 bottom-0 bg-primary/60 rounded-t-lg h-32"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">Mar</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg h-36 group-hover:bg-primary/20 transition-all relative">
+<div class="absolute inset-x-0 bottom-0 bg-primary/60 rounded-t-lg h-28"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">Abr</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg h-44 group-hover:bg-primary/20 transition-all relative">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-lg h-36"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">Mai</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg h-38 group-hover:bg-primary/20 transition-all relative">
+<div class="absolute inset-x-0 bottom-0 bg-primary/60 rounded-t-lg h-30"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">Jun</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg h-32 group-hover:bg-primary/20 transition-all relative">
+<div class="absolute inset-x-0 bottom-0 bg-primary/60 rounded-t-lg h-22"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">Jul</span>
+</div>
+</div>
+<div class="mt-6 flex gap-4 text-xs font-medium">
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span>Ensaios Concluídos</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 rounded-full bg-primary/20"></div>
+<span>Volume Total</span>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-bold text-slate-900">Distribuição de Amostras</h3>
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex-1 flex items-center justify-center relative py-4">
+<svg class="w-36 h-36 transform -rotate-90">
+<circle class="text-slate-100" cx="72" cy="72" fill="transparent" r="60" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-primary" cx="72" cy="72" fill="transparent" r="60" stroke="currentColor" stroke-dasharray="376.99" stroke-dashoffset="150" stroke-width="12"></circle>
+<circle class="text-secondary" cx="72" cy="72" fill="transparent" r="60" stroke="currentColor" stroke-dasharray="376.99" stroke-dashoffset="280" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-extrabold text-slate-900">128</span>
+<span class="text-[10px] text-slate-400 font-bold uppercase">Total</span>
+</div>
+</div>
+<div class="space-y-2 mt-4">
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-slate-500 font-medium">Eletrônicos</span>
+</div>
+<span class="font-bold text-slate-900">42%</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-slate-500 font-medium">Mecânicos</span>
+</div>
+<span class="font-bold text-slate-900">35%</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-slate-200"></div>
+<span class="text-slate-500 font-medium">Químicos</span>
+</div>
+<span class="font-bold text-slate-900">23%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-200 flex items-center justify-between">
+<h3 class="font-bold text-slate-900 text-lg">Resultados Recentes de Ensaios</h3>
+<div class="flex items-center gap-3">
+<div class="flex items-center bg-slate-100 rounded-lg p-1">
+<button class="px-3 py-1 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm">Todos</button>
+<button class="px-3 py-1 text-xs font-bold text-slate-400">Aprovados</button>
+<button class="px-3 py-1 text-xs font-bold text-slate-400">Reprovados</button>
+</div>
+<button class="bg-primary text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 hover:opacity-90">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                            Filtrar
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50/50">
+<tr>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">ID Amostra</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Produto</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Norma</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Técnico</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center font-bold text-xs">EL</div>
+<span class="text-sm font-bold text-slate-900">#BT-9042</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm font-semibold text-slate-700">Adaptador de Energia 65W</p>
+<p class="text-[11px] text-slate-400">Divisão Eletrônica</p>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">IEC 62368-1</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-600 uppercase">Aprovado</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Técnico" class="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNz9FLSGC4PL5Ppz-wp43pyx2E6mCyPIR9JYVoU0nh-tH6A-EkGDwOv_g1kB6gmTMaqA-oVFbDxTExIBx4Q2gKuNhOpcihveX-gBNzqzeQ_6AXWozkHjDWE6-2cqC9hE7a4Rn_f9XBKRHpcR1JLZk7ewcc8E1KV-XC5-jk4N0ZS4PH2sgNWJyIg9usOAYDBX4bBV9fYiCp--Wg6JuL8uNKItTEopASKv7fkbLWezbNgF3iqUH7WrTGJKh6prtqFMEy6vJzGTcD2GrW"/>
+</div>
+<span class="text-xs font-medium">Marc R.</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center font-bold text-xs">QU</div>
+<span class="text-sm font-bold text-slate-900">#BT-8891</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm font-semibold text-slate-700">Solvente Industrial X-12</p>
+<p class="text-[11px] text-slate-400">Divisão Química</p>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">ISO 11014:2009</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600 uppercase">Pendente</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Técnico" class="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5459Vuf793nTnOcRho0aNbvUz3VC-WDqz3yvEUV6jru1hSMnkinTWImLlQ2Qyc_9QSjQLIl1Y-MtAjP9oMcUuwex3Bq7-JXhrWvh9fVRGE5PdsGKC2Nockq_doIN-_crDhvu2LmwWIadD82_cTvSXWkFEB5AQqNVZU0bfKzN2VSSdsTFSqkigrmHqVUrDQShXs434fL7iIA3kmzW6jy0NzgXsSz2jje-HSRo-7dgqsy5Xcn4OoIUmAZJWiilREdeA25hX8bz-tUKR"/>
+</div>
+<span class="text-xs font-medium">Julia K.</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center font-bold text-xs">MC</div>
+<span class="text-sm font-bold text-slate-900">#BT-9103</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm font-semibold text-slate-700">Cabo de Aço 12mm</p>
+<p class="text-[11px] text-slate-400">Divisão Mecânica</p>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-500">ABNT NBR 13541</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-600 uppercase">Reprovado</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Técnico" class="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKGOasCYUbhmo_ur57toMeKNI6PthWlDZC3cSM1ZR-DdnuaVlYDphfP-eujyl9p3EvKhGoOZ7X_TGqCgCbC1K4sBQ_urmB1pzt9Mg1BrOwTy8YTQNSS2fjc5bsTSXcj4qaWC50_jdqNAZ-ZEEBz9qy5yvndnf7pJRTq1EcxepMj2Nfodn1l_0Cj7Ud-_1Z2lj95Q-oSC6Cn1yRzTMKLX-GJAZRE1awCoHupp0jWf-3Qu4AttNv0BBTjEwcAp2YvXabHxFyETyl5EAE"/>
+</div>
+<span class="text-xs font-medium">Sarah W.</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-400">
+<span>Mostrando 3 de 45 resultados de ensaios</span>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg border border-transparent flex items-center justify-center bg-primary text-white">1</button>
+<button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100">2</button>
+<button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100">3</button>
+<button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

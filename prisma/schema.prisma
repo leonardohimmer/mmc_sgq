@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String     @id @default(dbgenerated("(gen_random_uuid())::text"))
+  name      String
+  email     String     @unique
+  password  String
+  role      String     @default("USER")
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  auditLogs AuditLog[]
+}
+
+model Document {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  code      String   @unique
+  title     String
+  content   String
+  status    String   @default("DRAFT")
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model AuditLog {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Equipment {
+  id                  String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  code                String    @unique
+  name                String
+  manufacturer        String?
+  status              String    @default("ATIVO")
+  lastCalibrationDate DateTime? @db.Timestamptz(6)
+  nextCalibrationDate DateTime? @db.Timestamptz(6)
+  calibrationInterval Int?
+  createdAt           DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+}

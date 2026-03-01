@@ -1,0 +1,23 @@
+# Variáveis de ambiente para produção no Firebase App Hosting
+# Essas variáveis são configuradas no Console do Firebase > App Hosting > Backend > Environment Variables
+# NÃO commitar esse arquivo no Git com valores reais
+
+runConfig:
+  concurrency: 100
+  cpu: 1
+  memoryMiB: 512
+  minInstances: 0
+  maxInstances: 10
+
+env:
+  - variable: NEXTAUTH_SECRET
+    value: "uma-chave-secreta-muito-segura-sgq-producao"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXTAUTH_URL
+    value: "https://SEU_DOMINIO_FIREBASE.web.app"
+    availability:
+      - BUILD
+      - RUNTIME
