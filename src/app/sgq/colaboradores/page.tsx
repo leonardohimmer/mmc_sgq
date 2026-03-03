@@ -5,14 +5,21 @@ import { useSession } from "next-auth/react"
 import Cropper from "react-easy-crop"
 
 const EMOTIONS = [
+    { id: "normal", emoji: "😐", label: "Normal" },
     { id: "feliz", emoji: "😊", label: "Feliz" },
     { id: "focado", emoji: "🧐", label: "Focado" },
-    { id: "cafe", emoji: "☕", label: "Pausa pro Café" },
+    { id: "pensativo", emoji: "🤔", label: "Pensativo" },
     { id: "voando", emoji: "🚀", label: "Voando" },
+    { id: "comemorando", emoji: "🥳", label: "Comemorando" },
+    { id: "zen", emoji: "😌", label: "Tranquilo" },
+    { id: "cafe", emoji: "☕", label: "Pausa pro Café" },
+    { id: "almoco", emoji: "🍝", label: "Almoçando" },
+    { id: "reuniao", emoji: "�️", label: "Em Reunião" },
     { id: "sobrecarregado", emoji: "🤯", label: "Sobrecarregado" },
+    { id: "estressado", emoji: "😫", label: "Estressado" },
+    { id: "cansado", emoji: "🥱", label: "Cansado" },
     { id: "ausente", emoji: "🤒", label: "Ausente/Doente" },
     { id: "ferias", emoji: "🌴", label: "De Férias" },
-    { id: "normal", emoji: "😐", label: "Normal" },
 ]
 
 export default function ColaboradoresOnlinePage() {
