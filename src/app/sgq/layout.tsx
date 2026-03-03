@@ -80,7 +80,19 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex font-sans transition-colors duration-300">
             {/* Sidebar */}
-            <aside className={`${isCollapsed ? "w-20" : "w-64"} bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm transition-all duration-300 relative`}>
+            <aside className={`${isCollapsed ? "w-20" : "w-64"} z-20 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm transition-all duration-300 relative`}>
+
+                {/* Botão de ocultar/abrir na borda */}
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
+                    title={isCollapsed ? "Expandir Menu" : "Ocultar Menu"}
+                >
+                    <span className="material-symbols-outlined text-[16px] group-hover:scale-110 transition-transform">
+                        {isCollapsed ? "chevron_right" : "chevron_left"}
+                    </span>
+                </button>
+
                 <div className={`h-20 flex items-center ${isCollapsed ? "justify-center" : "justify-between px-6"} border-b border-slate-100 dark:border-slate-800 shrink-0 overflow-hidden`}>
                     {isCollapsed ? (
                         <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-xl text-white shadow-md">
@@ -102,14 +114,6 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-                    <button
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 w-full mb-4 ${isCollapsed ? "justify-center px-0" : ""}`}
-                        title={isCollapsed ? "Expandir Menu" : "Ocultar Menu"}
-                    >
-                        <span className="material-symbols-outlined text-[20px]">{isCollapsed ? "menu_open" : "menu"}</span>
-                        {!isCollapsed && <span>Ocultar Menu</span>}
-                    </button>
                     {navItems.map((item) => {
                         if (item.restrictTo && !item.restrictTo.includes(userRole)) return null
                         if (item.hideForTech && isTech) return null
