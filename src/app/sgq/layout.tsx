@@ -141,9 +141,9 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     <div className={`flex ${isCollapsed ? 'flex-col justify-center' : 'items-center justify-between'} gap-3 px-2 py-2 mb-2 w-full`}>
                         <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : ''}`}>
                             {userAvatar ? (
-                                <img src={userAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                                <img src={userAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-slate-200 dark:ring-slate-700" />
                             ) : (
-                                <span className="material-symbols-outlined text-[32px] text-slate-400 dark:text-slate-500 shrink-0">account_circle</span>
+                                <span className="material-symbols-outlined text-[40px] text-slate-400 dark:text-slate-500 shrink-0">account_circle</span>
                             )}
                             {!isCollapsed && (
                                 <div className="overflow-hidden flex-1 flex justify-between items-center group">
@@ -153,7 +153,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                                     </div>
                                     <button
                                         onClick={() => setIsPasswordModalOpen(true)}
-                                        className="text-slate-400 hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                                        className="text-slate-400 hover:text-blue-500 transition-colors shrink-0"
                                         title="Alterar Senha"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">key</span>
