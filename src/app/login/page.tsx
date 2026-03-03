@@ -31,15 +31,15 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background-light p-4 font-sans">
-            <div className="max-w-md w-full p-8 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all hover:shadow-md">
+        <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-slate-950 p-4 font-sans transition-colors duration-300">
+            <div className="max-w-md w-full p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
                 <div className="flex justify-center mb-6">
                     <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center font-bold text-2xl text-white">
                         M
                     </div>
                 </div>
-                <h2 className="text-2xl font-extrabold text-center mb-2 text-slate-900">Log in MMC LAB</h2>
-                <p className="text-center text-slate-500 text-sm font-medium mb-8">Gestão da Qualidade ISO/IEC 17025</p>
+                <h2 className="text-2xl font-extrabold text-center mb-2 text-slate-900 dark:text-slate-100">Log in MMC LAB</h2>
+                <p className="text-center text-slate-500 dark:text-slate-400 text-sm font-medium mb-8">Gestão da Qualidade ISO/IEC 17025</p>
 
                 {error && (
                     <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 font-medium text-sm flex items-center gap-2">
@@ -50,28 +50,28 @@ export default function LoginPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                             Email
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                            className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                             placeholder="seu@email.com"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                             Senha
                         </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                            className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                             placeholder="••••••••"
                             required
                         />

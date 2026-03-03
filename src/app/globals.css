@@ -29,12 +29,13 @@
   /* For rounded-2xl cards */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Forcing light theme effectively as per Stitch design (or translating to dark equivalents if needed, but sticking to light default for now) */
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root.dark {
+  --background-light: #0f172a;
+  --surface-light: #1e293b;
+  --background: #0f172a;
+  --foreground: #f8fafc;
 }
 
 body {

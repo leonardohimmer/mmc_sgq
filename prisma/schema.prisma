@@ -14,9 +14,12 @@ model User {
   email     String     @unique
   password  String
   role      String     @default("USER")
+  profileId String?
+  profile   Profile?   @relation(fields: [profileId], references: [id])
   createdAt DateTime   @default(now()) @db.Timestamptz(6)
   updatedAt DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
-  auditLogs AuditLog[]
+  auditLogs    AuditLog[]
+  testRequests TestRequest[] @relation("UserTestRequests")
 }
 
 model Document {
@@ -53,4 +56,54 @@ model Equipment {
   calibrationInterval Int?
   createdAt           DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt           DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model TestRequest {
+  id           String               @id @default(dbgenerated("(gen_random_uuid())::text"))
+  type           String
+  location       String
+  contractorName      String?
+  constructionCompany String?
+  workName            String?
+  address             String?
+  proposalEmail  String?
+  reportEmail    String?
+  desiredDate    DateTime             @db.Timestamptz(6)
+  observations   String?              @db.Text
+  appliedStandard       String?
+  measuredData          String?              @db.Text
+  result                String?
+  technicalObservations String?              @db.Text
+  reportNumber          String?
+  reportPdfUrl          String?
+  isSigned              Boolean              @default(false)
+  status       String               @default("RECEBIDO") // RECEBIDO, EM_EXECUCAO, AGUARDANDO_APROVACAO, FINALIZADO
+  clientName   String
+  assignedToId String?
+  createdAt    DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime             @default(now()) @updatedAt @db.Timestamptz(6)
+  
+  assignedTo   User?                @relation("UserTestRequests", fields: [assignedToId], references: [id])
+  history      TestRequestHistory[]
+}
+
+model TestRequestHistory {
+  id           String       @id @default(dbgenerated("(gen_random_uuid())::text"))
+  requestId    String
+  changedBy    String
+  oldStatus    String
+  newStatus    String
+  assignedToId String?
+  createdAt    DateTime     @default(now()) @db.Timestamptz(6)
+
+  request      TestRequest  @relation(fields: [requestId], references: [id])
+}
+
+model Profile {
+  id          String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  name        String   @unique
+  permissions String[]
+  users       User[]
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 }
