@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
+import Cropper from "react-easy-crop"
 
 const EMOTIONS = [
     { id: "feliz", emoji: "😊", label: "Feliz" },
@@ -23,6 +24,12 @@ export default function ColaboradoresOnlinePage() {
     const [myAvatarUrl, setMyAvatarUrl] = useState("")
     const [myEmotion, setMyEmotion] = useState("normal")
     const [isSaving, setIsSaving] = useState(false)
+
+    // Estados para o Cropper de Imagem
+    const [imageSrc, setImageSrc] = useState<string | null>(null)
+    const [crop, setCrop] = useState({ x: 0, y: 0 })
+    const [zoom, setZoom] = useState(1)
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
 
     // Buscar usuários
     const fetchUsers = async () => {
@@ -83,48 +90,106 @@ export default function ColaboradoresOnlinePage() {
         return diffInMinutes <= 3
     }
 
-    // Fazer upload da imagem e converter para Base64 otimizado
+    // Abrir o modal de crop da imagem
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const img = new window.Image()
-            img.onload = () => {
-                const canvas = document.createElement("canvas")
-                const MAX_WIDTH = 200
-                const MAX_HEIGHT = 200
-                let width = img.width
-                let height = img.height
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width
-                        width = MAX_WIDTH
-                    }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height
-                        height = MAX_HEIGHT
-                    }
-                }
-
-                canvas.width = width
-                canvas.height = height
-                const ctx = canvas.getContext("2d")
-                ctx?.drawImage(img, 0, 0, width, height)
-
-                const dataUrl = canvas.toDataURL("image/jpeg", 0.7)
-                setMyAvatarUrl(dataUrl)
-            }
-            img.src = event.target?.result as string
+        if (e.target.files && e.target.files.length > 0) {
+            const reader = new FileReader()
+            reader.addEventListener('load', () => setImageSrc(reader.result?.toString() || null))
+            reader.readAsDataURL(e.target.files[0])
         }
-        reader.readAsDataURL(file)
+    }
+
+    const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+        setCroppedAreaPixels(croppedAreaPixels)
+    }, [])
+
+    const getCroppedImg = async (imageSrc: string, crop: any): Promise<string> => {
+        const image = new window.Image()
+        image.src = imageSrc
+        await new Promise(resolve => image.onload = resolve)
+
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")
+
+        canvas.width = 200
+        canvas.height = 200
+
+        ctx?.drawImage(
+            image,
+            crop.x,
+            crop.y,
+            crop.width,
+            crop.height,
+            0,
+            0,
+            200,
+            200
+        )
+
+        return canvas.toDataURL("image/jpeg", 0.7)
+    }
+
+    const showCroppedImage = async () => {
+        try {
+            const croppedImage = await getCroppedImg(imageSrc!, croppedAreaPixels)
+            setMyAvatarUrl(croppedImage)
+            setImageSrc(null) // Fechar modal
+        } catch (e) {
+            console.error(e)
+        }
     }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
+            {imageSrc && (
+                <div className="fixed inset-0 z-[100] flex flex-col justify-center items-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+                    <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800">
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+                            <h3 className="font-bold text-slate-900 dark:text-slate-100">Ajustar Foto</h3>
+                            <button onClick={() => setImageSrc(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div className="relative w-full h-[350px] sm:h-[450px] bg-slate-100 dark:bg-slate-950">
+                            <Cropper
+                                image={imageSrc}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={1}
+                                onCropChange={setCrop}
+                                onCropComplete={onCropComplete}
+                                onZoomChange={setZoom}
+                                cropShape="round"
+                                showGrid={false}
+                            />
+                        </div>
+                        <div className="p-5 flex flex-col gap-4">
+                            <div>
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Zoom da imagem</label>
+                                <input
+                                    type="range"
+                                    value={zoom}
+                                    min={1}
+                                    max={3}
+                                    step={0.1}
+                                    aria-labelledby="Zoom"
+                                    onChange={(e) => setZoom(Number(e.target.value))}
+                                    className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3 mt-2">
+                                <button onClick={() => setImageSrc(null)} className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                    Cancelar
+                                </button>
+                                <button onClick={showCroppedImage} className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold transition-all shadow-lg shadow-primary/25">
+                                    Cortar e Usar Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div>
                 <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                     Colaboradores Online
@@ -158,7 +223,10 @@ export default function ColaboradoresOnlinePage() {
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={handleImageUpload}
+                            onChange={(e) => {
+                                handleImageUpload(e)
+                                e.target.value = '' // Allow re-selecting the same file
+                            }}
                             className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer"
                         />
                     </div>
