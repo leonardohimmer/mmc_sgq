@@ -11,20 +11,29 @@ export default function SobrePage() {
         <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen font-sans pb-24 transition-colors duration-300">
             <SiteHeader />
 
-            <main className="max-w-7xl mx-auto px-6 pt-16">
-                <div className="text-center mb-20 relative">
-                    <div className="absolute left-0 top-0">
+            <main className="max-w-7xl mx-auto px-6 pt-16 md:pt-24 pb-16">
+                <div className="text-center md:text-left mb-16 md:mb-24 relative flex flex-col md:flex-row md:items-start md:justify-between">
+                    <div className="absolute left-0 top-0 hidden md:block">
                         <BackButton />
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-slate-100">
-                        O Laboratório
-                    </h1>
-                    <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto font-medium">
-                        Nossa base é a excelência técnica. Conheça os pilares que guiam nossos ensaios e certificações, estabelecendo a confiança de nossos clientes e parceiros.
-                    </p>
+                    <div className="md:ml-16 max-w-4xl mx-auto md:mx-0 w-full flex flex-col items-center md:items-start text-center md:text-left">
+                        <div className="md:hidden w-full flex justify-start mb-6">
+                            <BackButton />
+                        </div>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-semibold text-sm mb-6 border border-primary/20 backdrop-blur-sm shadow-sm transition-all hover:bg-primary/15 hover:border-primary/30">
+                            <span className="material-symbols-outlined text-[18px]">business</span>
+                            Nossa História
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-slate-100 leading-[1.1]">
+                            O <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">Laboratório</span>
+                        </h1>
+                        <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-3xl font-medium leading-[1.6]">
+                            Nossa base é a excelência técnica. Conheça os pilares que guiam nossos ensaios e certificações, estabelecendo a confiança de nossos clientes e parceiros.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8 mt-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mt-12">
                     {/* Missão */}
                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-2xl hover:border-primary/30 dark:hover:border-primary/50 transition-colors group shadow-sm text-center items-center flex flex-col">
                         <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">

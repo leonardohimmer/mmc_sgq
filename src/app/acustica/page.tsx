@@ -9,12 +9,12 @@ export default function AcusticaPage() {
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="relative pt-24 pb-32 overflow-hidden bg-slate-900 border-b border-slate-800">
+                <section className="relative pt-24 pb-32 sm:pt-32 sm:pb-40 overflow-hidden bg-slate-900 border-b border-slate-800">
                     {/* Efeitos Modernos Neon / Movimento com ondas sonoras concept */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: '3s' }}></div>
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-teal-500/20 rounded-full blur-[80px] mix-blend-screen animate-pulse" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-emerald-400/30 rounded-full blur-[60px] mix-blend-screen animate-pulse" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 md:w-[600px] h-80 md:h-[600px] bg-emerald-500/10 rounded-full blur-[80px] md:blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: '3s' }}></div>
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 md:w-[400px] h-64 md:h-[400px] bg-teal-500/20 rounded-full blur-[60px] md:blur-[80px] mix-blend-screen animate-pulse" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 md:w-[200px] h-32 md:h-[200px] bg-emerald-400/30 rounded-full blur-[40px] md:blur-[60px] mix-blend-screen animate-pulse" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
 
                         {/* Linhas de grade sutis */}
                         <div className="absolute inset-0 opacity-[0.03]" style={{
@@ -23,15 +23,15 @@ export default function AcusticaPage() {
                         }}></div>
                     </div>
 
-                    <div className="max-w-7xl mx-auto px-6 relative z-10 text-center flex flex-col items-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 text-emerald-400 font-bold text-sm mb-6 border border-emerald-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all">
+                    <div className="max-w-[1280px] mx-auto px-6 sm:px-8 relative z-10 text-center flex flex-col items-center">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/80 text-emerald-400 font-semibold text-sm mb-6 md:mb-8 border border-emerald-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all">
                             <span className="material-symbols-outlined text-[18px]">graphic_eq</span>
                             Inteligência Acústica
                         </div>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight drop-shadow-lg">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 md:mb-8 drop-shadow-md mx-auto max-w-4xl">
                             Consultoria e <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">Projetos Acústicos</span>
                         </h1>
-                        <p className="max-w-2xl text-lg md:text-xl text-slate-300 font-medium leading-relaxed mb-10">
+                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-300 font-medium leading-[1.6] mb-10">
                             Entendemos o som para transformar ambientes. Da consultoria pontual ao mapa de ruído urbano, entregamos soluções precisas contra o desconforto sonoro.
                         </p>
                     </div>
@@ -98,7 +98,7 @@ export default function AcusticaPage() {
                                     <p className="text-lg text-slate-300 font-medium leading-relaxed mb-8">
                                         Visualização precisa e espacial do impacto sonoro. Nossos mapas de ruído identificam as fontes primárias de poluição sonora em complexos industriais e faixas urbanas, subsidiando planos de ação efetivos.
                                     </p>
-                                    <Link href="/contato" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-xl font-bold transition-all shadow-md group-hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] text-lg hover:-translate-y-1">
+                                    <Link href="/contato" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-xl font-bold transition-all shadow-md group-hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] text-base sm:text-lg hover:-translate-y-1">
                                         Falar com Analista Acústico
                                         <span className="material-symbols-outlined">chevron_right</span>
                                     </Link>
