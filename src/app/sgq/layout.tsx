@@ -33,8 +33,8 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
         { label: "Análise Crítica", href: "/sgq/analise", icon: "analytics", restrictTo: ["DIREÇÃO", "QUALIDADE"] },
         { label: "Docs e Registros", href: "/sgq/documentos", icon: "folder_open", hideForTech: true },
         { label: "Colaboradores Online", href: "/sgq/colaboradores", icon: "diversity_3" },
-        { label: "Cadastros", href: "/sgq/cadastros", icon: "group", restrictTo: ["CONTROLADOR"] },
-        { label: "Logs do Sistema", href: "/sgq/logs", icon: "history", restrictTo: ["DIREÇÃO", "QUALIDADE", "CONTROLADOR"] },
+        { label: "Cadastros", href: "/sgq/cadastros", icon: "group", restrictTo: ["DESENVOLVEDOR"] },
+        { label: "Logs do Sistema", href: "/sgq/logs", icon: "history", restrictTo: ["DIREÇÃO", "QUALIDADE", "DESENVOLVEDOR"] },
     ]
 
     const userRole = session?.user?.role || ""

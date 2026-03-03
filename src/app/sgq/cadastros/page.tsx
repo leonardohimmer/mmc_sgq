@@ -9,6 +9,7 @@ type User = {
     name: string
     email: string
     role: string
+    company?: string | null
     profileId: string | null
     profile?: Profile
 }
@@ -48,14 +49,14 @@ export default function CadastrosPage() {
 
     // User Form state
     const [editingUser, setEditingUser] = useState<User | null>(null)
-    const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "" })
+    const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "", company: "" })
 
     // Profile Form state
     const [selectedProfileId, setSelectedProfileId] = useState<string>("")
     const [profilePermissions, setProfilePermissions] = useState<string[]>([])
 
     useEffect(() => {
-        if (status === "unauthenticated" || (session?.user && session.user.role !== "CONTROLADOR")) {
+        if (status === "unauthenticated" || (session?.user && session.user.role !== "DESENVOLVEDOR")) {
             router.push("/sgq")
         } else if (status === "authenticated") {
             fetchData()
@@ -81,10 +82,10 @@ export default function CadastrosPage() {
     const handleOpenUserModal = (user?: User) => {
         if (user) {
             setEditingUser(user)
-            setUserForm({ name: user.name, email: user.email, password: "", role: user.role })
+            setUserForm({ name: user.name, email: user.email, password: "", role: user.role, company: user.company || "" })
         } else {
             setEditingUser(null)
-            setUserForm({ name: "", email: "", password: "", role: "" })
+            setUserForm({ name: "", email: "", password: "", role: "", company: "" })
         }
         setIsUserModalOpen(true)
     }
@@ -192,6 +193,7 @@ export default function CadastrosPage() {
                     <thead>
                         <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                             <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Nome</th>
+                            <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Empresa</th>
                             <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Email</th>
                             <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Perfil / Role</th>
                             <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 text-right">Ações</th>
@@ -201,6 +203,7 @@ export default function CadastrosPage() {
                         {users.map(user => (
                             <tr key={user.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                                 <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</td>
+                                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{user.company || '-'}</td>
                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{user.email}</td>
                                 <td className="px-6 py-4">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
@@ -242,6 +245,15 @@ export default function CadastrosPage() {
                                     type="text" required
                                     className="w-full px-3 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
                                     value={userForm.name} onChange={e => setUserForm({ ...userForm, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Empresa</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-3 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
+                                    value={userForm.company} onChange={e => setUserForm({ ...userForm, company: e.target.value })}
+                                    placeholder="Nome da Empresa (Opcional)"
                                 />
                             </div>
                             <div>

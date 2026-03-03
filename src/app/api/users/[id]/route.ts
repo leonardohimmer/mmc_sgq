@@ -10,13 +10,13 @@ export async function PUT(
 ) {
     try {
         const session = await getServerSession(authOptions)
-        if (!session?.user || session.user.role !== 'CONTROLADOR') {
+        if (!session?.user || session.user.role !== 'DESENVOLVEDOR') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
         }
 
         const { id } = await params
         const body = await request.json()
-        const { name, email, role, profileId, password } = body
+        const { name, email, role, profileId, password, company } = body
 
         let targetProfileId = profileId
         if (role && !targetProfileId) {
@@ -30,7 +30,8 @@ export async function PUT(
             name,
             email,
             role,
-            profileId: targetProfileId
+            profileId: targetProfileId,
+            company
         }
 
         // Only update password if provided
@@ -60,7 +61,7 @@ export async function DELETE(
 ) {
     try {
         const session = await getServerSession(authOptions)
-        if (!session?.user || session.user.role !== 'CONTROLADOR') {
+        if (!session?.user || session.user.role !== 'DESENVOLVEDOR') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
         }
 

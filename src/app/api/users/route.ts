@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs'
 export async function GET(request: Request) {
     try {
         const session = await getServerSession(authOptions)
-        if (!session?.user || session.user.role !== 'CONTROLADOR') {
+        if (!session?.user || session.user.role !== 'DESENVOLVEDOR') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
         }
 
@@ -36,12 +36,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions)
-        if (!session?.user || session.user.role !== 'CONTROLADOR') {
+        if (!session?.user || session.user.role !== 'DESENVOLVEDOR') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
         }
 
         const body = await request.json()
-        const { name, email, password, role, profileId } = body
+        const { name, email, password, role, profileId, company } = body
 
         if (!name || !email || !password || !role) {
             return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })
@@ -72,7 +72,8 @@ export async function POST(request: Request) {
                 email,
                 password: hashedPassword,
                 role,
-                profileId: targetProfileId
+                profileId: targetProfileId,
+                company
             }
         })
 

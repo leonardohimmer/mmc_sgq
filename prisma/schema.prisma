@@ -15,6 +15,7 @@ model User {
   password     String
   role         String        @default("USER")
   profileId    String?
+  company      String?
   avatarUrl    String?
   emotion      String?
   lastActivity DateTime?     @db.Timestamptz(6)
