@@ -4,13 +4,17 @@ import { useSession, signOut } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { BackButton } from "@/components/BackButton"
+import { ModalPasswordChange } from "@/components/ModalPasswordChange"
 
 export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const { data: session } = useSession()
     const pathname = usePathname()
+    const [isCollapsed, setIsCollapsed] = useState(false)
+    const [userAvatar, setUserAvatar] = useState<string | null>(null)
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
 
     // Mapping previous Lucide icons to Material Symbols Outlined conceptually
     const navItems = [
@@ -40,7 +44,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const userRole = session?.user?.role || ""
     const isTech = userRole === "TÉCNICO DE LABORATÓRIO" || userRole === "RESPONSÁVEL TÉCNICO"
 
-    // Heartbeat de Presença (Ping)
+    // Heartbeat de Presença (Ping) e buscar Perfil
     useEffect(() => {
         if (!session?.user) return
 
@@ -52,8 +56,21 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
             }
         }
 
-        // Ping imediato no load inicial
+        const fetchProfile = async () => {
+            try {
+                const res = await fetch('/api/users/profile')
+                if (res.ok) {
+                    const data = await res.json()
+                    setUserAvatar(data.avatarUrl || null)
+                }
+            } catch (error) {
+                console.error("Erro ao buscar perfil:", error)
+            }
+        }
+
+        // Executa imediatamente de forma assíncrona
         pingPresence()
+        fetchProfile()
 
         // Ping a cada 1 minuto
         const interval = setInterval(pingPresence, 60000)
@@ -63,22 +80,36 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex font-sans transition-colors duration-300">
             {/* Sidebar */}
-            <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm transition-colors duration-300">
-                <div className="h-20 flex items-center justify-between px-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <Image
-                            src="/logo.png"
-                            alt="MMC LAB"
-                            width={140}
-                            height={45}
-                            className="object-contain dark:brightness-200 dark:grayscale transition-all"
-                            priority
-                        />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#1e40af] bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">BETA</span>
-                    </div>
+            <aside className={`${isCollapsed ? "w-20" : "w-64"} bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm transition-all duration-300 relative`}>
+                <div className={`h-20 flex items-center ${isCollapsed ? "justify-center" : "justify-between px-6"} border-b border-slate-100 dark:border-slate-800 shrink-0 overflow-hidden`}>
+                    {isCollapsed ? (
+                        <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-xl text-white shadow-md">
+                            M
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-3">
+                            <Image
+                                src="/logo.png"
+                                alt="MMC LAB"
+                                width={140}
+                                height={45}
+                                className="object-contain dark:brightness-200 dark:grayscale transition-all"
+                                priority
+                            />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#1e40af] bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">BETA</span>
+                        </div>
+                    )}
                 </div>
 
-                <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 w-full mb-4 ${isCollapsed ? "justify-center px-0" : ""}`}
+                        title={isCollapsed ? "Expandir Menu" : "Ocultar Menu"}
+                    >
+                        <span className="material-symbols-outlined text-[20px]">{isCollapsed ? "menu_open" : "menu"}</span>
+                        {!isCollapsed && <span>Ocultar Menu</span>}
+                    </button>
                     {navItems.map((item) => {
                         if (item.restrictTo && !item.restrictTo.includes(userRole)) return null
                         if (item.hideForTech && isTech) return null
@@ -91,37 +122,65 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                title={isCollapsed ? item.label : undefined}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${isActive
                                     ? "bg-primary/10 dark:bg-primary/20 text-primary w-full"
                                     : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 w-full"
-                                    }`}
+                                    } ${isCollapsed ? "justify-center px-0" : ""}`}
                             >
                                 <span className={`material-symbols-outlined text-[20px] ${isActive ? "text-primary" : "text-slate-400 dark:text-slate-500"}`}>
                                     {item.icon}
                                 </span>
-                                {item.label}
+                                {!isCollapsed && <span className="whitespace-nowrap">{item.label}</span>}
                             </Link>
                         )
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-tr-3xl shrink-0 mt-4 transition-colors duration-300">
-                    <div className="flex items-center justify-between gap-3 px-2 py-2 mb-2">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                            <span className="material-symbols-outlined text-[32px] text-slate-400 dark:text-slate-500">account_circle</span>
-                            <div className="overflow-hidden">
-                                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{session?.user?.name}</p>
-                                <p className="text-xs text-primary font-bold tracking-wide uppercase truncate">{session?.user?.role}</p>
-                            </div>
+                <div className={`p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-tr-3xl shrink-0 transition-colors duration-300 ${isCollapsed ? 'flex flex-col items-center gap-4' : ''}`}>
+                    <div className={`flex ${isCollapsed ? 'flex-col justify-center' : 'items-center justify-between'} gap-3 px-2 py-2 mb-2 w-full`}>
+                        <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : ''}`}>
+                            {userAvatar ? (
+                                <img src={userAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                            ) : (
+                                <span className="material-symbols-outlined text-[32px] text-slate-400 dark:text-slate-500 shrink-0">account_circle</span>
+                            )}
+                            {!isCollapsed && (
+                                <div className="overflow-hidden flex-1 flex justify-between items-center group">
+                                    <div className="overflow-hidden pr-2">
+                                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{session?.user?.name}</p>
+                                        <p className="text-xs text-primary font-bold tracking-wide uppercase truncate">{session?.user?.role}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsPasswordModalOpen(true)}
+                                        className="text-slate-400 hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                                        title="Alterar Senha"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">key</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                        <ThemeToggle />
+                        <div className={isCollapsed ? 'mt-2' : ''}>
+                            <ThemeToggle />
+                        </div>
                     </div>
+                    {isCollapsed && (
+                        <button
+                            onClick={() => setIsPasswordModalOpen(true)}
+                            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-blue-500 rounded-xl transition-colors"
+                            title="Alterar Senha"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">key</span>
+                        </button>
+                    )}
                     <button
                         onClick={() => signOut({ callbackUrl: "/" })}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-colors"
+                        title={isCollapsed ? "Sair do Sistema" : undefined}
+                        className={`flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-colors ${isCollapsed ? 'justify-center px-0 w-10 h-10' : 'w-full'}`}
                     >
                         <span className="material-symbols-outlined text-[20px]">logout</span>
-                        Sair do Sistema
+                        {!isCollapsed && "Sair do Sistema"}
                     </button>
                 </div>
             </aside>
@@ -137,6 +196,12 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
             </main>
+
+            {/* Modal de Mudança de Senha */}
+            <ModalPasswordChange
+                isOpen={isPasswordModalOpen}
+                onClose={() => setIsPasswordModalOpen(false)}
+            />
         </div>
     )
 }
