@@ -12,7 +12,13 @@ export async function GET(request: Request) {
         }
 
         // Busca usuários com os campos necessários para a página de colaboradores online
+        // Excluindo clientes e auditores (apenas colaboradores)
         const users = await prisma.user.findMany({
+            where: {
+                role: {
+                    notIn: ['CLIENTE', 'AUDITOR']
+                }
+            },
             select: {
                 id: true,
                 name: true,
