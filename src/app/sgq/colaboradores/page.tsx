@@ -83,6 +83,46 @@ export default function ColaboradoresOnlinePage() {
         return diffInMinutes <= 3
     }
 
+    // Fazer upload da imagem e converter para Base64 otimizado
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const img = new window.Image()
+            img.onload = () => {
+                const canvas = document.createElement("canvas")
+                const MAX_WIDTH = 200
+                const MAX_HEIGHT = 200
+                let width = img.width
+                let height = img.height
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width
+                        width = MAX_WIDTH
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height
+                        height = MAX_HEIGHT
+                    }
+                }
+
+                canvas.width = width
+                canvas.height = height
+                const ctx = canvas.getContext("2d")
+                ctx?.drawImage(img, 0, 0, width, height)
+
+                const dataUrl = canvas.toDataURL("image/jpeg", 0.7)
+                setMyAvatarUrl(dataUrl)
+            }
+            img.src = event.target?.result as string
+        }
+        reader.readAsDataURL(file)
+    }
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div>
@@ -113,14 +153,13 @@ export default function ColaboradoresOnlinePage() {
                 <div className="flex-1 flex flex-col sm:flex-row gap-4 w-full">
                     <div className="flex-1">
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            URL da Foto (Avatar)
+                            Foto do Perfil (Avatar)
                         </label>
                         <input
-                            type="text"
-                            placeholder="https://exemplo.com/foto.jpg"
-                            value={myAvatarUrl}
-                            onChange={(e) => setMyAvatarUrl(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer"
                         />
                     </div>
                     <div className="w-full sm:w-48">
