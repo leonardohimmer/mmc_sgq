@@ -9,15 +9,18 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(dbgenerated("(gen_random_uuid())::text"))
-  name      String
-  email     String     @unique
-  password  String
-  role      String     @default("USER")
-  profileId String?
-  profile   Profile?   @relation(fields: [profileId], references: [id])
-  createdAt DateTime   @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  id           String        @id @default(dbgenerated("(gen_random_uuid())::text"))
+  name         String
+  email        String        @unique
+  password     String
+  role         String        @default("USER")
+  profileId    String?
+  avatarUrl    String?
+  emotion      String?
+  lastActivity DateTime?     @db.Timestamptz(6)
+  profile      Profile?      @relation(fields: [profileId], references: [id])
+  createdAt    DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
   auditLogs    AuditLog[]
   testRequests TestRequest[] @relation("UserTestRequests")
 }

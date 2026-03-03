@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { BackButton } from "@/components/BackButton"
 
@@ -31,12 +32,33 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
         { label: "Auditorias", href: "/sgq/auditorias", icon: "fact_check", hideForTech: true },
         { label: "Análise Crítica", href: "/sgq/analise", icon: "analytics", restrictTo: ["DIREÇÃO", "QUALIDADE"] },
         { label: "Docs e Registros", href: "/sgq/documentos", icon: "folder_open", hideForTech: true },
+        { label: "Colaboradores Online", href: "/sgq/colaboradores", icon: "diversity_3" },
         { label: "Cadastros", href: "/sgq/cadastros", icon: "group", restrictTo: ["CONTROLADOR"] },
         { label: "Logs do Sistema", href: "/sgq/logs", icon: "history", restrictTo: ["DIREÇÃO", "QUALIDADE", "CONTROLADOR"] },
     ]
 
     const userRole = session?.user?.role || ""
     const isTech = userRole === "TÉCNICO DE LABORATÓRIO" || userRole === "RESPONSÁVEL TÉCNICO"
+
+    // Heartbeat de Presença (Ping)
+    useEffect(() => {
+        if (!session?.user) return
+
+        const pingPresence = async () => {
+            try {
+                await fetch('/api/users/ping', { method: 'POST' })
+            } catch (error) {
+                console.error("Erro no ping de presença:", error)
+            }
+        }
+
+        // Ping imediato no load inicial
+        pingPresence()
+
+        // Ping a cada 1 minuto
+        const interval = setInterval(pingPresence, 60000)
+        return () => clearInterval(interval)
+    }, [session])
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex font-sans transition-colors duration-300">
