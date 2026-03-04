@@ -184,6 +184,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
         {
             title: "Sistema",
             items: [
+                { label: "Agenda", href: "/sgq/agenda", icon: "calendar_month" },
                 { label: "Colaboradores Online", href: "/sgq/colaboradores", icon: "diversity_3" },
                 { label: "Cadastros", href: "/sgq/cadastros", icon: "group", restrictTo: ["DESENVOLVEDOR"] },
                 { label: "Logs do Sistema", href: "/sgq/logs", icon: "history", restrictTo: ["DIREÇÃO", "QUALIDADE", "DESENVOLVEDOR"] },
