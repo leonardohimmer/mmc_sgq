@@ -16,6 +16,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const [expandedMenus, setExpandedMenus] = useState<string[]>([])
     const [collapsedGroups, setCollapsedGroups] = useState<string[]>([])
     const [userAvatar, setUserAvatar] = useState<string | null>(null)
+    const [userPermissions, setUserPermissions] = useState<string[]>([])
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
 
@@ -66,6 +67,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const navGroups = [
         {
             title: "Qualidade",
+            requiredPermission: "manage_quality",
             items: [
                 { label: "Dashboard", href: "/sgq", icon: "dashboard" },
                 { label: "Políticas", href: "/sgq/politicas", icon: "menu_book", hideForTech: true },
@@ -94,6 +96,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
         },
         {
             title: "Administrativo",
+            requiredPermission: "manage_financial",
             items: [
                 {
                     label: "Contas a Pagar", icon: "payments", hideForTech: true,
@@ -209,6 +212,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 if (res.ok) {
                     const data = await res.json()
                     setUserAvatar(data.avatarUrl || null)
+                    setUserPermissions(data.profile?.permissions || [])
                 }
             } catch (error) {
                 console.error("Erro ao buscar perfil:", error)
@@ -262,6 +266,13 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
                     {navGroups.map((group, groupIdx) => {
+                        // Verifica permissões atreladas ao grupo com base no profile
+                        // @ts-ignore
+                        if (group.requiredPermission && userRole !== "DESENVOLVEDOR") {
+                            // @ts-ignore
+                            if (!userPermissions.includes(group.requiredPermission)) return null;
+                        }
+
                         const visibleItems = group.items.filter(item => {
                             // @ts-ignore
                             if (item.restrictTo && !item.restrictTo.includes(userRole)) return false;
