@@ -427,11 +427,18 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     <button
                         onClick={() => signOut({ callbackUrl: "/" })}
                         title={isCollapsed ? "Sair do Sistema" : undefined}
-                        className={`flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-colors ${isCollapsed ? 'justify-center px-0 w-10 h-10' : 'w-full'}`}
+                        className={`flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-colors ${isCollapsed ? 'justify-center px-0 w-10 h-10 mb-2' : 'w-full mb-3'}`}
                     >
                         <span className="material-symbols-outlined text-[20px]">logout</span>
                         {!isCollapsed && "Sair do Sistema"}
                     </button>
+
+                    {!isCollapsed && (
+                        <div className="flex flex-col items-center justify-center text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">
+                            <span>v1.0.1</span>
+                            <span>Atualizado: 03/03/2026 23:15</span>
+                        </div>
+                    )}
                 </div>
             </aside>
 
