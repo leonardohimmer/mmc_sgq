@@ -186,7 +186,15 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
             items: [
                 { label: "Agenda", href: "/sgq/agenda", icon: "calendar_month" },
                 { label: "Colaboradores Online", href: "/sgq/colaboradores", icon: "diversity_3" },
-                { label: "Cadastros", href: "/sgq/cadastros", icon: "group", restrictTo: ["DESENVOLVEDOR"] },
+                {
+                    label: "Cadastros", icon: "group", restrictTo: ["DESENVOLVEDOR"],
+                    subItems: [
+                        { label: "Usuários e Perfis", href: "/sgq/cadastros" },
+                        { label: "Clientes", href: "/sgq/cadastros/clientes" },
+                        { label: "Fornecedores", href: "/sgq/cadastros/fornecedores" },
+                        { label: "Equipamentos", href: "/sgq/cadastros/equipamentos" }
+                    ]
+                },
                 { label: "Logs do Sistema", href: "/sgq/logs", icon: "history", restrictTo: ["DIREÇÃO", "QUALIDADE", "DESENVOLVEDOR"] },
             ]
         }
