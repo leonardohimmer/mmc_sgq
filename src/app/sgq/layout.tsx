@@ -14,8 +14,15 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [expandedMenus, setExpandedMenus] = useState<string[]>([])
+    const [collapsedGroups, setCollapsedGroups] = useState<string[]>([])
     const [userAvatar, setUserAvatar] = useState<string | null>(null)
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+
+    const toggleGroup = (title: string) => {
+        setCollapsedGroups(prev =>
+            prev.includes(title) ? prev.filter(g => g !== title) : [...prev, title]
+        )
+    }
 
     const toggleMenu = (label: string) => {
         setExpandedMenus(prev =>
@@ -47,9 +54,9 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
         {
             title: "Técnico",
             items: [
-                { label: "Meus Ensaios", href: "/sgq/meus-ensaios", icon: "science", restrictTo: ["TÉCNICO DE LABORATÓRIO", "RESPONSÁVEL TÉCNICO", "DIREÇÃO"] },
-                { label: "Execução de Ensaios", href: "/sgq/execucao-ensaios", icon: "assignment", restrictTo: ["TÉCNICO DE LABORATÓRIO", "RESPONSÁVEL TÉCNICO", "DIREÇÃO"] },
-                { label: "Aprovação", href: "/sgq/aprovacao", icon: "verified", restrictTo: ["RESPONSÁVEL TÉCNICO", "DIREÇÃO"] },
+                { label: "Meus Ensaios", href: "/sgq/meus-ensaios", icon: "science", restrictTo: ["TÉCNICO DE LABORATÓRIO", "RESPONSÁVEL TÉCNICO", "DIREÇÃO", "DESENVOLVEDOR"] },
+                { label: "Execução de Ensaios", href: "/sgq/execucao-ensaios", icon: "assignment", restrictTo: ["TÉCNICO DE LABORATÓRIO", "RESPONSÁVEL TÉCNICO", "DIREÇÃO", "DESENVOLVEDOR"] },
+                { label: "Aprovação", href: "/sgq/aprovacao", icon: "verified", restrictTo: ["RESPONSÁVEL TÉCNICO", "DIREÇÃO", "DESENVOLVEDOR"] },
             ]
         },
         {
@@ -223,7 +230,9 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
                     {navGroups.map((group, groupIdx) => {
                         const visibleItems = group.items.filter(item => {
+                            // @ts-ignore
                             if (item.restrictTo && !item.restrictTo.includes(userRole)) return false;
+                            // @ts-ignore
                             if (item.hideForTech && isTech) return false;
                             return true;
                         });
@@ -233,89 +242,102 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                         return (
                             <div key={groupIdx} className="flex flex-col space-y-1">
                                 {!isCollapsed && (
-                                    <h3 className="text-[11px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider mb-2 mt-2 px-2">
-                                        {group.title}
-                                    </h3>
+                                    <button
+                                        onClick={() => toggleGroup(group.title)}
+                                        className="flex items-center justify-between w-full px-2 mb-2 mt-2 group outline-none"
+                                        title={collapsedGroups.includes(group.title) ? "Expandir grupo" : "Recolher grupo"}
+                                    >
+                                        <h3 className="text-[11px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300">
+                                            {group.title}
+                                        </h3>
+                                        <span className={`material-symbols-outlined text-[16px] text-slate-400 dark:text-slate-500 transition-transform ${collapsedGroups.includes(group.title) ? '' : 'rotate-180'} group-hover:text-slate-600 dark:group-hover:text-slate-300`}>
+                                            expand_more
+                                        </span>
+                                    </button>
                                 )}
                                 {isCollapsed && groupIdx > 0 && <div className="h-px bg-slate-200 dark:bg-slate-800 my-2 mx-2" />}
 
-                                {visibleItems.map((item, itemIdx) => {
-                                    // @ts-ignore
-                                    const hasSubItems = item.subItems && item.subItems.length > 0;
-                                    const isActive = item.href
-                                        ? (item.href === "/sgq" ? pathname === "/sgq" : pathname.startsWith(item.href))
-                                        // @ts-ignore
-                                        : (item.subItems?.some((sub) => pathname.startsWith(sub.href || '')) || false);
+                                {(!collapsedGroups.includes(group.title) || isCollapsed) && (
+                                    <div className="flex flex-col space-y-1">                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                        {visibleItems.map((item: any, itemIdx: number) => {
+                                            // @ts-ignore
+                                            const hasSubItems = item.subItems && item.subItems.length > 0;
+                                            const isActive = item.href
+                                                ? (item.href === "/sgq" ? pathname === "/sgq" : pathname.startsWith(item.href))
+                                                // @ts-ignore
+                                                : (item.subItems?.some((sub) => pathname.startsWith(sub.href || '')) || false);
 
-                                    const isExpanded = expandedMenus.includes(item.label);
+                                            const isExpanded = expandedMenus.includes(item.label);
 
-                                    const content = (
-                                        <>
-                                            <span className={`material-symbols-outlined text-[20px] ${isActive ? "text-primary" : "text-slate-400 dark:text-slate-500"}`}>
-                                                {item.icon}
-                                            </span>
-                                            {!isCollapsed && (
-                                                <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
-                                            )}
-                                            {!isCollapsed && hasSubItems && (
-                                                <span className={`material-symbols-outlined text-[16px] text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
-                                                    expand_more
-                                                </span>
-                                            )}
-                                        </>
-                                    );
+                                            const content = (
+                                                <>
+                                                    <span className={`material-symbols-outlined text-[20px] ${isActive ? "text-primary" : "text-slate-400 dark:text-slate-500"}`}>
+                                                        {item.icon}
+                                                    </span>
+                                                    {!isCollapsed && (
+                                                        <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
+                                                    )}
+                                                    {!isCollapsed && hasSubItems && (
+                                                        <span className={`material-symbols-outlined text-[16px] text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                                                            expand_more
+                                                        </span>
+                                                    )}
+                                                </>
+                                            );
 
-                                    const itemClass = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${isActive && !hasSubItems
-                                            ? "bg-primary/10 dark:bg-primary/20 text-primary w-full"
-                                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 w-full"
-                                        } ${isCollapsed ? "justify-center px-0" : ""}`;
+                                            const itemClass = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${isActive && !hasSubItems
+                                                ? "bg-primary/10 dark:bg-primary/20 text-primary w-full"
+                                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 w-full"
+                                                } ${isCollapsed ? "justify-center px-0" : ""}`;
 
-                                    return (
-                                        <div key={itemIdx} className="flex flex-col">
-                                            {hasSubItems ? (
-                                                <button
-                                                    onClick={() => {
-                                                        if (isCollapsed) setIsCollapsed(false);
-                                                        toggleMenu(item.label);
-                                                    }}
-                                                    title={isCollapsed ? item.label : undefined}
-                                                    className={itemClass}
-                                                >
-                                                    {content}
-                                                </button>
-                                            ) : (
-                                                <Link
-                                                    href={item.href || '#'}
-                                                    title={isCollapsed ? item.label : undefined}
-                                                    className={itemClass}
-                                                >
-                                                    {content}
-                                                </Link>
-                                            )}
+                                            return (
+                                                <div key={itemIdx} className="flex flex-col">
+                                                    {hasSubItems ? (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (isCollapsed) setIsCollapsed(false);
+                                                                toggleMenu(item.label);
+                                                            }}
+                                                            title={isCollapsed ? item.label : undefined}
+                                                            className={itemClass}
+                                                        >
+                                                            {content}
+                                                        </button>
+                                                    ) : (
+                                                        <Link
+                                                            href={item.href || '#'}
+                                                            title={isCollapsed ? item.label : undefined}
+                                                            className={itemClass}
+                                                        >
+                                                            {content}
+                                                        </Link>
+                                                    )}
 
-                                            {hasSubItems && isExpanded && !isCollapsed && (
-                                                <div className="mt-1 mb-2 ml-[34px] flex flex-col space-y-1 relative before:content-[''] before:absolute before:left-[-14px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 dark:before:bg-slate-800 before:rounded-full">
-                                                    {/* @ts-ignore */}
-                                                    {item.subItems.map((subItem, subIdx) => {
-                                                        const isSubActive = pathname.startsWith(subItem.href || '');
-                                                        return (
-                                                            <Link
-                                                                key={subIdx}
-                                                                href={subItem.href || '#'}
-                                                                className={`flex items-center py-1.5 px-3 text-[13px] rounded-lg transition-colors ${isSubActive
-                                                                        ? "text-primary bg-primary/5 font-bold"
-                                                                        : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                                                                    }`}
-                                                            >
-                                                                <span className="truncate">{subItem.label}</span>
-                                                            </Link>
-                                                        )
-                                                    })}
+                                                    {hasSubItems && isExpanded && !isCollapsed && (
+                                                        <div className="mt-1 mb-2 ml-[34px] flex flex-col space-y-1 relative before:content-[''] before:absolute before:left-[-14px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 dark:before:bg-slate-800 before:rounded-full">
+                                                            {/* @ts-ignore */}
+                                                            {item.subItems.map((subItem, subIdx) => {
+                                                                const isSubActive = pathname.startsWith(subItem.href || '');
+                                                                return (
+                                                                    <Link
+                                                                        key={subIdx}
+                                                                        href={subItem.href || '#'}
+                                                                        className={`flex items-center py-1.5 px-3 text-[13px] rounded-lg transition-colors ${isSubActive
+                                                                            ? "text-primary bg-primary/5 font-bold"
+                                                                            : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                                                                            }`}
+                                                                    >
+                                                                        <span className="truncate">{subItem.label}</span>
+                                                                    </Link>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                    )
-                                })}
+                                            )
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         )
                     })}
