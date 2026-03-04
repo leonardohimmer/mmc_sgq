@@ -77,7 +77,13 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 { label: "Processos Oper.", href: "/sgq/processos", icon: "work", hideForTech: true },
                 { label: "Gestão de Riscos", href: "/sgq/riscos", icon: "gpp_maybe", hideForTech: true },
                 { label: "Indicadores", href: "/sgq/indicadores", icon: "bar_chart", hideForTech: true },
-                { label: "Fornecedores", href: "/sgq/fornecedores", icon: "local_shipping", hideForTech: true },
+                {
+                    label: "Fornecedores", icon: "local_shipping", hideForTech: true,
+                    subItems: [
+                        { label: "Lista de Fornecedores", href: "/sgq/fornecedores" },
+                        { label: "Avaliação", href: "/sgq/fornecedores/avaliacao" }
+                    ]
+                },
                 { label: "Equipamentos", href: "/sgq/equipamentos", icon: "build", hideForTech: true },
                 { label: "Não Conformidades", href: "/sgq/nc", icon: "report_problem", hideForTech: true },
                 { label: "Reclamações", href: "/sgq/reclamacoes", icon: "feedback", hideForTech: true },
