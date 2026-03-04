@@ -17,17 +17,50 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const [collapsedGroups, setCollapsedGroups] = useState<string[]>([])
     const [userAvatar, setUserAvatar] = useState<string | null>(null)
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
+
+    // Recupera o estado do localStorage quando o componente é montado no cliente
+    useEffect(() => {
+        setIsMounted(true)
+        try {
+            const savedIsCollapsed = localStorage.getItem("sgq:sidebar:isCollapsed")
+            if (savedIsCollapsed !== null) setIsCollapsed(JSON.parse(savedIsCollapsed))
+
+            const savedExpandedMenus = localStorage.getItem("sgq:sidebar:expandedMenus")
+            if (savedExpandedMenus !== null) setExpandedMenus(JSON.parse(savedExpandedMenus))
+
+            const savedCollapsedGroups = localStorage.getItem("sgq:sidebar:collapsedGroups")
+            if (savedCollapsedGroups !== null) setCollapsedGroups(JSON.parse(savedCollapsedGroups))
+        } catch (e) {
+            console.error("Failed to parse sidebar state from localStorage", e)
+        }
+    }, [])
+
+    const handleSetIsCollapsed = (value: boolean) => {
+        setIsCollapsed(value)
+        try {
+            localStorage.setItem("sgq:sidebar:isCollapsed", JSON.stringify(value))
+        } catch (e) { }
+    }
 
     const toggleGroup = (title: string) => {
-        setCollapsedGroups(prev =>
-            prev.includes(title) ? prev.filter(g => g !== title) : [...prev, title]
-        )
+        setCollapsedGroups(prev => {
+            const newState = prev.includes(title) ? prev.filter(g => g !== title) : [...prev, title]
+            try {
+                localStorage.setItem("sgq:sidebar:collapsedGroups", JSON.stringify(newState))
+            } catch (e) { }
+            return newState
+        })
     }
 
     const toggleMenu = (label: string) => {
-        setExpandedMenus(prev =>
-            prev.includes(label) ? prev.filter(m => m !== label) : [...prev, label]
-        )
+        setExpandedMenus(prev => {
+            const newState = prev.includes(label) ? prev.filter(m => m !== label) : [...prev, label]
+            try {
+                localStorage.setItem("sgq:sidebar:expandedMenus", JSON.stringify(newState))
+            } catch (e) { }
+            return newState
+        })
     }
 
     const navGroups = [
@@ -198,7 +231,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
                 {/* Botão de ocultar/abrir na borda */}
                 <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    onClick={() => handleSetIsCollapsed(!isCollapsed)}
                     className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
                     title={isCollapsed ? "Expandir Menu" : "Ocultar Menu"}
                 >
@@ -295,7 +328,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                                                     {hasSubItems ? (
                                                         <button
                                                             onClick={() => {
-                                                                if (isCollapsed) setIsCollapsed(false);
+                                                                if (isCollapsed) handleSetIsCollapsed(false);
                                                                 toggleMenu(item.label);
                                                             }}
                                                             title={isCollapsed ? item.label : undefined}
