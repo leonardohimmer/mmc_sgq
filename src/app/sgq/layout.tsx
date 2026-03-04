@@ -387,56 +387,70 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     })}
                 </nav>
 
-                <div className={`p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-tr-3xl shrink-0 transition-colors duration-300 ${isCollapsed ? 'flex flex-col items-center gap-4' : ''}`}>
-                    <div className={`flex ${isCollapsed ? 'flex-col justify-center' : 'items-center justify-between'} gap-3 px-2 py-2 mb-2 w-full`}>
-                        <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : ''}`}>
+                <div className={`p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-tr-3xl shrink-0 transition-colors duration-300 ${isCollapsed ? 'flex flex-col items-center gap-3' : ''}`}>
+                    <div className={`flex ${isCollapsed ? 'flex-col justify-center items-center gap-3' : 'items-center justify-between gap-1'} w-full`}>
+                        <div className={`flex items-center gap-2 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex-1'}`}>
                             {userAvatar ? (
-                                <img src={userAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-slate-200 dark:ring-slate-700" />
+                                <img src={userAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shrink-0 ring-2 ring-slate-200 dark:ring-slate-700" />
                             ) : (
-                                <span className="material-symbols-outlined text-[40px] text-slate-400 dark:text-slate-500 shrink-0">account_circle</span>
+                                <span className="material-symbols-outlined text-[32px] text-slate-400 dark:text-slate-500 shrink-0">account_circle</span>
                             )}
                             {!isCollapsed && (
-                                <div className="overflow-hidden flex-1 flex justify-between items-center group">
-                                    <div className="overflow-hidden pr-2">
-                                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{session?.user?.name}</p>
-                                        <p className="text-xs text-primary font-bold tracking-wide uppercase truncate">{session?.user?.role}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setIsPasswordModalOpen(true)}
-                                        className="text-slate-400 hover:text-blue-500 transition-colors shrink-0"
-                                        title="Alterar Senha"
-                                    >
-                                        <span className="material-symbols-outlined text-[20px]">key</span>
-                                    </button>
+                                <div className="overflow-hidden flex flex-col justify-center flex-1">
+                                    <p className="text-[13px] font-bold text-slate-900 dark:text-slate-100 truncate leading-tight">{session?.user?.name}</p>
+                                    <p className="text-[10px] text-primary font-bold tracking-wide uppercase truncate leading-tight">{session?.user?.role}</p>
                                 </div>
                             )}
                         </div>
-                        <div className={isCollapsed ? 'mt-2' : ''}>
-                            <ThemeToggle />
-                        </div>
+
+                        {!isCollapsed && (
+                            <div className="flex items-center gap-0.5 shrink-0">
+                                <button
+                                    onClick={() => setIsPasswordModalOpen(true)}
+                                    className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors"
+                                    title="Alterar Senha"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">key</span>
+                                </button>
+                                <div className="w-7 h-7 flex items-center justify-center scale-90">
+                                    <ThemeToggle />
+                                </div>
+                                <button
+                                    onClick={() => signOut({ callbackUrl: "/" })}
+                                    className="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors"
+                                    title="Sair do Sistema"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">logout</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
+
                     {isCollapsed && (
-                        <button
-                            onClick={() => setIsPasswordModalOpen(true)}
-                            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-blue-500 rounded-xl transition-colors"
-                            title="Alterar Senha"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">key</span>
-                        </button>
+                        <>
+                            <button
+                                onClick={() => setIsPasswordModalOpen(true)}
+                                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-blue-500 rounded-xl transition-colors"
+                                title="Alterar Senha"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">key</span>
+                            </button>
+                            <div className="w-8 h-8 flex items-center justify-center scale-90">
+                                <ThemeToggle />
+                            </div>
+                            <button
+                                onClick={() => signOut({ callbackUrl: "/" })}
+                                title="Sair do Sistema"
+                                className="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">logout</span>
+                            </button>
+                        </>
                     )}
-                    <button
-                        onClick={() => signOut({ callbackUrl: "/" })}
-                        title={isCollapsed ? "Sair do Sistema" : undefined}
-                        className={`flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-colors ${isCollapsed ? 'justify-center px-0 w-10 h-10 mb-2' : 'w-full mb-3'}`}
-                    >
-                        <span className="material-symbols-outlined text-[20px]">logout</span>
-                        {!isCollapsed && "Sair do Sistema"}
-                    </button>
 
                     {!isCollapsed && (
-                        <div className="flex flex-col items-center justify-center text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">
-                            <span>v1.0.1</span>
-                            <span>Atualizado: 03/03/2026 23:15</span>
+                        <div className="flex justify-center mt-2.5">
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v1.0.2 • Atualizado: 03/03/2026 23:30</span>
                         </div>
                     )}
                 </div>
