@@ -96,7 +96,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
             title: "Administrativo",
             items: [
                 {
-                    label: "Contas a Pagar", icon: "payments",
+                    label: "Contas a Pagar", icon: "payments", hideForTech: true,
                     subItems: [
                         { label: "Cadastro de fornecedores", href: "/sgq/admin/pagar/fornecedores" },
                         { label: "Lançamento de despesas", href: "/sgq/admin/pagar/despesas" },
@@ -108,7 +108,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     ]
                 },
                 {
-                    label: "Contas a Receber", icon: "request_quote",
+                    label: "Contas a Receber", icon: "request_quote", hideForTech: true,
                     subItems: [
                         { label: "Cadastro de clientes", href: "/sgq/admin/receber/clientes" },
                         { label: "Emissão de cobranças", href: "/sgq/admin/receber/cobrancas" },
@@ -120,7 +120,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     ]
                 },
                 {
-                    label: "Fluxo de Caixa", icon: "account_balance_wallet",
+                    label: "Fluxo de Caixa", icon: "account_balance_wallet", hideForTech: true,
                     subItems: [
                         { label: "Análise de Períodos", href: "/sgq/admin/fluxo/periodos" },
                         { label: "Entradas x Saídas", href: "/sgq/admin/fluxo/entradas-saidas" },
@@ -130,7 +130,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     ]
                 },
                 {
-                    label: "Gestão Bancária", icon: "account_balance",
+                    label: "Gestão Bancária", icon: "account_balance", hideForTech: true,
                     subItems: [
                         { label: "Contas Bancárias", href: "/sgq/admin/banco/contas" },
                         { label: "Conciliação", href: "/sgq/admin/banco/conciliacao" },
@@ -140,7 +140,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     ]
                 },
                 {
-                    label: "Centro de Custos", icon: "pie_chart",
+                    label: "Centro de Custos", icon: "pie_chart", hideForTech: true,
                     subItems: [
                         { label: "Cadastros", href: "/sgq/admin/custos/cadastros" },
                         { label: "Rateio", href: "/sgq/admin/custos/rateio" },
@@ -149,7 +149,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     ]
                 },
                 {
-                    label: "Plano de Contas", icon: "schema",
+                    label: "Plano de Contas", icon: "schema", hideForTech: true,
                     subItems: [
                         { label: "Estrutura", href: "/sgq/admin/plano-contas/estrutura" },
                         { label: "Classificação", href: "/sgq/admin/plano-contas/classificacao" },
@@ -158,7 +158,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     ]
                 },
                 {
-                    label: "Faturamento e NF", icon: "receipt_long",
+                    label: "Faturamento e NF", icon: "receipt_long", hideForTech: true,
                     subItems: [
                         { label: "Emissão de NF", href: "/sgq/admin/faturamento/emissao" },
                         { label: "Integração", href: "/sgq/admin/faturamento/integracao" },
@@ -168,7 +168,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     ]
                 },
                 {
-                    label: "Impostos e Obrigações", icon: "price_check",
+                    label: "Impostos e Obrigações", icon: "price_check", hideForTech: true,
                     subItems: [
                         { label: "Cálculo", href: "/sgq/admin/impostos/calculo" },
                         { label: "Tributos", href: "/sgq/admin/impostos/tributos" },
