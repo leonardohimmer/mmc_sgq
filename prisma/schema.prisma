@@ -111,3 +111,13 @@ model Profile {
   createdAt   DateTime @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 }
+
+model Supplier {
+  id          String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  name        String
+  qualified   Boolean  @default(true)
+  score       Float?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+}
