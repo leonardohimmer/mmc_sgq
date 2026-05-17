@@ -27,6 +27,7 @@ export async function GET(request: Request) {
                 avatarUrl: true,
                 emotion: true,
                 lastActivity: true,
+                birthDate: true,
                 profile: {
                     select: {
                         name: true

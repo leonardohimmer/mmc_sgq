@@ -8,24 +8,30 @@ async function main() {
 
     const profiles = [
         { email: 'controlador@mmc.com.br', name: 'Controlador Geral', role: 'CONTROLADOR' },
-        { email: 'direcao@mmc.com.br', name: 'Diretor', role: 'DIREÇÃO' },
+        { email: 'direcao@mmc.com.br', name: 'Diretor', role: 'DIRETOR' },
         { email: 'tecresp@mmc.com.br', name: 'Responsável Técnico', role: 'RESPONSÁVEL TÉCNICO' },
         { email: 'lab@mmc.com.br', name: 'Técnico LAB', role: 'TÉCNICO DE LABORATÓRIO' },
-        { email: 'qualidade@mmc.com.br', name: 'Gestor da Qualidade', role: 'QUALIDADE' },
-        { email: 'administrativo@mmc.com.br', name: 'Administrativo', role: 'ADMINISTRATIVO' },
+        { email: 'auxlab@mmc.com.br', name: 'Auxiliar LAB', role: 'AUXILIAR DE LABORATÓRIO' },
+        { email: 'qualidade@mmc.com.br', name: 'Assistente de Qualidade', role: 'ASSISTENTE DE QUALIDADE' },
+        { email: 'assadmin@mmc.com.br', name: 'Assistente Administrativo', role: 'ASSISTENTE ADMINISTRATIVO' },
+        { email: 'auxadmin@mmc.com.br', name: 'Auxiliar Administrativo', role: 'AUXILIAR ADMINISTRATIVO' },
         { email: 'auditor@mmc.com.br', name: 'Auditor Externo/Interno', role: 'AUDITOR INTERNO' },
         { email: 'cliente@mmc.com.br', name: 'Cliente Parceiro', role: 'CLIENTE' },
+        { email: 'projetos@mmc.com.br', name: 'Projetista', role: 'PROJETISTA' },
     ]
 
     const defaultPermissions: Record<string, string[]> = {
         'CONTROLADOR': ['manage_users', 'manage_profiles', 'view_dashboard', 'manage_requests', 'execute_tests', 'approve_requests', 'manage_quality', 'manage_financial', 'view_audits', 'view_documents', 'edit_documents'],
-        'DIREÇÃO': ['view_dashboard', 'manage_requests'],
-        'RESPONSÁVEL TÉCNICO': ['view_dashboard', 'manage_requests', 'approve_requests'],
+        'DIRETOR': ['view_dashboard', 'manage_requests'],
+        'RESPONSÁVEL TÉCNICO': ['view_dashboard', 'manage_requests', 'approve_requests', 'resp_acustica', 'resp_aderencia', 'resp_guarda_corpo'],
         'TÉCNICO DE LABORATÓRIO': ['view_dashboard', 'execute_tests'],
-        'QUALIDADE': ['view_dashboard', 'manage_quality'],
-        'ADMINISTRATIVO': ['view_dashboard', 'manage_financial'],
+        'AUXILIAR DE LABORATÓRIO': ['view_dashboard', 'execute_tests'],
+        'ASSISTENTE DE QUALIDADE': ['view_dashboard', 'manage_quality'],
+        'ASSISTENTE ADMINISTRATIVO': ['view_dashboard', 'manage_financial'],
+        'AUXILIAR ADMINISTRATIVO': ['view_dashboard', 'manage_financial'],
         'AUDITOR INTERNO': ['view_dashboard', 'view_audits'],
         'CLIENTE': ['view_own_reports'],
+        'PROJETISTA': ['view_dashboard', 'projetos_concepcao', 'projetos_calculos', 'projetos_documentacao', 'projetos_visitas'],
     }
 
     for (const profile of profiles) {

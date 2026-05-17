@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 
@@ -7,18 +8,37 @@ export default function DashboardPage() {
     const { data: session } = useSession()
 
     const userRole = session?.user?.role || ""
-    const isTech = userRole === "TÉCNICO DE LABORATÓRIO" || userRole === "RESPONSÁVEL TÉCNICO"
+    const userRoles = userRole.split(",").map(r => r.trim())
+    const isTech = userRoles.includes("TÉCNICO DE LABORATÓRIO") || userRoles.includes("RESPONSÁVEL TÉCNICO")
+
+    const [equipments, setEquipments] = useState<any[]>([])
+    const [loadingEq, setLoadingEq] = useState(true)
+
+    useEffect(() => {
+        fetch("/api/equipamentos")
+            .then(res => res.json())
+            .then(data => setEquipments(data))
+            .catch(console.error)
+            .finally(() => setLoadingEq(false))
+    }, [])
+
+    const expiredCount = equipments.filter((eq: any) => {
+        if (!eq.nextCalibrationDate) return false
+        const nextDate = new Date(eq.nextCalibrationDate)
+        const today = new Date()
+        const diffTime = nextDate.getTime() - today.getTime()
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        return diffDays <= 30
+    }).length
 
     if (isTech) {
         return (
             <div className="space-y-8 font-sans transition-colors duration-300">
                 <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center text-3xl shadow-sm">
-                            👨‍🔬
-                        </div>
+
                         <div>
-                            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 transition-colors">Painel Técnico</h1>
+                            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 transition-colors">Painel de controle Técnico</h1>
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium transition-colors">Olá, {session?.user?.name || "Técnico"}. Resumo das suas atividades laboratoriais.</p>
                         </div>
                     </div>
@@ -65,13 +85,13 @@ export default function DashboardPage() {
                     />
                     <StatCard
                         title="Alertas / Atrasos"
-                        value="01"
+                        value={expiredCount.toString().padStart(2, '0')}
                         icon="notification_important"
                         iconColor="text-red-600 dark:text-red-400"
                         iconBg="bg-red-100 dark:bg-red-500/10"
-                        trend="Aferição Vencida"
-                        trendIcon="build"
-                        trendColor="text-red-500 dark:text-red-400"
+                        trend={expiredCount > 0 ? "Revisão Necessária" : "Tudo em dia"}
+                        trendIcon={expiredCount > 0 ? "warning" : "check_circle"}
+                        trendColor={expiredCount > 0 ? "text-red-500" : "text-emerald-500"}
                     />
                 </div>
 
@@ -147,7 +167,7 @@ export default function DashboardPage() {
         <div className="space-y-8 font-sans transition-colors duration-300">
             <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 transition-colors">Visão Geral do Painel</h1>
+                    <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 transition-colors">Visão Geral do Painel de controle</h1>
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium transition-colors">Bem-vindo de volta, {session?.user?.name || "Usuário"}. Visão geral do Sistema de Gestão da Qualidade MML LAB.</p>
                 </div>
                 <div className="flex gap-3">
@@ -203,7 +223,7 @@ export default function DashboardPage() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
                     <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
                         <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -237,6 +257,14 @@ export default function DashboardPage() {
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
                     <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
                         <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>
+                        Gestão de Equipamentos
+                    </h2>
+                    <EquipmentAlerts data={equipments} loading={loadingEq} />
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
+                    <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                         Atenção Requerida (Ações)
                     </h2>
                     <div className="space-y-4">
@@ -255,6 +283,62 @@ export default function DashboardPage() {
         </div>
     )
 }
+
+function EquipmentAlerts({ data, loading }: { data: any[], loading: boolean }) {
+    const alerts = data.filter((eq: any) => {
+        if (eq.status === 'DANIFICADO') return false
+        if (!eq.nextCalibrationDate) return false
+        const nextDate = new Date(eq.nextCalibrationDate)
+        const today = new Date()
+        const diffTime = nextDate.getTime() - today.getTime()
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        return diffDays <= 30
+    })
+
+    if (loading) return <div className="animate-pulse space-y-3"><div className="h-20 bg-slate-100 dark:bg-slate-800 rounded-xl"></div></div>
+
+    if (alerts.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                <span className="material-symbols-outlined text-4xl mb-2 opacity-20">check_circle</span>
+                <p className="text-xs font-bold uppercase tracking-widest">Tudo em dia</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="space-y-3">
+            {alerts.slice(0, 3).map((eq: any) => {
+                const nextDate = new Date(eq.nextCalibrationDate);
+                const today = new Date();
+                const diffTime = nextDate.getTime() - today.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const isExpired = diffDays <= 0;
+
+                return (
+                    <div key={eq.id} className={`p-4 rounded-xl border flex items-start gap-3 ${isExpired ? 'bg-rose-50 border-rose-100 dark:bg-rose-500/5 dark:border-rose-500/20' : 'bg-amber-50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20'}`}>
+                        <span className={`material-symbols-outlined shrink-0 ${isExpired ? 'text-rose-500' : 'text-amber-500'}`}>
+                            {isExpired ? 'error' : 'warning'}
+                        </span>
+                        <div>
+                            <p className="font-bold text-sm text-slate-700 dark:text-slate-300 mb-0.5">{eq.code} - {eq.name}</p>
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold mb-1 uppercase tracking-tight">{eq.testType || "Ensaio N/D"}</p>
+                            <p className={`text-[10px] font-black uppercase tracking-tight ${isExpired ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                {isExpired ? `VENCIDO HÁ ${Math.abs(diffDays)} DIAS` : `VENCE EM ${diffDays} DIAS`}
+                            </p>
+                        </div>
+                    </div>
+                )
+            })}
+            {alerts.length > 3 && (
+                <Link href="/sgq/equipamentos" className="block text-center text-[10px] font-black text-primary uppercase tracking-widest hover:underline pt-2">
+                    Ver mais {alerts.length - 3} alertas
+                </Link>
+            )}
+        </div>
+    )
+}
+
 
 function StatCard({ title, value, icon, iconColor, iconBg, trend, trendIcon, trendColor }: { title: string, value: string, icon: string, iconColor: string, iconBg: string, trend: string, trendIcon: string, trendColor: string }) {
     return (

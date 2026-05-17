@@ -11,7 +11,15 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
         }
 
+        const url = new URL(request.url)
+        const roleQuery = url.searchParams.get('role')
+
+        const whereClause = roleQuery
+            ? { role: roleQuery }
+            : { role: { not: 'CLIENTE' } }
+
         const users = await prisma.user.findMany({
+            where: whereClause,
             include: {
                 profile: true
             },
@@ -41,10 +49,14 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json()
-        const { name, email, password, role, profileId, company } = body
+        const { name, email, password, role, profileId, company, whatsapp, birthDate, permissions } = body
 
         if (!name || !email || !password || !role) {
             return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })
+        }
+
+        if (password.length < 6) {
+            return NextResponse.json({ error: 'A senha deve ter no mínimo 6 caracteres.' }, { status: 400 })
         }
 
         const existingUser = await prisma.user.findUnique({
@@ -60,10 +72,23 @@ export async function POST(request: Request) {
         // Find profile implicitly by role if profileId is not provided
         let targetProfileId = profileId
         if (!targetProfileId) {
-            const profile = await prisma.profile.findUnique({ where: { name: role } })
+            const firstRole = role.split(',')[0].trim()
+            const profile = await prisma.profile.findUnique({ where: { name: firstRole } })
             if (profile) {
                 targetProfileId = profile.id
             }
+        }
+
+        // Buscar todos os perfis para calcular as permissões combinadas
+        const allProfiles = await prisma.profile.findMany()
+        const profileMap = new Map(allProfiles.map(p => [p.name, p.permissions]))
+        
+        const userRoles = (role || '').split(',').map((r: string) => r.trim()).filter((r: string) => r)
+        const combinedPermissions = new Set<string>()
+        
+        for (const roleName of userRoles) {
+            const rolePerms = profileMap.get(roleName) || []
+            rolePerms.forEach(p => combinedPermissions.add(p))
         }
 
         const user = await prisma.user.create({
@@ -73,9 +98,13 @@ export async function POST(request: Request) {
                 password: hashedPassword,
                 role,
                 profileId: targetProfileId,
-                company
+                company,
+                whatsapp,
+                birthDate: birthDate ? new Date(birthDate) : null,
+                permissions: Array.from(combinedPermissions)
             }
         })
+
 
         const { password: _, ...safeUser } = user
         return NextResponse.json(safeUser, { status: 201 })

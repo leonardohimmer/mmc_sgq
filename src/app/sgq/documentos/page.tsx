@@ -27,7 +27,8 @@ export default function DocumentosPage() {
             .catch(() => setLoading(false))
     }, [])
 
-    const isAdminOrAuditor = session?.user?.role === "ADMIN" || session?.user?.role === "AUDITOR"
+    const userRoles = (session?.user?.role || "").split(",").map(r => r.trim())
+    const isAdminOrAuditor = userRoles.includes("ADMIN") || userRoles.includes("AUDITOR") || userRoles.includes("DESENVOLVEDOR")
 
     return (
         <div className="space-y-6 font-sans">

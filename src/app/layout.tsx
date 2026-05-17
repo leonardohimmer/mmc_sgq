@@ -14,6 +14,16 @@ export const metadata: Metadata = {
   description: "Sistema de Gestão da Qualidade e Controle Documental.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+import { Toaster } from "sonner";
+import ClickTracker from "@/components/ClickTracker";
+import ScrollToTop from "@/components/ScrollToTop";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,8 +41,11 @@ export default function RootLayout({
         className={`${jakartaSans.variable} font-sans antialiased bg-background-light dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300`}
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          <Toaster richColors closeButton position="top-right" />
           <AuthProvider>
+            <ClickTracker />
             {children}
+            <ScrollToTop />
           </AuthProvider>
         </ThemeProvider>
       </body>

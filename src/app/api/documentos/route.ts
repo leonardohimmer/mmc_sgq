@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions)
-    const allowedRoles = ["ADMIN", "DIREÇÃO", "RESPONSÁVEL TÉCNICO", "QUALIDADE"]
+    const allowedRoles = ["ADMIN", "DIRETOR", "RESPONSÁVEL TÉCNICO", "QUALIDADE"]
 
     if (!session?.user || !allowedRoles.includes(session.user.role)) {
         return NextResponse.json({ error: "Acesso negado" }, { status: 403 })

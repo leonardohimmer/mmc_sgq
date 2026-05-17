@@ -10,20 +10,33 @@ export async function PUT(
 ) {
     try {
         const session = await getServerSession(authOptions)
-        if (!session?.user || session.user.role !== 'DESENVOLVEDOR') {
+        if (!session?.user || (!session.user.role.includes('DESENVOLVEDOR') && !session.user.role.includes('DIRETOR'))) {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
         }
 
         const { id } = await params
         const body = await request.json()
-        const { name, email, role, profileId, password, company } = body
+        const { name, email, role, profileId, password, company, whatsapp, birthDate, permissions } = body
 
         let targetProfileId = profileId
         if (role && !targetProfileId) {
-            const profile = await prisma.profile.findUnique({ where: { name: role } })
+            const firstRole = role.split(',')[0].trim()
+            const profile = await prisma.profile.findUnique({ where: { name: firstRole } })
             if (profile) {
                 targetProfileId = profile.id
             }
+        }
+
+        // Buscar todos os perfis para calcular as permissões combinadas
+        const allProfiles = await prisma.profile.findMany()
+        const profileMap = new Map(allProfiles.map(p => [p.name, p.permissions]))
+        
+        const userRoles = (role || '').split(',').map((r: string) => r.trim()).filter((r: string) => r)
+        const combinedPermissions = new Set<string>()
+        
+        for (const roleName of userRoles) {
+            const rolePerms = profileMap.get(roleName) || []
+            rolePerms.forEach(p => combinedPermissions.add(p))
         }
 
         const updateData: any = {
@@ -31,8 +44,12 @@ export async function PUT(
             email,
             role,
             profileId: targetProfileId,
-            company
+            company,
+            whatsapp,
+            birthDate: birthDate ? new Date(birthDate) : null,
+            permissions: permissions || Array.from(combinedPermissions)
         }
+
 
         // Only update password if provided
         if (password) {

@@ -1,8 +1,12 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { toast } from "sonner"
+import SuccessModal from "@/components/SuccessModal"
+import { Suspense, useState, useEffect } from "react"
 import { format } from "date-fns"
+import { useSearchParams } from "next/navigation"
+import { getCountdownMessage } from "@/lib/dateUtils"
 
 type TestRequest = {
     id: string
@@ -21,6 +25,8 @@ type TestRequest = {
     assignedToId: string | null
     assignedTo: { name: string, email: string } | null
     createdAt: string
+    updatedAt: string
+    performedAt?: string | null
     appliedStandard?: string | null
     measuredData?: string | null
     result?: string | null
@@ -30,12 +36,16 @@ type TestRequest = {
     isSigned?: boolean
 }
 
-export default function AprovacaoEnsaiosPage() {
+function AprovacaoContent() {
     const { data: session } = useSession()
+    const searchParams = useSearchParams()
+    const area = searchParams.get('area')
+    
     const [requests, setRequests] = useState<TestRequest[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedRequest, setSelectedRequest] = useState<TestRequest | null>(null)
     const [saving, setSaving] = useState(false)
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
 
     // Form states
     const [reportNumber, setReportNumber] = useState("")
@@ -44,16 +54,64 @@ export default function AprovacaoEnsaiosPage() {
 
     useEffect(() => {
         fetchRequests()
-    }, [])
+    }, [area])
 
     const fetchRequests = async () => {
+        setLoading(true)
         try {
-            const res = await fetch('/api/solicitacoes')
-            if (res.ok) {
+            const [res, profileRes] = await Promise.all([
+                fetch('/api/solicitacoes'),
+                fetch('/api/users/profile')
+            ])
+
+            if (res.ok && profileRes.ok) {
                 const data = await res.json()
-                // Only show those AGUARDANDO_APROVACAO
-                const execRequests = data.filter((req: TestRequest) => req.status === 'AGUARDANDO_APROVACAO')
-                setRequests(execRequests)
+                const profileData = await profileRes.json()
+                const userPermissions = profileData.profile?.permissions || []
+                const userRoles = (profileData.role || "").toUpperCase().split(',').map((r: string) => r.trim())
+                
+                const isDesenvolvedor = userRoles.includes("DESENVOLVEDOR")
+                const isDiretor = userRoles.includes("DIRETOR")
+                const isResponsavelTecnico = userRoles.includes("RESPONSÁVEL TÉCNICO") || userRoles.includes("RESPONSAVEL TECNICO")
+
+                // Filter by status and area
+                const filtered = data.filter((req: TestRequest) => {
+                    if (req.status !== 'AGUARDANDO_APROVACAO') return false
+                    
+                    const typeNormal = req.type.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    
+                    // 1. Filtro por Área da URL (se houver)
+                    if (area) {
+                        if (area === 'acustica' && !typeNormal.includes('acustica')) return false
+                        if (area === 'aderencia' && !typeNormal.includes('aderencia')) return false
+                        if (area === 'guarda-corpo' && !typeNormal.includes('guarda-corpo')) return false
+                        if (area === 'luminico' && !typeNormal.includes('luminico')) return false
+                        if (area === 'percussao' && !typeNormal.includes('percussao')) return false
+                        if (area === 'impermeabilizacao' && !typeNormal.includes('impermeabilizacao')) return false
+                    }
+                    
+                    // 2. Filtro de permissão do Responsável Técnico
+                    // Diretores e Desenvolvedores veem tudo
+                    if (isResponsavelTecnico && !isDesenvolvedor && !isDiretor) {
+                        const hasAcustica = userPermissions.includes('resp_acustica')
+                        const hasAderencia = userPermissions.includes('resp_aderencia')
+                        const hasGuardaCorpo = userPermissions.includes('resp_guarda_corpo')
+                        const hasLuminico = userPermissions.includes('resp_luminico')
+                        const hasPercussao = userPermissions.includes('resp_percussao')
+                        const hasImpermeabilizacao = userPermissions.includes('resp_impermeabilizacao')
+
+                        // Se o tipo do ensaio corresponde a uma área que ele NÃO tem permissão, filtra fora
+                        if (typeNormal.includes('acustica') && !hasAcustica) return false
+                        if (typeNormal.includes('aderencia') && !hasAderencia) return false
+                        if (typeNormal.includes('guarda-corpo') && !hasGuardaCorpo) return false
+                        if (typeNormal.includes('luminico') && !hasLuminico) return false
+                        if (typeNormal.includes('percussao') && !hasPercussao) return false
+                        if (typeNormal.includes('impermeabilizacao') && !hasImpermeabilizacao) return false
+                    }
+                    
+                    return true
+                })
+                setRequests(filtered)
             }
         } catch (error) {
             console.error("Erro ao carregar solicitações", error)
@@ -81,7 +139,7 @@ export default function AprovacaoEnsaiosPage() {
             }
 
             if (isApprove) {
-                bodyData.status = 'FINALIZADO'
+                bodyData.status = 'COBRANCA'
             }
 
             const res = await fetch(`/api/solicitacoes/${selectedRequest.id}`, {
@@ -94,19 +152,20 @@ export default function AprovacaoEnsaiosPage() {
                 const { request } = await res.json()
 
                 // Update local list
+
                 if (isApprove) {
                     setRequests(prev => prev.filter(r => r.id !== request.id))
                     setSelectedRequest(null)
+                    setIsSuccessModalOpen(true)
                 } else {
                     setRequests(prev => prev.map(r => r.id === request.id ? request : r))
                     setSelectedRequest(request)
+                    toast.success("Salvo com sucesso!")
                 }
-
-                alert(isApprove ? "Ensaio Aprovado e Finalizado com sucesso!" : "Salvo com sucesso!")
             }
         } catch (error) {
             console.error("Erro ao aprovar execução", error)
-            alert("Erro ao salvar os dados.")
+            toast.error("Erro ao salvar os dados.")
         } finally {
             setSaving(false)
         }
@@ -123,9 +182,9 @@ export default function AprovacaoEnsaiosPage() {
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div>
-                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Aprovação de Ensaios</h1>
+                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Envio do relatório</h1>
                 <p className="text-slate-500 dark:text-slate-400 mt-2">
-                    Revise os dados medidos, anexe o PDF do relatório e aprove os ensaios finalizados pelos técnicos.
+                    Revise os dados medidos, anexe o PDF do relatório e envie para o cliente. Após o envio, o processo seguirá para a Cobrança.
                 </p>
             </div>
 
@@ -147,9 +206,20 @@ export default function AprovacaoEnsaiosPage() {
                                     className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedRequest?.id === req.id ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'}`}
                                 >
                                     <div className="flex justify-between items-start mb-2">
-                                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">
-                                            Aguardando Aprovação
-                                        </span>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300 w-fit">
+                                                Aguardando Aprovação
+                                            </span>
+                                            {(() => {
+                                                const countdown = getCountdownMessage(req.performedAt || req.updatedAt);
+                                                return (
+                                                    <span className={`text-[10px] font-medium flex items-center gap-1 ${countdown.color}`}>
+                                                        <span className="material-symbols-outlined text-[12px]">timer</span>
+                                                        {countdown.message}
+                                                    </span>
+                                                );
+                                            })()}
+                                        </div>
                                         <span className="text-xs text-slate-400">
                                             {format(new Date(req.createdAt), 'dd/MM/yyyy')}
                                         </span>
@@ -215,18 +285,38 @@ export default function AprovacaoEnsaiosPage() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Link / URL do PDF do Relatório</label>
+                                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Anexar Relatório (PDF)</label>
                                         <input
-                                            type="url"
-                                            value={reportPdfUrl}
-                                            onChange={(e) => setReportPdfUrl(e.target.value)}
-                                            placeholder="https://drive.google.com/... ou link do SharePoint"
-                                            className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-slate-400"
+                                            type="file"
+                                            accept="application/pdf"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setReportPdfUrl(reader.result as string);
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                } else {
+                                                    setReportPdfUrl("");
+                                                }
+                                            }}
+                                            className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                                         />
+                                        {reportPdfUrl && !reportPdfUrl.startsWith('http') && (
+                                            <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-bold mt-2">
+                                                <span className="material-symbols-outlined text-[14px]">check_circle</span> Arquivo carregado com sucesso
+                                            </p>
+                                        )}
+                                        {reportPdfUrl && reportPdfUrl.startsWith('http') && (
+                                            <p className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 font-bold mt-2">
+                                                <span className="material-symbols-outlined text-[14px]">link</span> Relatório anterior via link anexado
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
-                                <div className="pt-4 flex items-center">
+                                <div className="pt-4 flex flex-col gap-4">
                                     <label className="relative flex items-center cursor-pointer gap-3">
                                         <input
                                             type="checkbox"
@@ -237,6 +327,13 @@ export default function AprovacaoEnsaiosPage() {
                                         <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-500"></div>
                                         <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Assinar Documento Digitalmente (Responsável Técnico)</span>
                                     </label>
+
+                                    <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
+                                        <span className="material-symbols-outlined text-blue-500 mt-0.5 text-[20px]">info</span>
+                                        <p className="text-sm text-blue-700 dark:text-blue-300 font-medium leading-snug">
+                                            Ao enviar o relatório, o processo será movido para a etapa de Cobrança no setor técnico.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -275,6 +372,26 @@ export default function AprovacaoEnsaiosPage() {
                     )}
                 </div>
             </div>
+
+            <SuccessModal 
+                isOpen={isSuccessModalOpen}
+                onClose={() => setIsSuccessModalOpen(false)}
+                title="Relatório enviado com sucesso!"
+                message="O processo foi movido para a etapa de Cobrança no setor técnico."
+            />
         </div>
     )
 }
+
+export default function AprovacaoEnsaiosPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+                <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
+            </div>
+        }>
+            <AprovacaoContent />
+        </Suspense>
+    )
+}
+

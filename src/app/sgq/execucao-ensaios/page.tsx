@@ -1,5 +1,7 @@
 "use client"
 
+import { toast } from "sonner"
+import SuccessModal from "@/components/SuccessModal"
 import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
@@ -26,6 +28,8 @@ type TestRequest = {
     measuredData?: string | null
     result?: string | null
     technicalObservations?: string | null
+    updatedAt: string
+    performedAt?: string | null
 }
 
 export default function ExecucaoEnsaiosPage() {
@@ -34,11 +38,12 @@ export default function ExecucaoEnsaiosPage() {
     const [loading, setLoading] = useState(true)
     const [selectedRequest, setSelectedRequest] = useState<TestRequest | null>(null)
     const [saving, setSaving] = useState(false)
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
 
     // Form states
-    const [appliedStandard, setAppliedStandard] = useState("")
-    const [measuredData, setMeasuredData] = useState("")
-    const [result, setResult] = useState("")
+    const [checkPlanilha, setCheckPlanilha] = useState(false)
+    const [checkFotos, setCheckFotos] = useState(false)
+    const [checkFinalizado, setCheckFinalizado] = useState(false)
     const [technicalObservations, setTechnicalObservations] = useState("")
 
     useEffect(() => {
@@ -63,9 +68,9 @@ export default function ExecucaoEnsaiosPage() {
 
     const handleSelectRequest = (req: TestRequest) => {
         setSelectedRequest(req)
-        setAppliedStandard(req.appliedStandard || "")
-        setMeasuredData(req.measuredData || "")
-        setResult(req.result || "")
+        setCheckPlanilha(false)
+        setCheckFotos(false)
+        setCheckFinalizado(false)
         setTechnicalObservations(req.technicalObservations || "")
     }
 
@@ -75,15 +80,12 @@ export default function ExecucaoEnsaiosPage() {
         setSaving(true)
         try {
             const bodyData: any = {
-                appliedStandard,
-                measuredData,
-                result,
                 technicalObservations
             }
 
             if (isSubmitForApproval) {
-                // If it's submitted for approval, let's say it moves to "AGUARDANDO_APROVACAO"
-                bodyData.status = 'AGUARDANDO_APROVACAO'
+                bodyData.status = 'ELABORANDO_RELATORIO'
+                bodyData.performedAt = new Date().toISOString()
             }
 
             const res = await fetch(`/api/solicitacoes/${selectedRequest.id}`, {
@@ -95,20 +97,20 @@ export default function ExecucaoEnsaiosPage() {
             if (res.ok) {
                 const { request } = await res.json()
 
-                // Update local list
+
                 if (isSubmitForApproval) {
                     setRequests(prev => prev.filter(r => r.id !== request.id))
                     setSelectedRequest(null)
+                    setIsSuccessModalOpen(true)
                 } else {
                     setRequests(prev => prev.map(r => r.id === request.id ? request : r))
                     setSelectedRequest(request)
+                    toast.success("Salvo com sucesso!")
                 }
-
-                alert(isSubmitForApproval ? "Enviado para aprovação com sucesso!" : "Salvo com sucesso!")
             }
         } catch (error) {
             console.error("Erro ao salvar execução", error)
-            alert("Erro ao salvar os dados.")
+            toast.error("Erro ao salvar os dados.")
         } finally {
             setSaving(false)
         }
@@ -127,7 +129,7 @@ export default function ExecucaoEnsaiosPage() {
             <div>
                 <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Execução de Ensaios</h1>
                 <p className="text-slate-500 dark:text-slate-400 mt-2">
-                    Preencha os dados técnicos e resultados dos ensaios em andamento.
+                    Confirme as etapas do ensaio e envie para aprovação.
                 </p>
             </div>
 
@@ -176,7 +178,7 @@ export default function ExecucaoEnsaiosPage() {
                                     <span className="text-sm font-normal text-slate-500">ID: {selectedRequest.id.substring(0, 8)}...</span>
                                 </h2>
                                 <p className="text-sm text-slate-500 mt-1">
-                                    Preencha detalhadamente os dados coletados abaixo.
+                                    Confirme os checkpoints abaixo antes de enviar para aprovação.
                                 </p>
                             </div>
 
@@ -191,41 +193,51 @@ export default function ExecucaoEnsaiosPage() {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Norma Aplicada</label>
-                                    <input
-                                        type="text"
-                                        value={appliedStandard}
-                                        onChange={(e) => setAppliedStandard(e.target.value)}
-                                        placeholder="Ex: NBR 15575-4"
-                                        className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
-                                    />
-                                </div>
+                                {/* Checkpoints */}
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Checklist de Execução</label>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Dados Medidos / Resultados Numéricos</label>
-                                    <textarea
-                                        rows={4}
-                                        value={measuredData}
-                                        onChange={(e) => setMeasuredData(e.target.value)}
-                                        placeholder="Preencha os dados brutos ou medições obtidas..."
-                                        className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400 resize-none"
-                                    />
-                                </div>
+                                    <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${checkPlanilha ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/30'}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={checkPlanilha}
+                                            onChange={(e) => setCheckPlanilha(e.target.checked)}
+                                            className="w-5 h-5 text-emerald-600 rounded bg-emerald-100 border-emerald-300 focus:ring-emerald-500 focus:ring-2"
+                                        />
+                                        <div>
+                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Planilha preenchida?</span>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">A planilha de dados do ensaio foi totalmente preenchida.</p>
+                                        </div>
+                                        {checkPlanilha && <span className="material-symbols-outlined text-emerald-500 ml-auto">check_circle</span>}
+                                    </label>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Resultado da Avaliação</label>
-                                    <select
-                                        value={result}
-                                        onChange={(e) => setResult(e.target.value)}
-                                        className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                    >
-                                        <option value="" disabled>Selecione um resultado...</option>
-                                        <option value="Aprovado">Aprovado</option>
-                                        <option value="Reprovado">Reprovado</option>
-                                        <option value="Inconclusivo">Inconclusivo</option>
-                                        <option value="Aprovado com Restrições">Aprovado com Restrições</option>
-                                    </select>
+                                    <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${checkFotos ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/30'}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={checkFotos}
+                                            onChange={(e) => setCheckFotos(e.target.checked)}
+                                            className="w-5 h-5 text-emerald-600 rounded bg-emerald-100 border-emerald-300 focus:ring-emerald-500 focus:ring-2"
+                                        />
+                                        <div>
+                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Fotos registradas?</span>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">As fotos do ensaio foram tiradas e organizadas.</p>
+                                        </div>
+                                        {checkFotos && <span className="material-symbols-outlined text-emerald-500 ml-auto">check_circle</span>}
+                                    </label>
+
+                                    <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${checkFinalizado ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/10' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/30'}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={checkFinalizado}
+                                            onChange={(e) => setCheckFinalizado(e.target.checked)}
+                                            className="w-5 h-5 text-emerald-600 rounded bg-emerald-100 border-emerald-300 focus:ring-emerald-500 focus:ring-2"
+                                        />
+                                        <div>
+                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Ensaio finalizado?</span>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">Todas as medições e coletas foram concluídas.</p>
+                                        </div>
+                                        {checkFinalizado && <span className="material-symbols-outlined text-emerald-500 ml-auto">check_circle</span>}
+                                    </label>
                                 </div>
 
                                 <div className="space-y-2">
@@ -250,7 +262,7 @@ export default function ExecucaoEnsaiosPage() {
                                 </button>
                                 <button
                                     onClick={() => handleSave(true)}
-                                    disabled={saving || !result || !appliedStandard}
+                                    disabled={saving || !checkPlanilha || !checkFotos || !checkFinalizado}
                                     className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold transition-all disabled:opacity-50 shadow-sm flex items-center gap-2"
                                 >
                                     {saving ? (
@@ -258,7 +270,7 @@ export default function ExecucaoEnsaiosPage() {
                                     ) : (
                                         <span className="material-symbols-outlined">send</span>
                                     )}
-                                    Enviar para Aprovação
+                                    Avançar para Elaboração do Relatório
                                 </button>
                             </div>
                         </div>
@@ -275,6 +287,13 @@ export default function ExecucaoEnsaiosPage() {
                     )}
                 </div>
             </div>
+
+            <SuccessModal 
+                isOpen={isSuccessModalOpen}
+                onClose={() => setIsSuccessModalOpen(false)}
+                title="Enviado com sucesso!"
+                message="A solicitação foi movida para a etapa de Elaboração do Relatório."
+            />
         </div>
     )
 }

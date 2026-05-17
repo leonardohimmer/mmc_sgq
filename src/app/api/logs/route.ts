@@ -5,10 +5,10 @@ import prisma from "@/lib/prisma"
 
 export async function GET() {
     const session = await getServerSession(authOptions)
-    const allowedRoles = ["ADMIN", "DIREÇÃO", "QUALIDADE"]
+    const allowedRoles = ["ADMIN", "DIRETOR", "QUALIDADE"]
 
-    if (!session?.user || !allowedRoles.includes(session.user.role)) {
-        return NextResponse.json({ error: "Acesso negado. Apenas Direção e Qualidade podem ver logs." }, { status: 403 })
+    if (!session?.user || (!allowedRoles.includes(session.user.role) && session.user.role !== "DESENVOLVEDOR")) {
+        return NextResponse.json({ error: "Acesso negado. Apenas Diretor e Qualidade podem ver logs." }, { status: 403 })
     }
 
     const logs = await prisma.auditLog.findMany({

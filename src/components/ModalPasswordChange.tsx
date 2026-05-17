@@ -14,6 +14,10 @@ export function ModalPasswordChange({ isOpen, onClose }: ModalPasswordChangeProp
     const [success, setSuccess] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
     if (!isOpen) return null
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -94,40 +98,73 @@ export function ModalPasswordChange({ isOpen, onClose }: ModalPasswordChangeProp
 
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Senha Atual</label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={currentPassword}
-                                    onChange={(e) => setCurrentPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200 transition-all font-mono"
-                                    placeholder="••••••••"
-                                />
+                                <div className="relative group">
+                                    <input
+                                        type={showCurrentPassword ? "text" : "password"}
+                                        required
+                                        value={currentPassword}
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        className="w-full pl-4 pr-11 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200 transition-all font-mono"
+                                        placeholder="••••••••"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">
+                                            {showCurrentPassword ? "visibility_off" : "visibility"}
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Nova Senha</label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200 transition-all font-mono"
-                                    placeholder="Mínimo 6 caracteres"
-                                    minLength={6}
-                                />
+                                <div className="relative group">
+                                    <input
+                                        type={showNewPassword ? "text" : "password"}
+                                        required
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        className="w-full pl-4 pr-11 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200 transition-all font-mono"
+                                        placeholder="Mínimo 6 caracteres"
+                                        minLength={6}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">
+                                            {showNewPassword ? "visibility_off" : "visibility"}
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Confirmar Nova Senha</label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200 transition-all font-mono"
-                                    placeholder="Repita a nova senha"
-                                    minLength={6}
-                                />
+                                <div className="relative group">
+                                    <input
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        required
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="w-full pl-4 pr-11 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200 transition-all font-mono"
+                                        placeholder="Repita a nova senha"
+                                        minLength={6}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">
+                                            {showConfirmPassword ? "visibility_off" : "visibility"}
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="pt-2 flex gap-3">

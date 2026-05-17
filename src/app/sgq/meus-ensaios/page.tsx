@@ -22,6 +22,7 @@ type TestRequest = {
     assignedToId: string | null
     assignedTo: { name: string, email: string } | null
     createdAt: string
+    step?: number
 }
 
 type TechUser = {
@@ -74,6 +75,26 @@ export default function MeusEnsaiosPage() {
             }
         } catch (error) {
             console.error("Erro ao atualizar status", error)
+        } finally {
+            setUpdatingId(null)
+        }
+    }
+
+    const handleUpdateStep = async (id: string, newStep: number) => {
+        setUpdatingId(id)
+        try {
+            const res = await fetch(`/api/solicitacoes/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: newStep })
+            })
+
+            if (res.ok) {
+                const { request } = await res.json()
+                setRequests(prev => prev.map(req => req.id === id ? request : req))
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar etapa", error)
         } finally {
             setUpdatingId(null)
         }
@@ -237,24 +258,7 @@ export default function MeusEnsaiosPage() {
                                 {/* Ações / Controles */}
                                 <div className="flex flex-col sm:flex-row xl:flex-col gap-4 min-w-[280px]">
 
-                                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Responsável Técnico</label>
-                                        <div className="relative">
-                                            <select
-                                                value={req.assignedToId || ""}
-                                                onChange={(e) => handleAssignUser(req.id, e.target.value)}
-                                                className="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 py-2.5 pl-3 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                            >
-                                                <option value="">Não atribuído</option>
-                                                {techUsers.map(u => (
-                                                    <option key={u.id} value={u.id}>{u.name}</option>
-                                                ))}
-                                            </select>
-                                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[18px]">expand_more</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                                    {/* Responsável Técnico seleciton removed as requested */}                                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                                         <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Alterar Status</label>
                                         <div className="flex gap-2">
                                             <button
@@ -275,6 +279,15 @@ export default function MeusEnsaiosPage() {
                                     </div>
 
                                 </div>
+                            </div>
+
+                            {/* Process Timeline */}
+                            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[16px]">linear_scale</span>
+                                    Fluxograma de Processo de Ensaio
+                                </h4>
+                                <ProcessTimeline currentStep={req.step || 1} onChange={(newStep) => handleUpdateStep(req.id, newStep)} />
                             </div>
                         </div>
                     ))}
@@ -351,6 +364,59 @@ function HistoryModal({ requestId, onClose, getStatusBadge }: { requestId: strin
                         </div>
                     )}
                 </div>
+            </div>
+        </div>
+    )
+}
+
+function ProcessTimeline({ currentStep, onChange }: { currentStep: number, onChange: (step: number) => void }) {
+    const stepsData = [
+        { id: 1, label: "Solicitação do Cliente", icon: "mark_email_unread", color: "bg-blue-500", text: "text-blue-700 dark:text-blue-300", bgLight: "bg-blue-50 dark:bg-blue-900/20", border: "border-blue-200 dark:border-blue-800" },
+        { id: 2, label: "Envio da Proposta", icon: "send_and_archive", color: "bg-amber-500", text: "text-amber-700 dark:text-amber-300", bgLight: "bg-amber-50 dark:bg-amber-900/20", border: "border-amber-200 dark:border-amber-800" },
+        { id: 3, label: "Aceite da Proposta", icon: "handshake", color: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-300", bgLight: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-200 dark:border-emerald-800" },
+        { id: 4, label: "Agendamento", icon: "calendar_month", color: "bg-indigo-500", text: "text-indigo-700 dark:text-indigo-300", bgLight: "bg-indigo-50 dark:bg-indigo-900/20", border: "border-indigo-200 dark:border-indigo-800" },
+        { id: 5, label: "Execução do Ensaio", icon: "science", color: "bg-purple-500", text: "text-purple-700 dark:text-purple-300", bgLight: "bg-purple-50 dark:bg-purple-900/20", border: "border-purple-200 dark:border-purple-800" },
+        { id: 6, label: "Elaboração do Relatório", icon: "edit_document", color: "bg-orange-500", text: "text-orange-700 dark:text-orange-300", bgLight: "bg-orange-50 dark:bg-orange-900/20", border: "border-orange-200 dark:border-orange-800" },
+        { id: 7, label: "Aprovação do Relatório", icon: "fact_check", color: "bg-red-500", text: "text-red-700 dark:text-red-300", bgLight: "bg-red-50 dark:bg-red-900/20", border: "border-red-200 dark:border-red-800" },
+        { id: 8, label: "Envio do Relatório", icon: "forward_to_inbox", color: "bg-teal-500", text: "text-teal-700 dark:text-teal-300", bgLight: "bg-teal-50 dark:bg-teal-900/20", border: "border-teal-200 dark:border-teal-800" },
+        { id: 9, label: "Pesquisa de Satisfação", icon: "sentiment_satisfied", color: "bg-cyan-500", text: "text-cyan-700 dark:text-cyan-300", bgLight: "bg-cyan-50 dark:bg-cyan-900/20", border: "border-cyan-200 dark:border-cyan-800" },
+    ]
+
+    return (
+        <div className="w-full overflow-x-auto pb-4 pt-2 -mx-2 px-2" style={{ scrollbarWidth: 'thin' }}>
+            <div className="flex items-center min-w-max gap-3 relative">
+                {/* Background line connecting all elements */}
+                <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-200 dark:bg-slate-800 -translate-y-1/2 z-0 hidden sm:block"></div>
+
+                {stepsData.map((s) => {
+                    const isCompleted = s.id < currentStep
+                    const isCurrent = s.id === currentStep
+                    const isFuture = s.id > currentStep
+
+                    return (
+                        <div
+                            key={s.id}
+                            onClick={() => onChange(s.id)}
+                            title={`Mudar para etapa: ${s.id} - ${s.label}`}
+                            className={`
+                                relative z-10 flex flex-col items-center justify-center p-3 w-[140px] h-full min-h-[110px] rounded-xl border-2 transition-all duration-300 cursor-pointer group shrink-0
+                                ${isCompleted ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0 scale-95 hover:scale-100' : ''}
+                                ${isCurrent ? `opacity-100 scale-105 shadow-lg ${s.border} ring-2 ring-offset-2 ring-primary ring-offset-white dark:ring-offset-slate-900` : ''}
+                                ${isFuture ? 'opacity-90 hover:opacity-100 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 border-dashed' : ''}
+                                ${!isFuture && !isCurrent ? `${s.bgLight} ${s.border}` : ''}
+                                ${isCurrent ? s.bgLight : ''}
+                            `}
+                        >
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 text-white shadow-sm transition-all duration-300 ${s.color} ${isFuture ? 'opacity-30 grayscale' : 'opacity-100'} ${isCurrent ? 'scale-110 shadow-md' : ''}`}>
+                                <span className="material-symbols-outlined text-[20px]">{s.icon}</span>
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400 absolute top-1 right-2 opacity-50">{s.id}</span>
+                            <span className={`text-[11px] font-bold text-center leading-tight transition-colors duration-300 ${isCurrent || isCompleted ? s.text : 'text-slate-500 dark:text-slate-400'}`}>
+                                {s.label}
+                            </span>
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )

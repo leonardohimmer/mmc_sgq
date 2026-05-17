@@ -9,7 +9,8 @@ export const authOptions: NextAuthOptions = {
             name: "credentials",
             credentials: {
                 email: { label: "Email", type: "text" },
-                password: { label: "Senha", type: "password" }
+                password: { label: "Senha", type: "password" },
+                loginType: { label: "Tipo de Login", type: "text" }
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) {
@@ -35,11 +36,20 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Senha incorreta")
                 }
 
+                if (credentials?.loginType === "cliente" && user.role !== "CLIENTE") {
+                    throw new Error("Atenção: Área de clientes. Colaboradores devem entrar pelo painel de equipe.")
+                }
+
+                if (credentials?.loginType === "colaborador" && user.role === "CLIENTE") {
+                    throw new Error("Atenção: Área de equipe. Clientes devem entrar pelo Portal do Cliente.")
+                }
+
                 return {
                     id: user.id,
                     name: user.name,
                     email: user.email,
                     role: user.role,
+                    company: user.company,
                 }
             }
         })
@@ -49,6 +59,7 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.role = user.role
                 token.id = user.id
+                token.company = (user as any).company
             }
             return token
         },
@@ -56,6 +67,7 @@ export const authOptions: NextAuthOptions = {
             if (session?.user) {
                 session.user.role = token.role as string
                 session.user.id = token.id as string
+                session.user.company = token.company as string | null | undefined
             }
             return session
         }

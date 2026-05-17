@@ -2,88 +2,103 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import Link from "next/link";
 
+export const metadata = {
+    title: "Ensaios | MMC LAB",
+    description: "Avaliações rigorosas estruturais e acústicas em campo e laboratório, garantindo conformidade com a ABNT NBR 15575.",
+};
+
 export default function EnsaiosPage() {
     return (
         <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[104px] overflow-hidden">
             <SiteHeader />
 
-            <main className="flex-1">
-                {/* Hero Section */}
-                <section className="relative pt-24 pb-32 sm:pt-32 sm:pb-40 overflow-hidden bg-slate-900 border-b border-slate-800">
-                    {/* Efeitos Modernos Neon / Movimento */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-1/4 left-1/4 w-72 md:w-96 h-72 md:h-96 bg-primary/20 rounded-full blur-[80px] md:blur-[100px] mix-blend-screen animate-pulse"></div>
-                        <div className="absolute bottom-1/4 right-1/4 w-72 md:w-96 h-72 md:h-96 bg-emerald-500/20 rounded-full blur-[80px] md:blur-[100px] mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
-
-                        {/* Grade de fundo estilo cyber */}
-                        <div className="absolute inset-0 opacity-[0.05]" style={{
-                            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-                            backgroundSize: '40px 40px'
-                        }}></div>
-                    </div>
-
-                    <div className="max-w-[1280px] mx-auto px-6 sm:px-8 relative z-10 text-center flex flex-col items-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/80 text-primary font-semibold text-sm mb-6 md:mb-8 border border-primary/30 backdrop-blur-md shadow-[0_0_15px_rgba(77,182,172,0.3)] hover:shadow-[0_0_25px_rgba(77,182,172,0.6)] transition-all">
-                            <span className="material-symbols-outlined text-[18px]">science</span>
-                            Serviços Laboratoriais
+            <main className="flex-1 flex flex-col">
+                {/* Banner de Cabeçalho estilo Imagem */}
+                <section className="bg-[#00bfa5] dark:bg-teal-800 py-16 px-6 sm:px-8 text-white relative">
+                    <div className="max-w-[1280px] mx-auto flex flex-col items-start gap-3">
+                        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">Ensaios</h1>
+                        <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-white/90">
+                            <Link href="/" className="hover:text-white hover:underline transition-all">Home</Link>
+                            <span className="opacity-70">&gt;</span>
+                            <span className="opacity-90">Ensaios</span>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 md:mb-8 drop-shadow-md mx-auto max-w-4xl">
-                            Ensaios de <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">Desempenho</span>
-                        </h1>
-                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-300 font-medium leading-[1.6] mb-10">
-                            Avaliações rigorosas estruturais e acústicas, garantindo conformidade com a ABNT NBR 15575.
-                        </p>
                     </div>
                 </section>
 
-                {/* Conteúdo: Lista de Ensaios */}
-                <section className="py-24 bg-background-light dark:bg-slate-950 relative">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Seção Principal de Cards */}
+                <section className="py-24 bg-background-light dark:bg-slate-950 relative flex-1 flex items-center justify-center overflow-hidden">
+                    {/* Elementos Decorativos de Círculos Concêntricos (Ondas) em Teal do background */}
+                    <div className="absolute top-1/2 left-0 -translate-y-1/2 translate-x-[-15%] w-[450px] h-[450px] pointer-events-none opacity-20 dark:opacity-10 hidden md:block">
+                        <div className="absolute inset-0 rounded-full border-2 border-[#00bfa5] animate-pulse"></div>
+                        <div className="absolute inset-8 rounded-full border border-[#00bfa5]/80 animate-pulse" style={{ animationDelay: '1s' }}></div>
+                        <div className="absolute inset-16 rounded-full border border-[#00bfa5]/60 animate-pulse" style={{ animationDelay: '2s' }}></div>
+                        <div className="absolute inset-24 rounded-full border border-[#00bfa5]/40 animate-pulse" style={{ animationDelay: '3s' }}></div>
+                    </div>
 
-                            {/* Card 1 */}
-                            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-[0_0_30px_rgba(77,182,172,0.15)] dark:hover:shadow-[0_0_30px_rgba(77,182,172,0.1)] hover:-translate-y-2 overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300 ring-1 ring-primary/20 group-hover:ring-primary/50 shadow-[0_0_15px_rgba(77,182,172,0.2)]">
-                                    <span className="material-symbols-outlined text-[32px]">fence</span>
+                    <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[15%] w-[450px] h-[450px] pointer-events-none opacity-20 dark:opacity-10 hidden md:block">
+                        <div className="absolute inset-0 rounded-full border-2 border-[#00bfa5] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                        <div className="absolute inset-8 rounded-full border border-[#00bfa5]/80 animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+                        <div className="absolute inset-16 rounded-full border border-[#00bfa5]/60 animate-pulse" style={{ animationDelay: '2.5s' }}></div>
+                        <div className="absolute inset-24 rounded-full border border-[#00bfa5]/40 animate-pulse" style={{ animationDelay: '3.5s' }}></div>
+                    </div>
+
+                    <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 max-w-5xl mx-auto items-stretch">
+                            
+                            {/* Card 1: Ensaios em Campo */}
+                            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between hover:shadow-[0_20px_50px_rgba(0,191,165,0.15)] dark:hover:shadow-[0_20px_50px_rgba(0,191,165,0.08)] hover:-translate-y-1.5 transition-all duration-300 group shadow-md relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#00bfa5]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                <div className="relative z-10 flex flex-col h-full justify-between">
+                                    <div>
+                                        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 shadow-inner">
+                                            <img 
+                                                src="/ensaios_campo.png" 
+                                                alt="Ensaios em Campo" 
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        </div>
+                                        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#00bfa5] dark:text-teal-400 text-center mb-6 tracking-tight">
+                                            Ensaios em Campo
+                                        </h2>
+                                    </div>
+                                    <div className="flex justify-center mt-2 pb-2">
+                                        <Link 
+                                            href="/ensaios/campo" 
+                                            className="bg-[#00bfa5] hover:bg-[#00a68f] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-bold text-center tracking-wider py-3.5 px-12 rounded-xl transition-all shadow-md shadow-[#00bfa5]/20 dark:shadow-none hover:shadow-lg hover:shadow-[#00bfa5]/35 hover:scale-[1.02]"
+                                        >
+                                            VEJA MAIS
+                                        </Link>
+                                    </div>
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 relative z-10">Ensaio de Guarda-corpo</h3>
-                                <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed relative z-10">
-                                    Teste realizado para avaliar a resistência e a segurança de um guarda-corpo ou corrimão de uma estrutura, simulando impactos e cargas.
-                                </p>
                             </div>
 
-                            {/* Card 2 */}
-                            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 hover:border-secondary/50 dark:hover:border-secondary/50 transition-all duration-300 shadow-sm hover:shadow-[0_0_30px_rgba(193,181,152,0.2)] dark:hover:shadow-[0_0_30px_rgba(193,181,152,0.1)] hover:-translate-y-2 overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="w-16 h-16 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300 ring-1 ring-secondary/20 group-hover:ring-secondary/50 shadow-[0_0_15px_rgba(193,181,152,0.2)]">
-                                    <span className="material-symbols-outlined text-[32px]">architecture</span>
+                            {/* Card 2: Ensaios em Laboratório */}
+                            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between hover:shadow-[0_20px_50px_rgba(0,191,165,0.15)] dark:hover:shadow-[0_20px_50px_rgba(0,191,165,0.08)] hover:-translate-y-1.5 transition-all duration-300 group shadow-md relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#00bfa5]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                <div className="relative z-10 flex flex-col h-full justify-between">
+                                    <div>
+                                        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 shadow-inner">
+                                            <img 
+                                                src="/ensaios_laboratorio.png" 
+                                                alt="Ensaios em Laboratório" 
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        </div>
+                                        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#00bfa5] dark:text-teal-400 text-center mb-6 tracking-tight">
+                                            Ensaios em Laboratório
+                                        </h2>
+                                    </div>
+                                    <div className="flex justify-center mt-2 pb-2">
+                                        <Link 
+                                            href="/ensaios/laboratorio" 
+                                            className="bg-[#00bfa5] hover:bg-[#00a68f] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-bold text-center tracking-wider py-3.5 px-12 rounded-xl transition-all shadow-md shadow-[#00bfa5]/20 dark:shadow-none hover:shadow-lg hover:shadow-[#00bfa5]/35 hover:scale-[1.02]"
+                                        >
+                                            VEJA MAIS
+                                        </Link>
+                                    </div>
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 relative z-10">Resistência à Tração</h3>
-                                <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed relative z-10">
-                                    Procedimento que afere a força necessária para extrair corpos de prova de superfícies coladas (aderência), validando revestimentos cerâmicos e rebocos.
-                                </p>
                             </div>
 
-                            {/* Card 3 */}
-                            <div className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all duration-300 shadow-sm hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] dark:hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] hover:-translate-y-2 overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300 ring-1 ring-emerald-500/20 group-hover:ring-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                                    <span className="material-symbols-outlined text-[32px]">headphones</span>
-                                </div>
-                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 relative z-10">Isolamento Acústico (Rw)</h3>
-                                <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed relative z-10">
-                                    Testes laboratoriais utilizando câmaras reverberantes para determinar a perda de transmissão sonora e audição da ISO 10140.
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <div className="mt-16 text-center">
-                            <Link href="/contato" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-bold transition-all shadow-md hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] text-base sm:text-lg hover:-translate-y-1">
-                                <span className="material-symbols-outlined">description</span>
-                                Solicitar Orçamento para Ensaios
-                            </Link>
                         </div>
                     </div>
                 </section>

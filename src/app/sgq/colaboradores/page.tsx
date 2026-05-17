@@ -13,13 +13,15 @@ const EMOTIONS = [
     { id: "comemorando", emoji: "🥳", label: "Comemorando" },
     { id: "zen", emoji: "😌", label: "Tranquilo" },
     { id: "cafe", emoji: "☕", label: "Pausa pro Café" },
+    { id: "mate", emoji: "🧉", label: "Mate" },
     { id: "almoco", emoji: "🍝", label: "Almoçando" },
-    { id: "reuniao", emoji: "�️", label: "Em Reunião" },
+    { id: "reuniao", emoji: "🖥️", label: "Em Reunião" },
     { id: "sobrecarregado", emoji: "🤯", label: "Sobrecarregado" },
     { id: "estressado", emoji: "😫", label: "Estressado" },
     { id: "cansado", emoji: "🥱", label: "Cansado" },
+    { id: "preguica", emoji: "🦥", label: "Preguiça" },
     { id: "ausente", emoji: "🤒", label: "Ausente/Doente" },
-    { id: "ferias", emoji: "🌴", label: "De Férias" },
+    { id: "ferias", emoji: "🩴", label: "De Férias" },
 ]
 
 export default function ColaboradoresOnlinePage() {
@@ -88,13 +90,19 @@ export default function ColaboradoresOnlinePage() {
         }
     }
 
-    // Função para verificar se está online (última atividade em menos de 3 minutos)
-    const isOnline = (lastActivity: string | null) => {
-        if (!lastActivity) return false
+    // Função para verificar se está online (última atividade em menos de 2 minutos)
+    // Se entre 2 e 5 minutos, está ausente
+    // Se entre 5 e 30 minutos, visto recentemente
+    const getUserStatus = (lastActivity: string | null) => {
+        if (!lastActivity) return 'offline'
         const now = new Date().getTime()
         const last = new Date(lastActivity).getTime()
         const diffInMinutes = (now - last) / (1000 * 60)
-        return diffInMinutes <= 3
+
+        if (diffInMinutes <= 2) return 'online'
+        if (diffInMinutes <= 5) return 'away'
+        if (diffInMinutes <= 30) return 'recent'
+        return 'offline'
     }
 
     // Abrir o modal de crop da imagem
@@ -145,6 +153,16 @@ export default function ColaboradoresOnlinePage() {
             console.error(e)
         }
     }
+
+    const currentMonth = new Date().getUTCMonth()
+    const birthdayUsers = users.filter(u => {
+        if (!u.birthDate) return false
+        return new Date(u.birthDate).getUTCMonth() === currentMonth
+    }).sort((a, b) => {
+        const dayA = new Date(a.birthDate).getUTCDate()
+        const dayB = new Date(b.birthDate).getUTCDate()
+        return dayA - dayB
+    })
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -262,6 +280,39 @@ export default function ColaboradoresOnlinePage() {
                 </button>
             </div>
 
+            {/* Aniversariantes do Mês */}
+            {birthdayUsers.length > 0 && (
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/20 dark:to-blue-900/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/50 shadow-sm relative overflow-hidden">
+                    <div className="absolute -right-6 -top-10 text-[120px] opacity-[0.03] transform rotate-12 pointer-events-none">
+                        🎂
+                    </div>
+                    <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-200 mb-4 flex items-center gap-2 relative z-10">
+                        <span className="material-symbols-outlined text-indigo-500">cake</span>
+                        Aniversariantes do Mês
+                    </h3>
+                    <div className="flex flex-wrap gap-4 relative z-10">
+                        {birthdayUsers.map(user => {
+                            const day = new Date(user.birthDate).getUTCDate()
+                            return (
+                                <div key={user.id} className="flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-indigo-100 dark:border-indigo-800/50 shadow-sm">
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border border-indigo-200 dark:border-indigo-700 shrink-0">
+                                        {user.avatarUrl ? (
+                                            <img src={user.avatarUrl} alt={user.name} className="object-cover w-full h-full" />
+                                        ) : (
+                                            <span className="material-symbols-outlined text-indigo-400 text-[24px]">account_circle</span>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">{user.name}</div>
+                                        <div className="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">Dia {day}</div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+
             {/* Grid de Usuários (Step 5) */}
             <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 flex items-center gap-2">
@@ -278,16 +329,19 @@ export default function ColaboradoresOnlinePage() {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {users.map(user => {
-                            const online = isOnline(user.lastActivity)
+                            const status = getUserStatus(user.lastActivity)
+                            const isOnline = status === 'online'
+                            const isAway = status === 'away'
+                            const isRecent = status === 'recent'
                             const emotionData = EMOTIONS.find(e => e.id === user.emotion) || EMOTIONS.find(e => e.id === "normal")
 
                             return (
                                 <div key={user.id} className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4 hover:border-primary/30 transition-colors relative overflow-hidden group">
                                     {/* Indicador de Status Glow */}
-                                    <div className={`absolute top-0 right-0 w-16 h-16 ${online ? 'bg-green-500' : 'bg-slate-400'} blur-3xl opacity-10 group-hover:opacity-20 transition-opacity rounded-full -mr-8 -mt-8`}></div>
+                                    <div className={`absolute top-0 right-0 w-16 h-16 ${isOnline ? 'bg-green-500' : isAway ? 'bg-amber-500' : 'bg-slate-400'} blur-3xl opacity-10 group-hover:opacity-20 transition-opacity rounded-full -mr-8 -mt-8`}></div>
 
                                     <div className="relative shrink-0">
-                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden border-2 ${online ? 'border-green-500' : 'border-slate-300 dark:border-slate-700'}`}>
+                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden border-2 ${isOnline ? 'border-green-500' : isAway ? 'border-amber-500' : 'border-slate-300 dark:border-slate-700'}`}>
                                             {user.avatarUrl ? (
                                                 <img src={user.avatarUrl} alt={user.name} className="object-cover w-full h-full" />
                                             ) : (
@@ -295,7 +349,7 @@ export default function ColaboradoresOnlinePage() {
                                             )}
                                         </div>
                                         {/* Bolinha de Status Online/Offline */}
-                                        <div className={`absolute bottom-0 right-0 w-4 h-4 border-2 border-white dark:border-slate-900 rounded-full ${online ? 'bg-green-500' : 'bg-slate-400'}`} title={online ? 'Online' : 'Offline'}></div>
+                                        <div className={`absolute bottom-0 right-0 w-4 h-4 border-2 border-white dark:border-slate-900 rounded-full ${isOnline ? 'bg-green-500' : isAway ? 'bg-amber-500' : 'bg-slate-400'}`} title={isOnline ? 'Online' : isAway ? 'Ausente' : isRecent ? 'Visto recentemente' : 'Offline'}></div>
                                     </div>
 
                                     <div className="flex-1 min-w-0">
@@ -307,7 +361,7 @@ export default function ColaboradoresOnlinePage() {
                                             {user.profile?.name || user.role}
                                         </p>
                                         <p className="text-[11px] text-slate-500 mt-1">
-                                            {online ? 'Ativo agora' : (user.lastActivity ? 'Visto recentemente' : 'Offline')}
+                                            {isOnline ? 'Ativo agora' : isAway ? 'Ausente' : isRecent ? 'Visto recentemente' : 'Offline'}
                                         </p>
                                     </div>
                                 </div>

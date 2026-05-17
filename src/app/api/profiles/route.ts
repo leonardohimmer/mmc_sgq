@@ -11,6 +11,9 @@ export async function GET(request: Request) {
         }
 
         const profiles = await prisma.profile.findMany({
+            where: {
+                name: { not: 'CLIENTE' }
+            },
             orderBy: {
                 name: 'asc'
             }

@@ -16,10 +16,15 @@ model User {
   role         String        @default("USER")
   profileId    String?
   company      String?
+  whatsapp     String?
   avatarUrl    String?
   emotion      String?
   lastActivity DateTime?     @db.Timestamptz(6)
+  birthDate    DateTime?     @db.Date
+  permissions  String[]      @default([])
   profile      Profile?      @relation(fields: [profileId], references: [id])
+  resetToken   String?       @unique
+  resetTokenExpires DateTime?   @db.Timestamptz(6)
   createdAt    DateTime      @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
   auditLogs    AuditLog[]
@@ -54,10 +59,22 @@ model Equipment {
   code                String    @unique
   name                String
   manufacturer        String?
+  model               String?
+  serialNumber        String?
+  range               String?
+  testType            String?
+  location            String?
+  lab                 String?
+  certificateNumber   String[]  @default([])
+  serviceType         String[]  @default([])
+  calibrationValue    Float[]   @default([])
   status              String    @default("ATIVO")
+  acceptance          String?   @default("Aprovado")
   lastCalibrationDate DateTime? @db.Timestamptz(6)
   nextCalibrationDate DateTime? @db.Timestamptz(6)
   calibrationInterval Int?
+  notes               String?
+  monitoringData      Json?
   createdAt           DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt           DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 }
@@ -70,25 +87,52 @@ model TestRequest {
   constructionCompany String?
   workName            String?
   address             String?
-  proposalEmail  String?
-  reportEmail    String?
-  desiredDate    DateTime             @db.Timestamptz(6)
-  observations   String?              @db.Text
+  rua                 String?
+  numero              String?
+  bairro              String?
+  cidade              String?
+  estado              String?
+  cep                 String?
+  proposalEmail       String?
+  reportEmail         String?
+  emailsProposta      String[]             @default([])
+  emailsRelatorio     String[]             @default([])
+  desiredDate         DateTime             @db.Timestamptz(6)
+  datasDesejadas      String?              @db.Text
+  quantidadeEnsaios   String?
+  observations        String?              @db.Text
   appliedStandard       String?
   measuredData          String?              @db.Text
   result                String?
   technicalObservations String?              @db.Text
   reportNumber          String?
   reportPdfUrl          String?
+  proposalCode          String?
+  proposalPdfUrl        String?
   isSigned              Boolean              @default(false)
-  status       String               @default("RECEBIDO") // RECEBIDO, EM_EXECUCAO, AGUARDANDO_APROVACAO, FINALIZADO
+  invoiceNumber         String?
+  invoicePdfUrl         String?
+  invoiceDate           DateTime?            @db.Timestamptz(6)
+  paymentConfirmedAt    DateTime?            @db.Timestamptz(6)
+  paymentConfirmedBy    String?
+  clientPaymentConfirmed   Boolean           @default(false)
+  clientPaymentConfirmedAt DateTime?         @db.Timestamptz(6)
+  status       String               @default("RECEBIDO") // RECEBIDO, EM_EXECUCAO, AGUARDANDO_APROVACAO, FINALIZADO, COBRANCA, PAGAMENTO, PESQUISA_PENDENTE
+  step         Int                  @default(1)
   clientName   String
+  clientPhone  String?
+  clientEmail  String?
   assignedToId String?
+  performedAt  DateTime?            @db.Timestamptz(6)
   createdAt    DateTime             @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime             @default(now()) @updatedAt @db.Timestamptz(6)
   
   assignedTo   User?                @relation("UserTestRequests", fields: [assignedToId], references: [id])
   history      TestRequestHistory[]
+  satisfactionSurvey SatisfactionSurvey?
+
+  @@index([status])
+  @@index([status, clientPaymentConfirmed])
 }
 
 model TestRequestHistory {
@@ -101,6 +145,30 @@ model TestRequestHistory {
   createdAt    DateTime     @default(now()) @db.Timestamptz(6)
 
   request      TestRequest  @relation(fields: [requestId], references: [id])
+}
+
+model SatisfactionSurvey {
+  id           String      @id @default(dbgenerated("(gen_random_uuid())::text"))
+  requestId    String      @unique
+  ratingSpeed  Int?
+  ratingComm   Int?
+  ratingTime   Int?
+  ratingQuality Int?
+  ratingDoc    Int?
+  justificationSpeed   String? @db.Text
+  justificationComm    String? @db.Text
+  justificationTime    String? @db.Text
+  justificationQuality String? @db.Text
+  justificationDoc      String? @db.Text
+  feedback     String?     @db.Text
+  internalNotes String?    @db.Text
+  status       String      @default("PENDING") // PENDING, COMPLETED, REVIEWED
+  createdAt    DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
+
+  request      TestRequest @relation(fields: [requestId], references: [id])
+
+  @@index([status])
 }
 
 model Profile {
@@ -120,4 +188,53 @@ model Supplier {
   active      Boolean  @default(true)
   createdAt   DateTime @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model SiteContent {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  section   String   @unique // "history", "stats", "team", "testimonials"
+  data      Json
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model Orcamento {
+  id                String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  nomeCompleto      String?
+  nomeContratante   String?
+  nomeConstrutora   String?
+  nomeObra          String?
+  email             String?
+  telefone          String?
+  nomeEmpresa       String?
+  tipoPessoa        String?  // "Pessoa Física" | "Pessoa Jurídica"
+  rua               String?
+  numero            String?
+  bairro            String?
+  cidade            String?
+  estado            String?
+  cep               String?
+  enderecoCompleto  String?
+  emailsProposta    String[] @default([])
+  emailsRelatorio   String[] @default([])
+  servicoDesejado   String?
+  quantidadeEnsaios String?
+  datasDesejadas    String?
+  mensagem          String?  @db.Text
+  status            String   @default("NOVO") // NOVO, VISUALIZADO, EM_CONTATO, FINALIZADO
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([status])
+}
+
+model ClickLog {
+  id          String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  path        String   // URL ou caminho da página
+  selector    String?  // Seletor CSS do elemento
+  elementTag  String?  // TAG (BUTTON, A, etc)
+  elementText String?  // Texto do botão/link
+  x           Float?   // Posição X relativa
+  y           Float?   // Posição Y relativa
+  viewWidth   Int?     // Largura da janela no momento do clique
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
 }

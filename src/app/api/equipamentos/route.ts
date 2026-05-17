@@ -31,10 +31,14 @@ export async function GET() {
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions)
-    const allowedRoles = ["ADMIN", "DIREÇÃO", "QUALIDADE", "RESPONSÁVEL TÉCNICO"]
+    const allowedRoles = ["ADMIN", "DIRETOR", "QUALIDADE", "RESPONSÁVEL TÉCNICO", "DESENVOLVEDOR"]
+    const userRoles = (session?.user?.role || "").split(",").map(r => r.trim())
+    const isAuthorized = allowedRoles.some(role => userRoles.includes(role))
 
-    if (!session?.user || !allowedRoles.includes(session.user.role)) {
-        return NextResponse.json({ error: "Acesso negado. Perfil sem permissão para criar equipamentos." }, { status: 403 })
+    if (!session?.user || !isAuthorized) {
+        return NextResponse.json({ 
+            error: `Acesso negado. Seu perfil (${session?.user?.role || 'N/D'}) não tem permissão para criar equipamentos.` 
+        }, { status: 403 })
     }
 
     try {
@@ -44,10 +48,24 @@ export async function POST(req: Request) {
                 code: data.code,
                 name: data.name,
                 manufacturer: data.manufacturer,
+                model: data.model,
+                serialNumber: data.serialNumber,
+                range: data.range,
+                testType: data.testType,
+                location: data.location,
+                lab: data.lab,
+                certificateNumber: data.certificateNumber,
+                serviceType: data.serviceType,
+                calibrationValue: Array.isArray(data.calibrationValue) 
+                    ? data.calibrationValue.map((v: any) => parseFloat(v)).filter((v: any) => !isNaN(v))
+                    : (data.calibrationValue ? [parseFloat(data.calibrationValue)] : []),
                 status: data.status || "ATIVO",
+                acceptance: data.acceptance || "Aprovado",
                 lastCalibrationDate: data.lastCalibrationDate ? new Date(data.lastCalibrationDate) : null,
                 nextCalibrationDate: data.nextCalibrationDate ? new Date(data.nextCalibrationDate) : null,
                 calibrationInterval: data.calibrationInterval ? parseInt(data.calibrationInterval) : null,
+                notes: data.notes,
+                monitoringData: data.monitoringData || null,
             }
         })
 

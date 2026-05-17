@@ -15,7 +15,7 @@ export async function GET() {
         const techUsers = await prisma.user.findMany({
             where: {
                 role: {
-                    in: ["TÉCNICO DE LABORATÓRIO", "RESPONSÁVEL TÉCNICO", "DIREÇÃO"]
+                    in: ["TÉCNICO DE LABORATÓRIO", "RESPONSÁVEL TÉCNICO", "DIRETOR"]
                 }
             },
             select: {

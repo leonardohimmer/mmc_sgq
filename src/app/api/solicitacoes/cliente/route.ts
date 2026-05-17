@@ -9,7 +9,10 @@ export async function GET(request: Request) {
 
         const requests = await prisma.testRequest.findMany({
             where: {
-                // clientName // se quisesse filtrar rigorosamente pelo nome exato
+                clientName: clientName
+            },
+            include: {
+                satisfactionSurvey: true
             },
             orderBy: { createdAt: 'desc' }
         })
@@ -24,10 +27,45 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { type, location, contractorName, constructionCompany, workName, address, proposalEmail, reportEmail, desiredDate, observations, clientName } = body
+        const { 
+            type, 
+            location, 
+            contractorName, 
+            constructionCompany, 
+            workName, 
+            address, 
+            rua,
+            numero,
+            bairro,
+            cidade,
+            estado,
+            cep,
+            proposalEmail, 
+            reportEmail, 
+            desiredDate, 
+            observations, 
+            clientName,
+            quantidadeEnsaios,
+            email,
+            telefone 
+        } = body
 
-        if (!type || !location || !desiredDate) {
-            return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 })
+        if (!type || !location || !desiredDate || !quantidadeEnsaios) {
+            return NextResponse.json({ error: "Campos obrigatórios ausentes" }, { status: 400 });
+        }
+
+        let parsedDate = desiredDate;
+        let finalObservations = observations || "";
+        if (desiredDate && desiredDate.includes(",")) {
+            const dateParts = desiredDate.split(",").map((d: string) => d.trim());
+            parsedDate = dateParts[0];
+            finalObservations += `\n\nDatas desejadas: ${desiredDate}`;
+        }
+
+        const processEmails = (val: any) => {
+            if (Array.isArray(val)) return val.filter(e => e && e.trim() !== "")
+            if (typeof val === 'string') return val.split(',').map(e => e.trim()).filter(e => e !== "")
+            return []
         }
 
         const newRequest = await prisma.testRequest.create({
@@ -38,12 +76,25 @@ export async function POST(request: Request) {
                 constructionCompany,
                 workName,
                 address,
+                rua: rua || null,
+                numero: numero || null,
+                bairro: bairro || null,
+                cidade: cidade || null,
+                estado: estado || null,
+                cep: cep || null,
                 proposalEmail,
                 reportEmail,
-                desiredDate: new Date(desiredDate),
-                observations,
+                emailsProposta: processEmails(proposalEmail),
+                emailsRelatorio: processEmails(reportEmail),
+                desiredDate: new Date(parsedDate),
+                datasDesejadas: desiredDate,
+                observations: finalObservations.trim(),
                 clientName: clientName || 'CLAUDIO SCHERER',
-                status: 'RECEBIDO'
+                clientPhone: telefone || null,
+                clientEmail: email || null,
+                quantidadeEnsaios: quantidadeEnsaios || null,
+                status: 'RECEBIDO',
+                step: 2
             }
         })
 

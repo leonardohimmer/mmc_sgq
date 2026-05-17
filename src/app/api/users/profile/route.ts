@@ -20,8 +20,20 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
         }
 
+        const roles = (user.role || "").split(',').map(r => r.trim()).filter(Boolean)
+        const profiles = await prisma.profile.findMany({
+            where: { name: { in: roles } }
+        })
+        const mergedPermissions = Array.from(new Set([...profiles.flatMap(p => p.permissions), ...(user.permissions || [])]))
+
         const { password, ...safeUser } = user
-        return NextResponse.json(safeUser)
+        return NextResponse.json({
+            ...safeUser,
+            profile: {
+                ...(safeUser.profile || {}),
+                permissions: mergedPermissions
+            }
+        })
     } catch (error) {
         console.error('Error fetching user profile:', error)
         return NextResponse.json({ error: 'Erro ao buscar perfil' }, { status: 500 })

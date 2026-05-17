@@ -1,40 +1,35 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
 async function main() {
+    // 1. Rename Profile
     try {
-        console.log('Atualizando roles dos usuários...');
-        const updatedUsersRoleDev = await prisma.user.updateMany({
-            where: { role: 'CONTROLADOR' },
-            data: { role: 'DESENVOLVEDOR' }
-        });
-        console.log(`Usuários atualizados para DESENVOLVEDOR: ${updatedUsersRoleDev.count}`);
+        await prisma.profile.updateMany({
+            where: { name: 'DIREÇÃO' },
+            data: { name: 'DIRETOR' },
+        })
+        console.log("Perfil DIREÇÃO atualizado para DIRETOR.")
+    } catch (e) {
+        console.error("Erro ao atualizar o Profile:", e.message)
+    }
 
-        const updatedUsersRoleAuditor = await prisma.user.updateMany({
-            where: { role: 'AUDITOR INTERNO' },
-            data: { role: 'AUDITOR' }
-        });
-        console.log(`Usuários atualizados para AUDITOR: ${updatedUsersRoleAuditor.count}`);
-
-        console.log('Atualizando nomes dos perfis...');
-        const updatedProfileDev = await prisma.profile.updateMany({
-            where: { name: 'CONTROLADOR' },
-            data: { name: 'DESENVOLVEDOR' }
-        });
-        console.log(`Perfis atualizados para DESENVOLVEDOR: ${updatedProfileDev.count}`);
-
-        const updatedProfileAuditor = await prisma.profile.updateMany({
-            where: { name: 'AUDITOR INTERNO' },
-            data: { name: 'AUDITOR' }
-        });
-        console.log(`Perfis atualizados para AUDITOR: ${updatedProfileAuditor.count}`);
-
-        console.log('Migração de nomenclatura concluída com sucesso!');
-    } catch (error) {
-        console.error('Erro na migração:', error);
-    } finally {
-        await prisma.$disconnect();
+    // 2. Rename Users roles
+    try {
+        const result = await prisma.user.updateMany({
+            where: { role: 'DIREÇÃO' },
+            data: { role: 'DIRETOR' },
+        })
+        console.log(`Atualizados ${result.count} usuários de DIREÇÃO para DIRETOR.`)
+    } catch (e) {
+        console.error("Erro ao atualizar os Users:", e.message)
     }
 }
 
-main();
+main()
+  .catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

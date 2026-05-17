@@ -14,6 +14,8 @@
 
 @theme inline {
   --color-primary: var(--primary-teal);
+  --color-primary-hover: #3d9d94;
+  --color-primary-light: #80cbc4;
   --color-secondary: var(--secondary-sand);
   --color-background-light: var(--background-light);
   --color-surface-light: var(--surface-light);
@@ -38,8 +40,68 @@
   --foreground: #f8fafc;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background-light);
   color: var(--foreground);
   font-family: var(--font-jakarta-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes marquee-reverse {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+
+  .animate-marquee {
+    display: flex;
+    width: fit-content;
+    animation: marquee 30s linear infinite;
+  }
+
+  .animate-marquee-reverse {
+    display: flex;
+    width: fit-content;
+    animation: marquee-reverse 30s linear infinite;
+  }
+
+  .animate-marquee:hover, .animate-marquee-reverse:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes bounce-short {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .animate-bounce-short {
+    animation: bounce-short 1s ease-in-out infinite;
+  }
+}
+
+/* Formatar todos os textos de parágrafo no formato justificado */
+p {
+  text-align: justify;
 }
