@@ -8,6 +8,7 @@ import { getCroppedImg } from "@/lib/imageUtils"
 interface ClientItem {
     name: string
     logoUrl: string
+    link?: string
 }
 
 export default function ClientsAdminPage() {
@@ -148,30 +149,30 @@ export default function ClientsAdminPage() {
                     Estes clientes aparecerão no carrossel horizontal abaixo da equipe na página Sobre.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     {clients.map((client, i) => (
-                        <div key={i} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 space-y-3 relative group">
+                        <div key={i} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 space-y-2 relative group">
                             <button 
                                 onClick={() => setClients(clients.filter((_, idx) => idx !== i))}
-                                className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 title="Remover cliente"
                             >
-                                <span className="material-symbols-outlined text-[18px]">close</span>
+                                <span className="material-symbols-outlined text-[14px]">close</span>
                             </button>
 
-                            <div className="aspect-[3/2] bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden flex items-center justify-center p-4 relative">
+                            <div className="aspect-square bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden flex items-center justify-center p-2 relative">
                                 {client.logoUrl ? (
                                     <img src={client.logoUrl} alt={client.name} className="max-w-full max-h-full object-contain" />
                                 ) : (
-                                    <div className="flex flex-col items-center gap-2 text-slate-400">
-                                        <span className="material-symbols-outlined text-4xl">image</span>
-                                        <span className="text-xs font-bold uppercase tracking-wider">Sem Logo</span>
+                                    <div className="flex flex-col items-center gap-1 text-slate-400">
+                                        <span className="material-symbols-outlined text-2xl">image</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Sem Logo</span>
                                     </div>
                                 )}
                                 
                                 <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity text-white flex-col gap-1">
-                                    <span className="material-symbols-outlined">upload_file</span>
-                                    <span className="text-[10px] font-bold uppercase">Trocar Logo</span>
+                                    <span className="material-symbols-outlined text-[20px]">upload_file</span>
+                                    <span className="text-[9px] font-bold uppercase">Trocar Logo</span>
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -183,21 +184,33 @@ export default function ClientsAdminPage() {
 
                             <input
                                 value={client.name}
-                                placeholder="Nome da Construtora"
+                                placeholder="Nome"
                                 onChange={(e) => {
                                     const n = [...clients]; n[i] = { ...n[i], name: e.target.value }; setClients(n)
                                 }}
-                                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold focus:ring-2 focus:ring-primary/30 outline-none text-sm"
+                                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold focus:ring-2 focus:ring-primary/30 outline-none text-xs"
                             />
+
+                            <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900">
+                                <span className="material-symbols-outlined text-[14px] text-slate-400 flex-shrink-0">link</span>
+                                <input
+                                    value={client.link || ""}
+                                    placeholder="URL (opcional)"
+                                    onChange={(e) => {
+                                        const n = [...clients]; n[i] = { ...n[i], link: e.target.value }; setClients(n)
+                                    }}
+                                    className="w-full bg-transparent text-slate-700 dark:text-slate-300 outline-none text-xs placeholder:text-slate-400"
+                                />
+                            </div>
                         </div>
                     ))}
 
                     <button
-                        onClick={() => setClients([...clients, { name: "", logoUrl: "" }])}
-                        className="p-4 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-primary min-h-[180px]"
+                        onClick={() => setClients([...clients, { name: "", logoUrl: "", link: "" }])}
+                        className="p-3 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-primary min-h-[140px]"
                     >
-                        <span className="material-symbols-outlined text-4xl">add_circle</span>
-                        <span className="font-bold">Adicionar Nova Construtora</span>
+                        <span className="material-symbols-outlined text-3xl">add_circle</span>
+                        <span className="font-bold text-xs text-center">Adicionar Nova Construtora</span>
                     </button>
                 </div>
 

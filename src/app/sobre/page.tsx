@@ -164,18 +164,33 @@ export default async function SobrePage() {
                         
                         <div className="relative group">
                             <div className="animate-marquee-reverse gap-8 py-4">
-                                {[...clients, ...clients, ...clients].map((client: any, i: number) => (
-                                    <div key={i} className="w-44 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all hover:shadow-lg hover:scale-105 flex flex-col items-center justify-center p-4 gap-2" style={{height: '11rem'}}>
-                                        <div className="w-28 h-28 flex items-center justify-center flex-shrink-0">
-                                            {client.logoUrl ? (
-                                                <img src={client.logoUrl} alt={client.name} className="w-full h-full object-contain" />
-                                            ) : (
-                                                <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-5xl">domain</span>
+                                {[...clients, ...clients, ...clients].map((client: any, i: number) => {
+                                    const cardContent = (
+                                        <>
+                                            <div className="w-28 h-28 flex items-center justify-center flex-shrink-0">
+                                                {client.logoUrl ? (
+                                                    <img src={client.logoUrl} alt={client.name} className="w-full h-full object-contain" />
+                                                ) : (
+                                                    <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-5xl">domain</span>
+                                                )}
+                                            </div>
+                                            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 text-center leading-tight w-full line-clamp-2">{client.name}</span>
+                                            {client.link && (
+                                                <span className="material-symbols-outlined text-[12px] text-primary opacity-0 group-hover/card:opacity-100 transition-opacity">open_in_new</span>
                                             )}
+                                        </>
+                                    );
+                                    const commonClass = "w-44 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all hover:shadow-lg hover:scale-105 flex flex-col items-center justify-center p-4 gap-2 group/card";
+                                    return client.link ? (
+                                        <a key={i} href={client.link} target="_blank" rel="noopener noreferrer" className={commonClass} style={{height: '11rem'}}>
+                                            {cardContent}
+                                        </a>
+                                    ) : (
+                                        <div key={i} className={commonClass} style={{height: '11rem'}}>
+                                            {cardContent}
                                         </div>
-                                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 text-center leading-tight w-full line-clamp-2">{client.name}</span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
