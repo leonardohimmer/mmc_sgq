@@ -154,23 +154,26 @@ export default async function SobrePage() {
                     </div>
                 )}
 
-                {/* Clients Marquee Section */}
+                {/* Construtoras Marquee Section */}
                 {clients.length > 0 && (
                     <div className="mb-24 overflow-hidden relative">
                         <div className="text-center mb-12">
-                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-4">Nossos clientes</h2>
+                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-4">Nossas Construtoras</h2>
                             <div className="w-20 h-1 bg-primary mx-auto rounded-full"></div>
                         </div>
                         
                         <div className="relative group">
                             <div className="animate-marquee-reverse gap-8 py-4">
                                 {[...clients, ...clients, ...clients].map((client: any, i: number) => (
-                                    <div key={i} className="w-56 h-36 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-lg flex items-center justify-center p-4 hover:scale-105">
-                                        {client.logoUrl ? (
-                                            <img src={client.logoUrl} alt={client.name} className="max-w-full max-h-full object-contain" />
-                                        ) : (
-                                            <span className="text-slate-400 font-bold text-center text-sm">{client.name}</span>
-                                        )}
+                                    <div key={i} className="w-44 flex-shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all hover:shadow-lg hover:scale-105 flex flex-col items-center justify-center p-4 gap-2" style={{height: '11rem'}}>
+                                        <div className="w-28 h-28 flex items-center justify-center flex-shrink-0">
+                                            {client.logoUrl ? (
+                                                <img src={client.logoUrl} alt={client.name} className="w-full h-full object-contain" />
+                                            ) : (
+                                                <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-5xl">domain</span>
+                                            )}
+                                        </div>
+                                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 text-center leading-tight w-full line-clamp-2">{client.name}</span>
                                     </div>
                                 ))}
                             </div>

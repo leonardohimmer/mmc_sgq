@@ -231,7 +231,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     label: "Site", icon: "language", permissionId: "sistema_site",
                     subItems: [
                         { label: "Gerenciar Site", href: "/sgq/site" },
-                        { label: "Clientes", href: "/sgq/site/clientes" },
+                        { label: "Construtoras", href: "/sgq/site/clientes" },
                         { label: "Orçamentos", href: "/sgq/site/orcamentos" },
                         { label: "Monitoramento", href: "/sgq/site/monitoramento" },
                     ]

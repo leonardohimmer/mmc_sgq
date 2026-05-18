@@ -197,7 +197,7 @@ export default function ClientsAdminPage() {
                         className="p-4 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-primary min-h-[180px]"
                     >
                         <span className="material-symbols-outlined text-4xl">add_circle</span>
-                        <span className="font-bold">Adicionar Novo Cliente</span>
+                        <span className="font-bold">Adicionar Nova Construtora</span>
                     </button>
                 </div>
 
