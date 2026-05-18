@@ -29,34 +29,26 @@ export async function GET() {
 
         const [
             profiles,
-            orcamentosCount,
-            propostasCount,
-            agendamentoCount,
-            execucaoCount,
-            elaboracaoCount,
-            envioRelatorioCount,
-            cobrancaCount,
-            pagamentoCount,
-            pesquisaCount,
-            finalizadoCount
+            baseOrcamentosCount,
+            testRequestCounts
         ] = await Promise.all([
             prisma.profile.findMany({
                 where: { name: { in: roles } },
                 select: { permissions: true }
             }),
-            prisma.orcamento.count({ where: { status: { in: ['NOVO', 'VISUALIZADO', 'EM_CONTATO'] } } }).then(count => 
-                prisma.testRequest.count({ where: { status: 'RECEBIDO' } }).then(reqCount => count + reqCount)
-            ),
-            prisma.testRequest.count({ where: { status: 'AGUARDANDO_ACEITE' } }),
-            prisma.testRequest.count({ where: { status: 'AGUARDANDO_AGENDAMENTO' } }),
-            prisma.testRequest.count({ where: { status: 'EM_EXECUCAO' } }),
-            prisma.testRequest.count({ where: { status: 'ELABORANDO_RELATORIO' } }),
-            prisma.testRequest.count({ where: { status: 'AGUARDANDO_APROVACAO' } }),
-            prisma.testRequest.count({ where: { status: 'COBRANCA' } }),
-            prisma.testRequest.count({ where: { status: 'PAGAMENTO' } }),
-            prisma.testRequest.count({ where: { status: 'PESQUISA_PENDENTE' } }),
-            prisma.testRequest.count({ where: { status: 'FINALIZADO' } })
+            prisma.orcamento.count({ where: { status: { in: ['NOVO', 'VISUALIZADO', 'EM_CONTATO'] } } }),
+            prisma.testRequest.groupBy({
+                by: ['status'],
+                _count: {
+                    id: true
+                }
+            })
         ])
+
+        const trStats = testRequestCounts.reduce((acc, curr) => {
+            acc[curr.status] = curr._count.id;
+            return acc;
+        }, {} as Record<string, number>);
 
         const permissions = Array.from(new Set([
             ...profiles.flatMap(p => p.permissions), 
@@ -64,16 +56,16 @@ export async function GET() {
         ]))
 
         const counts = {
-            orcamentos: orcamentosCount,
-            propostas: propostasCount,
-            agendamento: agendamentoCount,
-            execucao: execucaoCount,
-            elaboracao: elaboracaoCount,
-            envioRelatorio: envioRelatorioCount,
-            cobranca: cobrancaCount,
-            pagamento: pagamentoCount,
-            pesquisa: pesquisaCount,
-            finalizado: finalizadoCount
+            orcamentos: baseOrcamentosCount + (trStats['RECEBIDO'] || 0),
+            propostas: trStats['AGUARDANDO_ACEITE'] || 0,
+            agendamento: trStats['AGUARDANDO_AGENDAMENTO'] || 0,
+            execucao: trStats['EM_EXECUCAO'] || 0,
+            elaboracao: trStats['ELABORANDO_RELATORIO'] || 0,
+            envioRelatorio: trStats['AGUARDANDO_APROVACAO'] || 0,
+            cobranca: trStats['COBRANCA'] || 0,
+            pagamento: trStats['PAGAMENTO'] || 0,
+            pesquisa: trStats['PESQUISA_PENDENTE'] || 0,
+            finalizado: trStats['FINALIZADO'] || 0
         }
 
         return NextResponse.json({

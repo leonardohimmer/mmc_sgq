@@ -609,7 +609,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
                     {!isCollapsed && (
                         <div className="flex justify-center mt-2.5">
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v1.9.5 • Atualizado: {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v1.9.6 • Atualizado: {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                     )}
                 </div>
