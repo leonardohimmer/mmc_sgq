@@ -27,10 +27,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
                     where: { email: orcamento.email }
                 })
 
+                let isNewUser = false;
+                let generatedPassword = "";
+
                 if (!user) {
                     // Criar senha a partir do telefone (apenas números)
-                    const rawPassword = orcamento.telefone ? orcamento.telefone.replace(/\D/g, "") : "123456"
-                    const hashedPassword = await bcrypt.hash(rawPassword, 10)
+                    const rawPassword = orcamento.telefone ? orcamento.telefone.replace(/\D/g, "") : ""
+                    generatedPassword = rawPassword || "123456"
+                    const hashedPassword = await bcrypt.hash(generatedPassword, 10)
 
                     user = await prisma.user.create({
                         data: {
@@ -42,12 +46,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
                             whatsapp: orcamento.telefone,
                         }
                     })
+                    isNewUser = true;
                     console.log(`Usuário criado automaticamente para o cliente: ${orcamento.email}`)
                 }
 
-                // Enviar e-mail de boas-vindas APENAS quando mudar para FINALIZADO e não for arquivamento
-                if (status === "FINALIZADO" && orcamento.status !== "FINALIZADO" && user) {
-                    await sendWelcomeEmail(user.email, user.name, orcamento.telefone || "")
+                // Enviar e-mail de boas-vindas com a senha inicial apenas para novos clientes
+                if (isNewUser) {
+                    await sendWelcomeEmail(user.email, user.name, generatedPassword)
                 }
 
                 // 2. Criar Solicitação de Ensaio (TestRequest) se não existir para este orçamento

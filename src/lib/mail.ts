@@ -15,9 +15,8 @@ function createTransporter() {
     })
 }
 
-export async function sendWelcomeEmail(to: string, name: string, telefone: string) {
+export async function sendWelcomeEmail(to: string, name: string, rawPassword: string) {
     const loginUrl = `${process.env.NEXTAUTH_URL}/login-cliente`
-    const rawPassword = telefone.replace(/\D/g, "")
 
     const transporter = createTransporter()
 
