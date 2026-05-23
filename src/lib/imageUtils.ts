@@ -73,22 +73,38 @@ export async function getCroppedImg(
         pixelCrop.height
     )
 
-    // set canvas width to final desired crop size - this will clear existing context
-    canvas.width = pixelCrop.width
-    canvas.height = pixelCrop.height
+    // Create a temporary canvas to hold the original cropped image data
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = pixelCrop.width
+    tempCanvas.height = pixelCrop.height
+    const tempCtx = tempCanvas.getContext('2d')
+    if (tempCtx) {
+        tempCtx.putImageData(data, 0, 0)
+    }
 
-    // paste generated rotate image with correct offsets for x,y crop values.
-    ctx.putImageData(data, 0, 0)
+    // Determine final dimensions (limit max width/height to 1000px to optimize size)
+    const maxDimension = 1000
+    let finalWidth = pixelCrop.width
+    let finalHeight = pixelCrop.height
 
-    // As Base64 string
-    return canvas.toDataURL('image/png');
+    if (finalWidth > maxDimension || finalHeight > maxDimension) {
+        if (finalWidth > finalHeight) {
+            finalHeight = Math.round((finalHeight * maxDimension) / finalWidth)
+            finalWidth = maxDimension
+        } else {
+            finalWidth = Math.round((finalWidth * maxDimension) / finalHeight)
+            finalHeight = maxDimension
+        }
+    }
 
-    // As a blob
-    /*
-    return new Promise((resolve, reject) => {
-        canvas.toBlob((file) => {
-            if (file) resolve(URL.createObjectURL(file))
-        }, 'image/jpeg')
-    })
-    */
+    // Set main canvas size to the optimized size
+    canvas.width = finalWidth
+    canvas.height = finalHeight
+
+    // Clear and draw from tempCanvas (this performs the resize smoothly)
+    ctx.clearRect(0, 0, finalWidth, finalHeight)
+    ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, finalWidth, finalHeight)
+
+    // As Base64 string in JPEG format with 80% quality (great compression & quality)
+    return canvas.toDataURL('image/jpeg', 0.8)
 }
