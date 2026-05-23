@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import Link from "next/link";
+import { EnsaioCarousel } from "@/components/EnsaioCarousel";
 
 export const metadata = {
     title: "Ensaio de Guarda-Corpo e Parapeito | MMC LAB",
@@ -224,6 +225,9 @@ export default function EnsaioGuardaCorpoPage() {
                                 </div>
                             </div>
                         </div>
+
+                        <EnsaioCarousel ensaioId="campo-guarda-corpo" />
+                        <EnsaioCarousel ensaioId="laboratorio-guarda-corpo" />
 
                         {/* Diferenciais da MMC Lab */}
                         <div className="mt-24 space-y-12">

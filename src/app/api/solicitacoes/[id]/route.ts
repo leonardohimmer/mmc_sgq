@@ -182,12 +182,12 @@ export async function PATCH(
             updateData.step = finalStep;
         }
 
-        // Automação: Enviar e-mail e criar pesquisa ao finalizar a etapa 6 (movendo para 7 ou mais)
-        const currentStepValue = finalStep !== undefined ? finalStep : (existingRequest.step || 0);
-        const isFinishingStep6 = currentStepValue >= 7 && (existingRequest.step || 0) <= 6;
-        
+        // Automação: Enviar e-mail e criar pesquisa ao mover para PESQUISA_PENDENTE ou FINALIZADO
         const currentStatusValue = finalStatus || existingRequest.status;
         const isSettingFinalized = currentStatusValue === 'FINALIZADO' && existingRequest.status !== 'FINALIZADO';
+        
+        const isSettingPesquisa = (currentStatusValue === 'PESQUISA_PENDENTE' || currentStatusValue === 'PESQUISA_REGISTRO') && 
+            existingRequest.status !== 'PESQUISA_PENDENTE' && existingRequest.status !== 'PESQUISA_REGISTRO';
 
         const transactionOps: any[] = [
             prisma.testRequest.update({
@@ -211,7 +211,7 @@ export async function PATCH(
         ]
 
         // Criar pesquisa de satisfação se estiver finalizando ou movendo para pesquisa
-        if (isFinishingStep6 || isSettingFinalized || ((status === 'PESQUISA_PENDENTE' || status === 'PESQUISA_REGISTRO') && existingRequest.status !== 'PESQUISA_PENDENTE' && existingRequest.status !== 'PESQUISA_REGISTRO')) {
+        if (isSettingPesquisa || isSettingFinalized) {
             transactionOps.push(
                 prisma.satisfactionSurvey.upsert({
                     where: { requestId: id },
@@ -229,9 +229,8 @@ export async function PATCH(
         const updatedRequest = results[0]
         const historyRecord = results[1]
 
-        // Enviar e-mail de finalização se o status mudar para FINALIZADO 
-        // OU se a etapa 6 for concluída (e ainda não estava em status de finalização)
-        if ((isSettingFinalized || (isFinishingStep6 && existingRequest.status !== 'FINALIZADO')) && updatedRequest.clientEmail) {
+        // Enviar e-mail de finalização se o status mudar para FINALIZADO ou PESQUISA_PENDENTE
+        if ((isSettingFinalized || isSettingPesquisa) && updatedRequest.clientEmail) {
             await sendFinalizedEmail(
                 updatedRequest.clientEmail,
                 updatedRequest.clientName,

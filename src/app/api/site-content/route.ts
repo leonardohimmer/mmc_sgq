@@ -32,7 +32,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Seção e dados são obrigatórios' }, { status: 400 })
         }
 
-        const validSections = ['history', 'stats', 'team', 'testimonials', 'clients']
+        const validSections = ['history', 'stats', 'team', 'testimonials', 'clients', 'ensaio_fotos']
         if (!validSections.includes(section)) {
             return NextResponse.json({ error: 'Seção inválida' }, { status: 400 })
         }

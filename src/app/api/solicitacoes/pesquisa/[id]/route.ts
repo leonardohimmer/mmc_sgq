@@ -46,15 +46,17 @@ export async function POST(
             ratingTime, 
             ratingQuality, 
             ratingDoc, 
+            ratingSystem, 
             justificationSpeed,
             justificationComm,
             justificationTime,
             justificationQuality,
             justificationDoc,
+            justificationSystem, 
             feedback 
         } = body
 
-        if (!ratingSpeed || !ratingComm || !ratingTime || !ratingQuality || !ratingDoc) {
+        if (!ratingSpeed || !ratingComm || !ratingTime || !ratingQuality || !ratingDoc || !ratingSystem) {
             return NextResponse.json({ error: 'Todas as notas são obrigatórias' }, { status: 400 })
         }
 
@@ -68,11 +70,13 @@ export async function POST(
                     ratingTime: parseInt(ratingTime),
                     ratingQuality: parseInt(ratingQuality),
                     ratingDoc: parseInt(ratingDoc),
+                    ratingSystem: parseInt(ratingSystem), 
                     justificationSpeed,
                     justificationComm,
                     justificationTime,
                     justificationQuality,
                     justificationDoc,
+                    justificationSystem, 
                     feedback,
                     status: 'COMPLETED'
                 }

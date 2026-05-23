@@ -3,6 +3,7 @@
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import { format, differenceInDays, differenceInBusinessDays } from "date-fns"
+import { ptBR } from "date-fns/locale"
 
 export default function PesquisaSatisfacaoPage() {
     return (
@@ -320,6 +321,43 @@ function RespostasTab() {
 function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) {
     const [isSaving, setIsSaving] = useState(false)
     const [internalNotes, setInternalNotes] = useState(survey.internalNotes || "")
+    const [activeTab, setActiveTab] = useState<"survey" | "timeline">("survey")
+    const [timeline, setTimeline] = useState<any[]>([])
+    const [loadingTimeline, setLoadingTimeline] = useState(false)
+
+    const statusConfig: Record<string, { label: string, color: string, icon: string }> = {
+        'RECEBIDO': { label: 'Solicitação Criada / Recebida', color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20 border-blue-100', icon: 'description' },
+        'AGUARDANDO_ACEITE': { label: 'Proposta Comercial Enviada', color: 'text-amber-500 bg-amber-50 dark:bg-amber-900/20 border-amber-100', icon: 'price_change' },
+        'AGUARDANDO_AGENDAMENTO': { label: 'Aguardando Agendamento dos Ensaios', color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/20 border-purple-100', icon: 'calendar_month' },
+        'EM_EXECUCAO': { label: 'Execução dos Ensaios em Campo', color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100', icon: 'engineering' },
+        'ELABORANDO_RELATORIO': { label: 'Elaboração do Relatório Técnico', color: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-900/20 border-cyan-100', icon: 'edit_note' },
+        'AGUARDANDO_APROVACAO': { label: 'Aguardando Aprovação e Assinatura', color: 'text-orange-500 bg-orange-50 dark:bg-orange-900/20 border-orange-100', icon: 'rate_review' },
+        'COBRANCA': { label: 'Faturamento / Emissão de Nota Fiscal', color: 'text-pink-500 bg-pink-50 dark:bg-pink-900/20 border-pink-100', icon: 'receipt' },
+        'PAGAMENTO': { label: 'Aguardando Confirmação do Pagamento', color: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-100', icon: 'payments' },
+        'PESQUISA_PENDENTE': { label: 'Pesquisa de Satisfação Enviada', color: 'text-violet-500 bg-violet-50 dark:bg-violet-900/20 border-violet-100', icon: 'send' },
+        'FINALIZADO': { label: 'Processo Finalizado', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100', icon: 'verified' }
+    };
+
+    useEffect(() => {
+        if (activeTab === "timeline" && timeline.length === 0) {
+            setLoadingTimeline(true)
+            fetch(`/api/solicitacoes/${survey.requestId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        const sorted = [...data].sort((a: any, b: any) => 
+                            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                        )
+                        setTimeline(sorted)
+                    }
+                })
+                .catch(err => {
+                    console.error("Erro ao buscar timeline:", err)
+                    toast.error("Erro ao carregar histórico do processo.")
+                })
+                .finally(() => setLoadingTimeline(false))
+        }
+    }, [activeTab, survey.requestId, timeline.length])
 
     const calculateAverage = () => {
         const ratings = [
@@ -327,7 +365,8 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
             survey.ratingComm,
             survey.ratingTime,
             survey.ratingQuality,
-            survey.ratingDoc
+            survey.ratingDoc,
+            survey.ratingSystem
         ].filter(r => r !== null && r !== undefined);
         if (ratings.length === 0) return 0;
         const sum = ratings.reduce((a, b) => a + b, 0);
@@ -366,6 +405,7 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
         { label: "3. Cumprimento do prazo", value: survey.ratingTime, justification: survey.justificationTime },
         { label: "4. Qualidade do serviço/produto", value: survey.ratingQuality, justification: survey.justificationQuality },
         { label: "5. Documentação/Relatório", value: survey.ratingDoc, justification: survey.justificationDoc },
+        { label: "6. Experiência com o novo sistema", value: survey.ratingSystem, justification: survey.justificationSystem },
     ]
 
     return (
@@ -380,59 +420,36 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
                         <span className="material-symbols-outlined text-[20px]">close</span>
                     </button>
                 </div>
+
+                {/* Abas para alternar conteúdo */}
+                <div className="flex border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 px-6">
+                    <button 
+                        onClick={() => setActiveTab("survey")}
+                        className={`py-3 px-4 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === "survey" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+                    >
+                        <span className="material-symbols-outlined text-[18px]">chat</span>
+                        Pesquisa de Satisfação
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab("timeline")}
+                        className={`py-3 px-4 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === "timeline" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+                    >
+                        <span className="material-symbols-outlined text-[18px]">history</span>
+                        Fluxo do Processo (Timeline)
+                    </button>
+                </div>
                 
                 <div className="p-6 overflow-y-auto space-y-6 flex-1">
-                    <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30">
-                        <div>
-                            <p className="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Média Geral</p>
-                            <div className="flex items-center gap-2 mt-1">
-                                <span className="text-3xl font-black text-slate-800 dark:text-slate-200">{calculateAverage()}</span>
-                                <div className="flex text-amber-400">
-                                    {[1, 2, 3, 4, 5].map((starIndex) => {
-                                        const rating = Number(calculateAverage());
-                                        let iconName = 'star';
-                                        let fill = 1;
-                                        
-                                        if (rating >= starIndex) {
-                                            iconName = 'star';
-                                            fill = 1;
-                                        } else if (rating >= starIndex - 0.5) {
-                                            iconName = 'star_half';
-                                            fill = 1;
-                                        } else {
-                                            iconName = 'star';
-                                            fill = 0;
-                                        }
-                                        
-                                        return (
-                                            <span 
-                                                key={starIndex} 
-                                                className="material-symbols-outlined text-[24px]"
-                                                style={{ fontVariationSettings: `'FILL' ${fill}` }}
-                                            >
-                                                {iconName}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-xs text-slate-500">Relatório: <span className="font-bold text-slate-700 dark:text-slate-300">{survey.request?.reportNumber || 'N/A'}</span></p>
-                            <p className="text-xs text-slate-500 mt-1">Data: {format(new Date(survey.updatedAt), "dd/MM/yyyy")}</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <h3 className="font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Avaliações por Item</h3>
-                        <div className="grid grid-cols-1 gap-4">
-                            {ratingsList.map((item, idx) => (
-                                <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{item.label}</span>
+                    {activeTab === "survey" ? (
+                        <>
+                            <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                                <div>
+                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Média Geral</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-3xl font-black text-slate-800 dark:text-slate-200">{calculateAverage()}</span>
                                         <div className="flex text-amber-400">
                                             {[1, 2, 3, 4, 5].map((starIndex) => {
-                                                const rating = item.value || 0;
+                                                const rating = Number(calculateAverage());
                                                 let iconName = 'star';
                                                 let fill = 1;
                                                 
@@ -450,7 +467,7 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
                                                 return (
                                                     <span 
                                                         key={starIndex} 
-                                                        className="material-symbols-outlined text-[20px]"
+                                                        className="material-symbols-outlined text-[24px]"
                                                         style={{ fontVariationSettings: `'FILL' ${fill}` }}
                                                     >
                                                         {iconName}
@@ -459,23 +476,131 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
                                             })}
                                         </div>
                                     </div>
-                                    {item.justification && (
-                                        <div className="bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30 text-xs text-slate-600 dark:text-slate-400 italic">
-                                            <span className="font-bold text-amber-600 dark:text-amber-500 block mb-1 not-italic">Justificativa do Cliente:</span>
-                                            "{item.justification}"
-                                        </div>
-                                    )}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                                <div className="text-right">
+                                    <p className="text-xs text-slate-500">Relatório: <span className="font-bold text-slate-700 dark:text-slate-300">{survey.request?.reportNumber || 'N/A'}</span></p>
+                                    <p className="text-xs text-slate-500 mt-1">Data: {format(new Date(survey.updatedAt), "dd/MM/yyyy")}</p>
+                                </div>
+                            </div>
 
-                    <div className="space-y-2">
-                        <h3 className="font-bold text-slate-800 dark:text-slate-200">Sugestões de melhoria (Opcional)</h3>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 min-h-[100px] whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300 italic">
-                            {survey.feedback ? `"${survey.feedback}"` : "O cliente não deixou comentários adicionais."}
+                            <div className="space-y-4">
+                                <h3 className="font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Avaliações por Item</h3>
+                                <div className="grid grid-cols-1 gap-4">
+                                    {ratingsList.map((item, idx) => (
+                                        <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{item.label}</span>
+                                                <div className="flex text-amber-400">
+                                                    {[1, 2, 3, 4, 5].map((starIndex) => {
+                                                        const rating = item.value || 0;
+                                                        let iconName = 'star';
+                                                        let fill = 1;
+                                                        
+                                                        if (rating >= starIndex) {
+                                                            iconName = 'star';
+                                                            fill = 1;
+                                                        } else if (rating >= starIndex - 0.5) {
+                                                            iconName = 'star_half';
+                                                            fill = 1;
+                                                        } else {
+                                                            iconName = 'star';
+                                                            fill = 0;
+                                                        }
+                                                        
+                                                        return (
+                                                            <span 
+                                                                key={starIndex} 
+                                                                className="material-symbols-outlined text-[20px]"
+                                                                style={{ fontVariationSettings: `'FILL' ${fill}` }}
+                                                            >
+                                                                {iconName}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                            {item.justification && (
+                                                <div className="bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30 text-xs text-slate-600 dark:text-slate-400 italic">
+                                                    <span className="font-bold text-amber-600 dark:text-amber-500 block mb-1 not-italic">Justificativa do Cliente:</span>
+                                                    "{item.justification}"
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="font-bold text-slate-800 dark:text-slate-200">Sugestões de melhoria (Opcional)</h3>
+                                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 min-h-[100px] whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300 italic">
+                                    {survey.feedback ? `"${survey.feedback}"` : "O cliente não deixou comentários adicionais."}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="space-y-6 py-2">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary text-[22px]">route</span>
+                                Histórico de Etapas do Processo
+                            </h3>
+                            {loadingTimeline ? (
+                                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                                    <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
+                                    <p className="text-xs text-slate-500">Buscando fluxo do atendimento...</p>
+                                </div>
+                            ) : timeline.length === 0 ? (
+                                <div className="text-center py-12 text-slate-500">
+                                    <span className="material-symbols-outlined text-[48px] block mb-2 text-slate-300">timeline</span>
+                                    Nenhum histórico de transições encontrado para este processo.
+                                </div>
+                            ) : (
+                                <div className="relative pl-6 border-l border-slate-200 dark:border-slate-800 ml-4 space-y-6 py-2">
+                                    {timeline.map((item) => {
+                                        const config = statusConfig[item.newStatus] || { 
+                                            label: `Status alterado para ${item.newStatus}`, 
+                                            color: 'text-slate-600 bg-slate-50 dark:bg-slate-900/20 border-slate-100', 
+                                            icon: 'info' 
+                                        };
+                                        
+                                        return (
+                                            <div key={item.id} className="relative group">
+                                                {/* Bolinha da timeline com ícone */}
+                                                <div className={`absolute -left-[37px] top-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm ${config.color.split(' ')[0]} ${config.color.split(' ')[1]}`}>
+                                                    <span className="material-symbols-outlined text-[13px] font-black">{config.icon}</span>
+                                                </div>
+                                                
+                                                {/* Card do evento */}
+                                                <div className="bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 hover:border-slate-200 dark:hover:border-slate-700 transition-all shadow-sm">
+                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                                                        <span className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                                                            {config.label}
+                                                        </span>
+                                                        <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
+                                                            <span className="material-symbols-outlined text-[13px]">calendar_month</span>
+                                                            {format(new Date(item.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                                                        <span className="flex items-center gap-1 font-medium text-slate-600 dark:text-slate-400">
+                                                            <span className="material-symbols-outlined text-[14px]">person</span>
+                                                            Concluído por: <strong className="text-slate-700 dark:text-slate-300 font-black">{item.changedBy}</strong>
+                                                        </span>
+                                                        
+                                                        {item.oldStatus && item.oldStatus !== item.newStatus && (
+                                                            <span className="text-[9px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-slate-400">
+                                                                {item.oldStatus} ➜ {item.newStatus}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    )}
 
                     <div className="space-y-2">
                         <h3 className="font-bold text-slate-800 dark:text-slate-200">Registro Interno / Ações (Apenas equipe)</h3>

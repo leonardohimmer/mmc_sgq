@@ -91,6 +91,15 @@ const ESTADOS = [
     "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ]
 
+const getTodayString = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+};
+
+
 
 export default function PortalClientePage() {
     const { data: session, status } = useSession();
@@ -377,14 +386,127 @@ export default function PortalClientePage() {
             telefone: req.clientPhone || "",
             emailsProposta: req.emailsProposta && req.emailsProposta.length > 0 ? (typeof req.emailsProposta === 'string' ? req.emailsProposta.split(', ') : req.emailsProposta) : [""],
             emailsRelatorio: req.emailsRelatorio && req.emailsRelatorio.length > 0 ? (typeof req.emailsRelatorio === 'string' ? req.emailsRelatorio.split(', ') : req.emailsRelatorio) : [""],
-            datasDesejadas: req.datasDesejadas ? req.datasDesejadas.split(", ") : [""],
+            datasDesejadas: req.datasDesejadas && req.datasDesejadas.length > 0 ? (typeof req.datasDesejadas === 'string' ? req.datasDesejadas.split(', ') : req.datasDesejadas) : [""],
             observacoes: req.observations || ""
         });
-
-        setIsEditing(true);
         setEditingRequestId(ensaio.rawId);
-        setActiveTab("Nova Solicitação");
+        setIsEditing(true);
     };
+
+    const handleAcceptProposal = (ensaio: Ensaio) => {
+        setConfirmConfig({
+            title: "Confirmar Aceite da Proposta",
+            message: `Deseja realmente aceitar a proposta técnica comercial para o ensaio #${ensaio.id}?\n\nAo confirmar, o status será atualizado e daremos andamento ao agendamento.`,
+            type: 'primary',
+            confirmText: "Sim, Aceitar",
+            cancelText: "Voltar",
+            onConfirm: async () => {
+                const loadingToast = toast.loading("Confirmando aceite da proposta...");
+                try {
+                    const res = await fetch('/api/solicitacoes/aceite-proposta', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            requestId: ensaio.rawId,
+                            clientName: session?.user?.name || "Cliente"
+                        })
+                    });
+
+                    const data = await res.json();
+                    toast.dismiss(loadingToast);
+
+                    if (res.ok && data.success) {
+                        toast.success("Proposta aceita com sucesso!");
+                        setModalConfig({
+                            title: "Proposta Aceita!",
+                            message: "Você aceitou a proposta com sucesso! Nossa equipe técnica dará andamento e entrará em contato para agendar o serviço."
+                        });
+                        setShowSuccessModal(true);
+
+                        // Atualizar o estado local dos ensaios
+                        setEnsaios(prevEnsaios => prevEnsaios.map(e => {
+                            if (e.rawId === ensaio.rawId) {
+                                return {
+                                    ...e,
+                                    status: "Aguardando Agendamento",
+                                    statusColor: "emerald",
+                                    icon: "calendar_month"
+                                };
+                            }
+                            return e;
+                        }));
+                    } else {
+                        toast.error(data.error || "Erro ao aceitar a proposta. Tente novamente.");
+                    }
+                } catch (error) {
+                    toast.dismiss(loadingToast);
+                    console.error("Erro ao enviar aceite", error);
+                    toast.error("Erro de conexão. Verifique sua internet.");
+                }
+            }
+        });
+        setShowConfirmModal(true);
+    };
+
+    const handleConfirmPayment = (ensaio: Ensaio) => {
+        setConfirmConfig({
+            title: "Confirmar Pagamento",
+            message: `Você confirma que já realizou o pagamento para o ensaio #${ensaio.id}?\n\nEsta confirmação será enviada para nosso departamento financeiro para agilizar a baixa.`,
+            type: 'primary',
+            confirmText: "Sim, Confirmar",
+            cancelText: "Voltar",
+            onConfirm: async () => {
+                const loadingToast = toast.loading("Registrando confirmação de pagamento...");
+                try {
+                    const res = await fetch('/api/solicitacoes/confirmar-pagamento', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            requestId: ensaio.rawId,
+                            clientName: session?.user?.name || "Cliente"
+                        })
+                    });
+
+                    const data = await res.json();
+                    toast.dismiss(loadingToast);
+
+                    if (res.ok && data.success) {
+                        toast.success("Pagamento confirmado com sucesso!");
+                        setModalConfig({
+                            title: "Pagamento Informado!",
+                            message: "Sua confirmação de pagamento foi registrada com sucesso! Nosso setor financeiro processará a baixa em breve."
+                        });
+                        setShowSuccessModal(true);
+                        
+                        // Atualizar o estado local dos ensaios
+                        setEnsaios(prevEnsaios => prevEnsaios.map(e => {
+                            if (e.rawId === ensaio.rawId) {
+                                return {
+                                    ...e,
+                                    clientPaymentConfirmed: true
+                                };
+                            }
+                            return e;
+                        }));
+                    } else {
+                        toast.error(data.error || "Erro ao confirmar pagamento. Tente novamente.");
+                    }
+                } catch (error) {
+                    toast.dismiss(loadingToast);
+                    console.error("Erro ao enviar confirmação de pagamento", error);
+                    toast.error("Erro de conexão. Verifique sua internet.");
+                }
+            }
+        });
+        setShowConfirmModal(true);
+    };
+
+
+
 
     const resetForm = () => {
         setIsEditing(false);
@@ -553,12 +675,82 @@ export default function PortalClientePage() {
                                             {/* Survey Indicator */}
                                             {ensaio.hasPendingSurvey && (
                                                 <Link 
-                                                    href={`/portal-cliente/pesquisa?id=${ensaio.rawId}`}
+                                                    href={`/portal-cliente/pesquisa/${ensaio.rawId}`}
                                                     className="inline-flex items-center gap-2 w-full p-3 mb-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl text-amber-700 dark:text-amber-400 text-xs font-bold animate-pulse"
                                                 >
                                                     <span className="material-symbols-outlined text-[18px]">rate_review</span>
                                                     Pendente: Pesquisa de Satisfação
                                                 </Link>
+                                            )}
+
+                                            {/* Banner de Aceite de Proposta */}
+                                            {ensaio.status === "Aguardando Aceite" && (
+                                                <div className="mt-4 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 flex flex-col gap-3 relative z-10">
+                                                    <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 text-xs font-bold">
+                                                        <span className="material-symbols-outlined text-[20px] text-amber-600 dark:text-amber-400">assignment_turned_in</span>
+                                                        Proposta pendente de aceite
+                                                    </div>
+                                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal font-semibold">
+                                                        Analise a proposta técnica comercial e confirme o aceite para darmos início ao agendamento do ensaio.
+                                                    </p>
+                                                    <div className="grid grid-cols-2 gap-2 mt-1">
+                                                        <button
+                                                            disabled={!ensaio.proposalPdfUrl}
+                                                            onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'download')}
+                                                            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
+                                                                ensaio.proposalPdfUrl
+                                                                ? "bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 active:scale-[0.98]"
+                                                                : "bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-850 cursor-not-allowed opacity-50"
+                                                            }`}
+                                                        >
+                                                            <span className="material-symbols-outlined text-[16px]">download</span>
+                                                            Baixar Proposta
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleAcceptProposal(ensaio)}
+                                                            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                                            Aceitar Proposta
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Banner de Confirmação de Pagamento */}
+                                            {ensaio.status === "Aguardando Pagamento" && (
+                                                <div className="mt-4 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 flex flex-col gap-3 relative z-10">
+                                                    {ensaio.clientPaymentConfirmed ? (
+                                                        <>
+                                                            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
+                                                                <span className="material-symbols-outlined text-[20px] text-emerald-600 dark:text-emerald-400">check_circle</span>
+                                                                Pagamento confirmado
+                                                            </div>
+                                                            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal font-semibold">
+                                                                Você já confirmou o pagamento deste ensaio. Nossa equipe financeira está realizando a conciliação financeira.
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 text-xs font-bold">
+                                                                <span className="material-symbols-outlined text-[20px] text-blue-600 dark:text-blue-400">payments</span>
+                                                                Aguardando Confirmação de Pagamento
+                                                            </div>
+                                                            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal font-semibold">
+                                                                Identificamos que o faturamento foi processado. Se você já efetuou o pagamento, confirme no botão abaixo.
+                                                            </p>
+                                                            <div className="flex mt-1">
+                                                                <button
+                                                                    onClick={() => handleConfirmPayment(ensaio)}
+                                                                    className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[16px]">payments</span>
+                                                                    Confirmar que já paguei
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
 
@@ -578,18 +770,22 @@ export default function PortalClientePage() {
                                                 Relatório
                                             </button>
 
-                                            {/* Proposal View */}
+                                            {/* Proposal Download */}
                                             <button
                                                 disabled={!ensaio.proposalPdfUrl}
-                                                onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`)}
+                                                onClick={() => openPdfLink(
+                                                    ensaio.proposalPdfUrl, 
+                                                    `Proposta-${ensaio.id}.pdf`,
+                                                    'download'
+                                                )}
                                                 className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
                                                     ensaio.proposalPdfUrl 
-                                                    ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100" 
+                                                    ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 active:scale-[0.98]" 
                                                     : "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-800 cursor-not-allowed opacity-50"
                                                 }`}
                                             >
-                                                <span className="material-symbols-outlined text-[18px]">request_quote</span>
-                                                Proposta
+                                                <span className="material-symbols-outlined text-[18px]">download</span>
+                                                Baixar Proposta
                                             </button>
 
                                             {/* Invoice Download */}
@@ -598,7 +794,7 @@ export default function PortalClientePage() {
                                                 onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`)}
                                                 className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
                                                     ensaio.invoicePdfUrl 
-                                                    ? "bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100" 
+                                                    ? "bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100 active:scale-[0.98]" 
                                                     : "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-800 cursor-not-allowed opacity-50"
                                                 }`}
                                             >
@@ -612,7 +808,7 @@ export default function PortalClientePage() {
                                                 onClick={() => handleEditRequest(ensaio)}
                                                 className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
                                                     ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite"
-                                                    ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200" 
+                                                    ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98]" 
                                                     : "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-800 cursor-not-allowed opacity-50"
                                                 }`}
                                             >
@@ -759,10 +955,11 @@ export default function PortalClientePage() {
                                             />
                                             <input
                                                 type="text"
-                                                placeholder="Nome da Construtora (Opcional)"
-                                                className="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm"
+                                                placeholder="Nome da Construtora *"
+                                                className="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:ring-2 focus:ring-primary outline-none"
                                                 value={formData.nomeConstrutora}
                                                 onChange={(e) => setFormData({...formData, nomeConstrutora: e.target.value})}
+                                                required
                                             />
                                         </div>
                                     </div>
@@ -838,11 +1035,34 @@ export default function PortalClientePage() {
                                         <div className="space-y-2">
                                             {formData.datasDesejadas.map((data, idx) => (
                                                 <div key={idx} className="flex gap-2">
-                                                    <input type="date" className="flex-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm" value={data} onChange={(e) => {
-                                                        const n = [...formData.datasDesejadas];
-                                                        n[idx] = e.target.value;
-                                                        setFormData({...formData, datasDesejadas: n});
-                                                    }} required />
+                                                    <input 
+                                                        type="date" 
+                                                        min={getTodayString()}
+                                                        className="flex-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary" 
+                                                        value={data} 
+                                                        onClick={(e) => {
+                                                            try {
+                                                                (e.currentTarget as any).showPicker();
+                                                            } catch (err) {}
+                                                        }}
+                                                        onFocus={(e) => {
+                                                            try {
+                                                                (e.currentTarget as any).showPicker();
+                                                            } catch (err) {}
+                                                        }}
+                                                        onChange={(e) => {
+                                                            const selectedDate = e.target.value;
+                                                            const today = getTodayString();
+                                                            if (selectedDate && selectedDate < today) {
+                                                                toast.error("Por favor, selecione hoje ou uma data futura.");
+                                                                return;
+                                                            }
+                                                            const n = [...formData.datasDesejadas];
+                                                            n[idx] = selectedDate;
+                                                            setFormData({...formData, datasDesejadas: n});
+                                                        }} 
+                                                        required 
+                                                    />
                                                     {idx > 0 && (
                                                         <button type="button" onClick={() => setFormData({...formData, datasDesejadas: formData.datasDesejadas.filter((_, i) => i !== idx)})} className="p-2 text-red-500"><span className="material-symbols-outlined">delete</span></button>
                                                     )}

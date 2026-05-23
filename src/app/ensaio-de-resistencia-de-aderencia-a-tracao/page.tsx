@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import Link from "next/link";
+import { EnsaioCarousel } from "@/components/EnsaioCarousel";
 
 export const metadata = {
     title: "Ensaio de Resistência de Aderência à Tração | MMC LAB",
@@ -222,6 +223,9 @@ export default function EnsaioAderenciaPage() {
                                 </div>
                             </div>
                         </div>
+
+                        <EnsaioCarousel ensaioId="campo-aderencia" />
+                        <EnsaioCarousel ensaioId="laboratorio-aderencia" />
 
                         {/* Diferenciais da MMC Lab */}
                         <div className="mt-24 space-y-12">

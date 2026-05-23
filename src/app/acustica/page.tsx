@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import Link from "next/link";
+import { EnsaioCarousel } from "@/components/EnsaioCarousel";
 
 export default function AcusticaPage() {
     return (
@@ -107,6 +108,9 @@ export default function AcusticaPage() {
                         </div>
                     </div>
                 </section>
+
+                <EnsaioCarousel ensaioId="campo-acustica" />
+                <EnsaioCarousel ensaioId="laboratorio-isolamento-acustico" />
             </main>
 
             <SiteFooter />

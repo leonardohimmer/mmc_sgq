@@ -91,6 +91,7 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
     const [ratingTime, setRatingTime] = useState<number>(0);
     const [ratingQuality, setRatingQuality] = useState<number>(0);
     const [ratingDoc, setRatingDoc] = useState<number>(0);
+    const [ratingSystem, setRatingSystem] = useState<number>(0);
     
     // Novas justificativas
     const [justificationSpeed, setJustificationSpeed] = useState("");
@@ -98,6 +99,7 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
     const [justificationTime, setJustificationTime] = useState("");
     const [justificationQuality, setJustificationQuality] = useState("");
     const [justificationDoc, setJustificationDoc] = useState("");
+    const [justificationSystem, setJustificationSystem] = useState("");
 
     const [feedback, setFeedback] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -121,12 +123,14 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
                     setRatingTime(data.ratingTime);
                     setRatingQuality(data.ratingQuality);
                     setRatingDoc(data.ratingDoc);
+                    setRatingSystem(data.ratingSystem);
                     
                     setJustificationSpeed(data.justificationSpeed || "");
                     setJustificationComm(data.justificationComm || "");
                     setJustificationTime(data.justificationTime || "");
                     setJustificationQuality(data.justificationQuality || "");
                     setJustificationDoc(data.justificationDoc || "");
+                    setJustificationSystem(data.justificationSystem || "");
 
                     setFeedback(data.feedback);
                     setSuccess(true);
@@ -141,7 +145,7 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!ratingSpeed || !ratingComm || !ratingTime || !ratingQuality || !ratingDoc) {
+        if (!ratingSpeed || !ratingComm || !ratingTime || !ratingQuality || !ratingDoc || !ratingSystem) {
             toast.error("Por favor, avalie todos os itens antes de enviar.");
             return;
         }
@@ -151,7 +155,8 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
             (ratingComm <= 3 && !justificationComm.trim()) ||
             (ratingTime <= 3 && !justificationTime.trim()) ||
             (ratingQuality <= 3 && !justificationQuality.trim()) ||
-            (ratingDoc <= 3 && !justificationDoc.trim())) {
+            (ratingDoc <= 3 && !justificationDoc.trim()) ||
+            (ratingSystem <= 3 && !justificationSystem.trim())) {
             toast.error("Por favor, preencha a justificativa para as notas 3 ou menores.");
             return;
         }
@@ -167,11 +172,13 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
                     ratingTime, 
                     ratingQuality, 
                     ratingDoc, 
+                    ratingSystem,
                     justificationSpeed,
                     justificationComm,
                     justificationTime,
                     justificationQuality,
                     justificationDoc,
+                    justificationSystem,
                     feedback 
                 })
             });
@@ -308,6 +315,15 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
                                     onJustificationChange={setJustificationDoc}
                                     isCompleted={success}
                                 />
+                                <StarRating 
+                                    label="6. Experiência com o novo sistema" 
+                                    hint="Sua experiência geral navegando e utilizando o nosso novo sistema de gestão." 
+                                    value={ratingSystem} 
+                                    onChange={setRatingSystem} 
+                                    justification={justificationSystem}
+                                    onJustificationChange={setJustificationSystem}
+                                    isCompleted={success}
+                                />
                             </div>
 
                             <div className="pt-6 space-y-3 border-t border-slate-100 dark:border-slate-800 mt-8">
@@ -330,7 +346,7 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
                                 </Link>
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || !ratingSpeed || !ratingComm || !ratingTime || !ratingQuality || !ratingDoc}
+                                    disabled={isSubmitting || !ratingSpeed || !ratingComm || !ratingTime || !ratingQuality || !ratingDoc || !ratingSystem}
                                     className="w-full sm:w-auto px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                                 >
                                     {isSubmitting ? (

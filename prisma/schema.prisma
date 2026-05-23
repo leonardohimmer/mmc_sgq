@@ -155,11 +155,13 @@ model SatisfactionSurvey {
   ratingTime   Int?
   ratingQuality Int?
   ratingDoc    Int?
+  ratingSystem Int?
   justificationSpeed   String? @db.Text
   justificationComm    String? @db.Text
   justificationTime    String? @db.Text
   justificationQuality String? @db.Text
   justificationDoc      String? @db.Text
+  justificationSystem   String? @db.Text
   feedback     String?     @db.Text
   internalNotes String?    @db.Text
   status       String      @default("PENDING") // PENDING, COMPLETED, REVIEWED
