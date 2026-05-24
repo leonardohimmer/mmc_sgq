@@ -25,3 +25,13 @@ env:
     secret: DATABASE_URL
   - variable: DIRECT_URL
     secret: DIRECT_URL
+  - variable: EMAIL_HOST
+    secret: EMAIL_HOST
+  - variable: EMAIL_PORT
+    secret: EMAIL_PORT
+  - variable: EMAIL_SECURE
+    secret: EMAIL_SECURE
+  - variable: EMAIL_USER
+    secret: EMAIL_USER
+  - variable: EMAIL_PASS
+    secret: EMAIL_PASS

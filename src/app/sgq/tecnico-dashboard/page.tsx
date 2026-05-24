@@ -117,17 +117,8 @@ export default function TecnicoDashboardPage() {
                 </div>
             </div>
 
-            {/* Cabeçalho da Lista (Desktop) */}
-            <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-4 text-[11px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-[0.2em] mb-2">
-                <div className="col-span-1">Passo</div>
-                <div className="col-span-5">Etapa do Processo</div>
-                <div className="col-span-3">Responsabilidade</div>
-                <div className="col-span-2 text-center">Pendentes</div>
-                <div className="col-span-1 text-right">Ação</div>
-            </div>
-
-            {/* Lista de Etapas (Layout de Linhas Horizontais) */}
-            <div className="flex flex-col gap-4 mb-12">
+            {/* Lista de Etapas (Layout de Grade) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-12">
                 {Object.keys(STEP_CONFIG).sort((a, b) => Number(a) - Number(b)).map((id, index) => {
                     const config = STEP_CONFIG[id]
                     const count = getCountByStep(id)
@@ -138,51 +129,53 @@ export default function TecnicoDashboardPage() {
                             <Link 
                                 key={id}
                                 href={config.href}
-                                className={`group relative bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-6 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50 hover:border-blue-100 dark:hover:border-blue-900 transition-all flex flex-col lg:grid lg:grid-cols-12 items-center gap-4 ${count > 0 ? 'border-l-4 border-l-blue-500' : ''}`}
+                                className={`group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-${config.color}-500/30 dark:hover:border-${config.color}-500/30 transition-all duration-300 relative overflow-hidden flex flex-col h-full ${count > 0 ? `border-t-4 border-t-${config.color}-500` : ''}`}
                             >
-                                {/* Step Number */}
-                                <div className="col-span-1 flex items-center justify-center lg:justify-start">
-                                    <span className={`text-2xl font-black italic tracking-tighter transition-colors ${count > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-slate-200 dark:text-slate-800'}`}>
-                                        {id}
-                                    </span>
+                                {/* Status Header */}
+                                <div className="flex justify-between items-start mb-5 relative z-10">
+                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-${config.color}-100 dark:bg-${config.color}-500/10 text-${config.color}-700 dark:text-${config.color}-400 border-${config.color}-200 dark:border-${config.color}-500/30`}>
+                                        <span className="material-symbols-outlined text-[16px]">{config.icon}</span>
+                                        {config.statusDesc}
+                                    </div>
+                                    <div className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2.5 py-1 rounded-lg">
+                                        Passo {id}
+                                    </div>
                                 </div>
 
-                                {/* Label & Description */}
-                                <div className="col-span-5 flex items-center gap-5 mt-4 lg:mt-0 w-full">
-                                    <div className={`w-14 h-14 rounded-2xl bg-${config.color}-50 dark:bg-${config.color}-500/10 flex items-center justify-center shrink-0 group-hover:rotate-6 transition-all shadow-sm`}>
-                                        <span className={`material-symbols-outlined text-3xl text-${config.color}-600 dark:text-${config.color}-400`}>
-                                            {config.icon}
-                                        </span>
+                                {/* Content Area */}
+                                <div className="flex-1 mb-6 relative z-10">
+                                    <h3 className={`text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight mb-3 group-hover:text-${config.color}-600 dark:group-hover:text-${config.color}-400 transition-colors`}>
+                                        {config.label}
+                                    </h3>
+                                    
+                                    <div className="flex flex-col gap-1 mt-3">
+                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Responsabilidade</span>
+                                        <span className="text-[12px] font-bold text-slate-600 dark:text-slate-300">{config.responsible}</span>
                                     </div>
+                                </div>
+
+                                {/* Actions / Pendentes */}
+                                <div className="grid grid-cols-2 gap-2 sm:gap-3 relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
                                     <div className="flex flex-col">
-                                        <h3 className="font-black text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors tracking-tight">{config.label}</h3>
-                                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{config.statusDesc}</p>
+                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Pendentes</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-2xl font-black ${count > 0 ? `text-${config.color}-600 dark:text-${config.color}-400` : 'text-slate-300 dark:text-slate-600'}`}>
+                                                {isLoading ? '--' : count.toString().padStart(2, '0')}
+                                            </span>
+                                            {count > 0 && (
+                                                <span className="flex h-2 w-2 relative">
+                                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-${config.color}-400 opacity-75`}></span>
+                                                    <span className={`relative inline-flex rounded-full h-2 w-2 bg-${config.color}-500`}></span>
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-
-                                {/* Responsibility */}
-                                <div className="col-span-3 mt-3 lg:mt-0 flex flex-col w-full lg:w-auto">
-                                    <span className="text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest mb-1">Responsabilidade</span>
-                                    <span className="text-[13px] font-bold text-slate-500 dark:text-slate-400">{config.responsible}</span>
-                                </div>
-
-                                {/* Count */}
-                                <div className="col-span-2 text-center mt-3 lg:mt-0 flex items-center justify-center gap-3">
-                                    <div className={`min-w-[60px] px-4 py-2 rounded-2xl transition-all ${count > 0 ? `bg-${config.color}-500 text-white shadow-lg shadow-${config.color}-200 dark:shadow-none font-black scale-110` : 'bg-slate-50 dark:bg-slate-800/50 text-slate-300 dark:text-slate-700 font-bold'} text-xl`}>
-                                        {isLoading ? '--' : count.toString().padStart(2, '0')}
-                                    </div>
-                                    {count > 0 && (
-                                        <span className="flex h-3 w-3 relative">
-                                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-${config.color}-400 opacity-75`}></span>
-                                            <span className={`relative inline-flex rounded-full h-3 w-3 bg-${config.color}-500`}></span>
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Action */}
-                                <div className="col-span-1 text-right mt-4 lg:mt-0 hidden lg:block">
-                                    <div className={`inline-flex w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 items-center justify-center group-hover:bg-blue-600 dark:group-hover:bg-blue-500 group-hover:text-white group-hover:translate-x-1 transition-all shadow-sm`}>
-                                        <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                                    
+                                    <div className="flex items-end justify-end">
+                                        <div className={`flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold transition-all bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:bg-${config.color}-500 group-hover:text-white shadow-sm`}>
+                                            Acessar
+                                            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                        </div>
                                     </div>
                                 </div>
                             </Link>
@@ -192,48 +185,49 @@ export default function TecnicoDashboardPage() {
                             <div 
                                 key={id}
                                 title="Acesso restrito ao responsável por esta etapa"
-                                className={`relative bg-slate-50/50 dark:bg-slate-900/40 rounded-[2rem] border border-slate-100/70 dark:border-slate-800/50 p-6 flex flex-col lg:grid lg:grid-cols-12 items-center gap-4 opacity-50 cursor-not-allowed select-none transition-all`}
+                                className="group relative bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100/70 dark:border-slate-800/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 opacity-60 cursor-not-allowed select-none flex flex-col h-full"
                             >
-                                {/* Step Number */}
-                                <div className="col-span-1 flex items-center justify-center lg:justify-start">
-                                    <span className={`text-2xl font-black italic tracking-tighter text-slate-200 dark:text-slate-800`}>
-                                        {id}
-                                    </span>
+                                {/* Status Header */}
+                                <div className="flex justify-between items-start mb-5 relative z-10">
+                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700`}>
+                                        <span className="material-symbols-outlined text-[16px]">{config.icon}</span>
+                                        Acesso Restrito
+                                    </div>
+                                    <div className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-600 bg-slate-100/50 dark:bg-slate-800/30 px-2.5 py-1 rounded-lg">
+                                        Passo {id}
+                                    </div>
                                 </div>
 
-                                {/* Label & Description */}
-                                <div className="col-span-5 flex items-center gap-5 mt-4 lg:mt-0 w-full">
-                                    <div className={`w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center shrink-0 shadow-sm`}>
-                                        <span className={`material-symbols-outlined text-3xl text-slate-400 dark:text-slate-500`}>
-                                            {config.icon}
-                                        </span>
+                                {/* Content Area */}
+                                <div className="flex-1 mb-6 relative z-10">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <h3 className="text-base sm:text-lg font-bold text-slate-400 dark:text-slate-500 leading-tight">
+                                            {config.label}
+                                        </h3>
+                                        <span className="material-symbols-outlined text-sm text-slate-400">lock</span>
                                     </div>
+                                    
+                                    <div className="flex flex-col gap-1 mt-3">
+                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Responsabilidade</span>
+                                        <span className="text-[12px] font-bold text-slate-400 dark:text-slate-600">{config.responsible}</span>
+                                    </div>
+                                </div>
+
+                                {/* Actions / Pendentes */}
+                                <div className="grid grid-cols-2 gap-2 sm:gap-3 relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
                                     <div className="flex flex-col">
+                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1">Pendentes</span>
                                         <div className="flex items-center gap-2">
-                                            <h3 className="font-black text-slate-400 dark:text-slate-500 tracking-tight">{config.label}</h3>
-                                            <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500">lock</span>
+                                            <span className="text-2xl font-black text-slate-300 dark:text-slate-700">
+                                                {isLoading ? '--' : count.toString().padStart(2, '0')}
+                                            </span>
                                         </div>
-                                        <p className="text-[11px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-wider">{config.statusDesc}</p>
                                     </div>
-                                </div>
-
-                                {/* Responsibility */}
-                                <div className="col-span-3 mt-3 lg:mt-0 flex flex-col w-full lg:w-auto">
-                                    <span className="text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest mb-1">Responsabilidade</span>
-                                    <span className="text-[13px] font-bold text-slate-400 dark:text-slate-600">{config.responsible}</span>
-                                </div>
-
-                                {/* Count */}
-                                <div className="col-span-2 text-center mt-3 lg:mt-0 flex items-center justify-center gap-3">
-                                    <div className={`min-w-[60px] px-4 py-2 rounded-2xl bg-slate-100/50 dark:bg-slate-800/20 text-slate-300 dark:text-slate-700 font-bold text-xl`}>
-                                        {isLoading ? '--' : count.toString().padStart(2, '0')}
-                                    </div>
-                                </div>
-
-                                {/* Action */}
-                                <div className="col-span-1 text-right mt-4 lg:mt-0 hidden lg:block">
-                                    <div className={`inline-flex w-12 h-12 rounded-2xl bg-slate-100/50 dark:bg-slate-800/20 items-center justify-center text-slate-300 dark:text-slate-700 shadow-sm`}>
-                                        <span className="material-symbols-outlined text-xl">lock</span>
+                                    
+                                    <div className="flex items-end justify-end">
+                                        <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold bg-slate-100/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-600">
+                                            <span className="material-symbols-outlined text-[16px]">lock</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
