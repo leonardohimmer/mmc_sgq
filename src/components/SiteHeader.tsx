@@ -34,7 +34,7 @@ export function SiteHeader() {
                         alt="MMC LAB"
                         width={130}
                         height={42}
-                        className="object-contain dark:brightness-200 dark:grayscale transition-all"
+                        className="object-contain transition-all"
                         priority
                     />
                     <span className="text-[9px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 hidden xs:inline-block">BETA</span>

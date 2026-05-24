@@ -99,6 +99,21 @@ const getTodayString = () => {
     return `${yyyy}-${mm}-${dd}`;
 };
 
+const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    const limited = digits.substring(0, 11);
+    if (limited.length <= 2) {
+        return limited;
+    }
+    if (limited.length <= 6) {
+        return `(${limited.substring(0, 2)}) ${limited.substring(2)}`;
+    }
+    if (limited.length <= 10) {
+        return `(${limited.substring(0, 2)}) ${limited.substring(2, 6)}-${limited.substring(6)}`;
+    }
+    return `(${limited.substring(0, 2)}) ${limited.substring(2, 7)}-${limited.substring(7)}`;
+};
+
 
 
 export default function PortalClientePage() {
@@ -950,8 +965,9 @@ export default function PortalClientePage() {
                                                 placeholder="Telefone / WhatsApp"
                                                 className="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm"
                                                 value={formData.telefone}
-                                                onChange={(e) => setFormData({...formData, telefone: e.target.value})}
+                                                onChange={(e) => setFormData({...formData, telefone: formatPhoneNumber(e.target.value)})}
                                                 required
+                                                maxLength={15}
                                             />
                                             <input
                                                 type="text"

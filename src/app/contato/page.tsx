@@ -69,6 +69,29 @@ const ESTADOS = [
     "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ]
 
+const getTodayString = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+};
+
+const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    const limited = digits.substring(0, 11);
+    if (limited.length <= 2) {
+        return limited;
+    }
+    if (limited.length <= 6) {
+        return `(${limited.substring(0, 2)}) ${limited.substring(2)}`;
+    }
+    if (limited.length <= 10) {
+        return `(${limited.substring(0, 2)}) ${limited.substring(2, 6)}-${limited.substring(6)}`;
+    }
+    return `(${limited.substring(0, 2)}) ${limited.substring(2, 7)}-${limited.substring(7)}`;
+};
+
 type FormStatus = "idle" | "loading" | "success" | "error"
 
 export default function ContatoPage() {
@@ -94,7 +117,11 @@ export default function ContatoPage() {
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+        let { name, value } = e.target;
+        if (name === "telefone") {
+            value = formatPhoneNumber(value);
+        }
+        setForm(prev => ({ ...prev, [name]: value }))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -310,6 +337,7 @@ export default function ContatoPage() {
                                                 value={form.telefone}
                                                 onChange={handleChange}
                                                 required
+                                                maxLength={15}
                                                 placeholder="(00) 00000-0000"
                                                 className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary text-slate-700 dark:text-slate-300 placeholder-slate-400"
                                             />
@@ -491,11 +519,28 @@ export default function ContatoPage() {
                                                 <div key={idx} className="flex gap-2 items-center">
                                                     <input
                                                         type="date"
-                                                        className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary text-slate-700 dark:text-slate-300"
+                                                        min={getTodayString()}
+                                                        className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary text-slate-700 dark:text-slate-300 cursor-pointer"
                                                         value={dataItem}
+                                                        onClick={(e) => {
+                                                            try {
+                                                                (e.currentTarget).showPicker();
+                                                            } catch (err) {}
+                                                        }}
+                                                        onFocus={(e) => {
+                                                            try {
+                                                                (e.currentTarget).showPicker();
+                                                            } catch (err) {}
+                                                        }}
                                                         onChange={(e) => {
+                                                            const selectedDate = e.target.value;
+                                                            const today = getTodayString();
+                                                            if (selectedDate && selectedDate < today) {
+                                                                toast.error("Por favor, selecione hoje ou uma data futura.");
+                                                                return;
+                                                            }
                                                             const newDatas = [...form.datasDesejadas];
-                                                            newDatas[idx] = e.target.value;
+                                                            newDatas[idx] = selectedDate;
                                                             setForm({ ...form, datasDesejadas: newDatas });
                                                         }}
                                                         required
@@ -588,7 +633,7 @@ export default function ContatoPage() {
                                     </a>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 h-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl flex flex-col justify-center">
                                         <span className="material-symbols-outlined text-primary text-3xl mb-4">location_on</span>
                                         <h4 className="font-bold text-slate-900 dark:text-white mb-2">Endereço Sede</h4>
