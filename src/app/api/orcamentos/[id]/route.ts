@@ -15,6 +15,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
             return NextResponse.json({ error: "Status inválido" }, { status: 400 })
         }
 
+        let emailSent = false
+        let emailError = null
+        let generatedPasswordOut = null
+
         // Se o status for alterado para EM_CONTATO ou FINALIZADO, garantimos o acesso do cliente (se não for arquivamento)
         if (!skipFlow && (status === "EM_CONTATO" || status === "FINALIZADO")) {
             const orcamento = await prisma.orcamento.findUnique({
@@ -52,7 +56,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
                 // Enviar e-mail de boas-vindas com a senha inicial apenas para novos clientes
                 if (isNewUser) {
-                    await sendWelcomeEmail(user.email, user.name, generatedPassword)
+                    generatedPasswordOut = generatedPassword
+                    const mailResult = await sendWelcomeEmail(user.email, user.name, generatedPassword)
+                    emailSent = mailResult.success
+                    if (!mailResult.success) {
+                        emailError = mailResult.error ? (mailResult.error as any).message || String(mailResult.error) : "Erro SMTP"
+                    }
                 }
 
                 // 2. Criar Solicitação de Ensaio (TestRequest) se não existir para este orçamento
@@ -105,7 +114,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         })
 
 
-        return NextResponse.json(orcamento)
+        return NextResponse.json({
+            ...orcamento,
+            emailSent,
+            emailError,
+            generatedPassword: generatedPasswordOut
+        })
     } catch (error) {
         console.error("Erro ao atualizar orçamento:", error)
         return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

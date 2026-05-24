@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import ConfirmModal from "@/components/ConfirmModal"
+import { toast } from "sonner"
 
 interface Orcamento {
     id: string
@@ -55,6 +56,16 @@ export default function OrcamentosPage() {
         message: "",
         onConfirm: () => {}
     })
+    const [credentialsModal, setCredentialsModal] = useState<{
+        isOpen: boolean
+        email: string
+        password?: string
+        clientName: string
+    }>({
+        isOpen: false,
+        email: "",
+        clientName: ""
+    })
 
     const fetchOrcamentos = async () => {
         try {
@@ -83,7 +94,18 @@ export default function OrcamentosPage() {
                 body: JSON.stringify({ status, skipFlow }),
             })
             if (res.ok) {
+                const data = await res.json()
                 setOrcamentos(prev => prev.map(o => o.id === id ? { ...o, status } : o))
+
+                // Se um novo usuário foi criado mas o e-mail SMTP falhou, exibe as credenciais na tela
+                if (data.generatedPassword && !data.emailSent) {
+                    setCredentialsModal({
+                        isOpen: true,
+                        email: data.email || "",
+                        password: data.generatedPassword,
+                        clientName: data.nomeContratante || data.nomeCompleto || "Cliente"
+                    })
+                }
             }
         } catch (e) {
             console.error("Erro ao atualizar:", e)
@@ -475,6 +497,91 @@ export default function OrcamentosPage() {
                 message={confirmConfig.message}
                 type={confirmConfig.type}
             />
+
+            {/* Modal de Contingência de Credenciais */}
+            {credentialsModal.isOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+                        onClick={() => setCredentialsModal(prev => ({ ...prev, isOpen: false }))}
+                    />
+                    
+                    {/* Modal Content */}
+                    <div className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[32px] p-8 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+                        <button 
+                            onClick={() => setCredentialsModal(prev => ({ ...prev, isOpen: false }))}
+                            className="absolute right-6 top-6 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all hover:scale-110"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="w-20 h-20 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center mb-2">
+                                <span className="material-symbols-outlined text-4xl text-amber-600 dark:text-amber-400">report_problem</span>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight">
+                                    Acesso Criado com Alerta
+                                </h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                                    O perfil de <strong>{credentialsModal.clientName}</strong> foi criado com sucesso, mas o e-mail de boas-vindas não pôde ser enviado via SMTP.
+                                </p>
+                            </div>
+
+                            {/* Credenciais */}
+                            <div className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-3 font-medium text-sm text-slate-700 dark:text-slate-300 mt-2">
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">E-mail de Login</span>
+                                    <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-2">
+                                        <span className="font-mono text-slate-900 dark:text-white truncate">{credentialsModal.email}</span>
+                                        <button 
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(credentialsModal.email)
+                                                toast.success("E-mail copiado!")
+                                            }}
+                                            className="text-primary hover:text-primary-hover shrink-0 flex items-center"
+                                            title="Copiar e-mail"
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Senha Inicial</span>
+                                    <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-2">
+                                        <span className="font-mono text-slate-900 dark:text-white truncate">{credentialsModal.password}</span>
+                                        <button 
+                                            onClick={() => {
+                                                if (credentialsModal.password) {
+                                                    navigator.clipboard.writeText(credentialsModal.password)
+                                                    toast.success("Senha copiada!")
+                                                }
+                                            }}
+                                            className="text-primary hover:text-primary-hover shrink-0 flex items-center"
+                                            title="Copiar senha"
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                                Por favor, copie estes dados e envie-os manualmente ao cliente por WhatsApp ou e-mail pessoal.
+                            </p>
+
+                            <button 
+                                onClick={() => setCredentialsModal(prev => ({ ...prev, isOpen: false }))}
+                                className="w-full py-4 bg-primary hover:bg-primary-hover text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 mt-4 hover:-translate-y-0.5 active:translate-y-0"
+                            >
+                                Entendi, fechar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
