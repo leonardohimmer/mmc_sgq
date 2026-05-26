@@ -543,6 +543,7 @@ export default function PortalClientePage() {
             datasDesejadas: [""],
             observacoes: ""
         });
+        setActiveTab("Status de cada ensaio");
     };
 
 
@@ -559,7 +560,7 @@ export default function PortalClientePage() {
                                     alt="MMC LAB"
                                     width={120}
                                     height={40}
-                                    className="object-contain dark:brightness-200 dark:grayscale transition-all w-[100px] sm:w-[140px]"
+                                    className="object-contain transition-all w-[100px] sm:w-[140px]"
                                     priority
                                 />
                                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">PORTAL</span>
@@ -613,34 +614,21 @@ export default function PortalClientePage() {
             {/* Main Content */}
             <main className="max-w-[1600px] mx-auto px-4 py-6 sm:py-8">
                 {/* Custom Tab Navigation - Responsive */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-                    <div className="flex items-center gap-1 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl w-fit">
-                        <button
-                            onClick={() => {
-                                setActiveTab("Status de cada ensaio");
-                                resetForm();
-                            }}
-                            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${activeTab === "Status de cada ensaio" ? "bg-white dark:bg-slate-700 text-primary shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}
-                        >
-                            <span className="material-symbols-outlined text-[18px]">list_alt</span>
-                            Status dos Ensaios
-                        </button>
-                        <button
-                            onClick={() => setActiveTab("Nova Solicitação")}
-                            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${activeTab === "Nova Solicitação" ? "bg-white dark:bg-slate-700 text-primary shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}
-                        >
-                            <span className="material-symbols-outlined text-[18px]">{isEditing ? "edit_note" : "add_circle"}</span>
-                            {isEditing ? "Editar Solicitação" : "Nova Solicitação"}
-                        </button>
-                    </div>
+                {activeTab === "Status de cada ensaio" && (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+                        <div className="flex items-center gap-1 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl w-fit">
+                            <div className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-white dark:bg-slate-700 text-primary shadow-sm flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[18px]">list_alt</span>
+                                Status dos Ensaios
+                            </div>
+                        </div>
 
-                    {activeTab === "Status de cada ensaio" && (
                         <div className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             {ensaios.length} ensaios encontrados
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 {/* Tab: Status List */}
                 {activeTab === "Status de cada ensaio" && (
@@ -698,39 +686,6 @@ export default function PortalClientePage() {
                                                 </Link>
                                             )}
 
-                                            {/* Banner de Aceite de Proposta */}
-                                            {ensaio.status === "Aguardando Aceite" && (
-                                                <div className="mt-4 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 flex flex-col gap-3 relative z-10">
-                                                    <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 text-xs font-bold">
-                                                        <span className="material-symbols-outlined text-[20px] text-amber-600 dark:text-amber-400">assignment_turned_in</span>
-                                                        Proposta pendente de aceite
-                                                    </div>
-                                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal font-semibold">
-                                                        Analise a proposta técnica comercial e confirme o aceite para darmos início ao agendamento do ensaio.
-                                                    </p>
-                                                    <div className="grid grid-cols-2 gap-2 mt-1">
-                                                        <button
-                                                            disabled={!ensaio.proposalPdfUrl}
-                                                            onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'download')}
-                                                            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
-                                                                ensaio.proposalPdfUrl
-                                                                ? "bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 active:scale-[0.98]"
-                                                                : "bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-850 cursor-not-allowed opacity-50"
-                                                            }`}
-                                                        >
-                                                            <span className="material-symbols-outlined text-[16px]">download</span>
-                                                            Baixar Proposta
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleAcceptProposal(ensaio)}
-                                                            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]"
-                                                        >
-                                                            <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                                                            Aceitar Proposta
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
 
                                             {/* Banner de Confirmação de Pagamento */}
                                             {ensaio.status === "Aguardando Pagamento" && (
@@ -769,68 +724,65 @@ export default function PortalClientePage() {
                                             )}
                                         </div>
 
-                                        {/* Actions Grid */}
-                                        <div className="grid grid-cols-2 gap-2 sm:gap-3 relative z-10">
-                                            {/* Report Download */}
-                                            <button
-                                                disabled={!ensaio.reportPdfUrl}
-                                                onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`)}
-                                                className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
-                                                    ensaio.reportPdfUrl 
-                                                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100" 
-                                                    : "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-800 cursor-not-allowed opacity-50"
-                                                }`}
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">description</span>
-                                                Relatório
-                                            </button>
+                                         {/* Actions Grid */}
+                                         <div className="flex flex-col gap-2 w-full mt-4">
+                                             {/* Documents Row (Relatório, Proposta, Nota Fiscal) */}
+                                             {(!!ensaio.reportPdfUrl || !!ensaio.proposalPdfUrl || !!ensaio.invoicePdfUrl) && (
+                                                 <div className="flex flex-row gap-2 relative z-10 w-full">
+                                                     {!!ensaio.reportPdfUrl && (
+                                                         <button
+                                                             onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
+                                                             className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 active:scale-[0.98] truncate"
+                                                         >
+                                                             <span className="material-symbols-outlined text-[16px] shrink-0">description</span>
+                                                             <span className="truncate">Relatório</span>
+                                                         </button>
+                                                     )}
 
-                                            {/* Proposal Download */}
-                                            <button
-                                                disabled={!ensaio.proposalPdfUrl}
-                                                onClick={() => openPdfLink(
-                                                    ensaio.proposalPdfUrl, 
-                                                    `Proposta-${ensaio.id}.pdf`,
-                                                    'download'
-                                                )}
-                                                className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
-                                                    ensaio.proposalPdfUrl 
-                                                    ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 active:scale-[0.98]" 
-                                                    : "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-800 cursor-not-allowed opacity-50"
-                                                }`}
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">download</span>
-                                                Baixar Proposta
-                                            </button>
+                                                     {!!ensaio.proposalPdfUrl && (
+                                                         <button
+                                                             onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'view')}
+                                                             className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 active:scale-[0.98] truncate"
+                                                         >
+                                                             <span className="material-symbols-outlined text-[16px] shrink-0">assignment</span>
+                                                             <span className="truncate">Proposta</span>
+                                                         </button>
+                                                     )}
 
-                                            {/* Invoice Download */}
-                                            <button
-                                                disabled={!ensaio.invoicePdfUrl}
-                                                onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`)}
-                                                className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
-                                                    ensaio.invoicePdfUrl 
-                                                    ? "bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100 active:scale-[0.98]" 
-                                                    : "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-800 cursor-not-allowed opacity-50"
-                                                }`}
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">receipt</span>
-                                                Nota Fiscal
-                                            </button>
+                                                     {!!ensaio.invoicePdfUrl && (
+                                                         <button
+                                                             onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
+                                                             className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100 active:scale-[0.98] truncate"
+                                                         >
+                                                             <span className="material-symbols-outlined text-[16px] shrink-0">receipt</span>
+                                                             <span className="truncate">Nota Fiscal</span>
+                                                         </button>
+                                                     )}
+                                                 </div>
+                                             )}
 
-                                            {/* Edit Button - Only if status is initial/requested */}
-                                            <button
-                                                disabled={ensaio.status !== "Recebido" && ensaio.status !== "Aguardando Aceite"}
-                                                onClick={() => handleEditRequest(ensaio)}
-                                                className={`flex items-center justify-center gap-2 p-2.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all border ${
-                                                    ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite"
-                                                    ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98]" 
-                                                    : "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border-slate-100 dark:border-slate-800 cursor-not-allowed opacity-50"
-                                                }`}
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">edit</span>
-                                                Revisar
-                                            </button>
-                                        </div>
+                                             {/* Primary Actions Row (Aceitar Proposta, Revisar) */}
+                                             {(ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite") && (
+                                                 <div className="flex flex-row gap-2 relative z-10 w-full">
+                                                     {ensaio.status === "Aguardando Aceite" && (
+                                                         <button
+                                                             onClick={() => handleAcceptProposal(ensaio)}
+                                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
+                                                         >
+                                                             <span className="material-symbols-outlined text-[16px] shrink-0">check_circle</span>
+                                                             <span className="truncate">Aceitar Proposta</span>
+                                                         </button>
+                                                     )}
+                                                     <button
+                                                         onClick={() => handleEditRequest(ensaio)}
+                                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
+                                                     >
+                                                         <span className="material-symbols-outlined text-[16px] shrink-0">edit</span>
+                                                         <span className="truncate">Revisar</span>
+                                                     </button>
+                                                 </div>
+                                             )}
+                                         </div>
 
                                         {/* Decorative Background Icon */}
                                         <span className="absolute -bottom-4 -right-4 material-symbols-outlined text-[120px] opacity-[0.03] dark:opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform duration-500">

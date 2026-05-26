@@ -14,12 +14,22 @@ type User = {
 }
 
 const RESPONSAVEL_PERMISSIONS = [
-    { id: "resp_acustica", label: "Acústica" },
-    { id: "resp_aderencia", label: "Aderência" },
-    { id: "resp_guarda_corpo", label: "Guarda-corpo" },
-    { id: "resp_luminico", label: "Lumínico" },
-    { id: "resp_percussao", label: "Percussão" },
-    { id: "resp_impermeabilizacao", label: "Impermeabilização" },
+    { id: "resp_iso_acustico_lab", label: "Ensaio de Isolamento Acústico em Laboratório (Rw)" },
+    { id: "resp_iso_ruido_impacto", label: "Ensaio de Isolamento ao Ruído de Impacto" },
+    { id: "resp_mapa_ruido", label: "Mapa de Ruído" },
+    { id: "resp_insp_camera_acustica", label: "Inspeção com Câmera Acústica" },
+    { id: "resp_ancoragem", label: "Ensaio de Ancoragem" },
+    { id: "resp_esclerometria", label: "Ensaio de Esclerometria" },
+    { id: "resp_guarda_corpo", label: "Ensaio de Guarda-corpo e Parapeito" },
+    { id: "resp_impacto_corpo", label: "Ensaio de Impacto de Corpo Mole e Corpo Duro" },
+    { id: "resp_pit", label: "Ensaio de Integridade de Estacas (PIT)" },
+    { id: "resp_pecas_suspensas", label: "Ensaio de Peças Suspensas" },
+    { id: "resp_percussao", label: "Ensaio de Percussão" },
+    { id: "resp_permeabilidade", label: "Ensaio de Permeabilidade" },
+    { id: "resp_arrancamento", label: "Ensaio de Resistência de Aderência à Tração (Arrancamento)" },
+    { id: "resp_luminico", label: "Ensaio Lumínico" },
+    { id: "resp_insp_fachadas", label: "Inspeção de Fachadas" },
+    { id: "resp_insp_termografica", label: "Inspeção Termográfica" },
 ]
 
 export default function ResponsavelTecnicoPage() {

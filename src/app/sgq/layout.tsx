@@ -341,7 +341,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 >
                     <span className="material-symbols-outlined text-[22px]">menu</span>
                 </button>
-                <Image src="/logo.png" alt="MMC LAB" width={100} height={32} className="object-contain dark:brightness-200 dark:grayscale" />
+                <Image src="/logo.png" alt="MMC LAB" width={100} height={32} className="object-contain" />
                 <div className="w-9 h-9 flex items-center justify-center">
                     <ThemeToggle />
                 </div>
@@ -405,7 +405,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                                 alt="MMC LAB"
                                 width={60}
                                 height={30}
-                                className="object-contain dark:brightness-200 dark:grayscale"
+                                className="object-contain"
                             />
                         </div>
                     ) : (
@@ -415,7 +415,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                                 alt="MMC LAB"
                                 width={140}
                                 height={45}
-                                className="object-contain dark:brightness-200 dark:grayscale transition-all"
+                                className="object-contain transition-all"
                                 priority
                             />
                         </div>
@@ -609,7 +609,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
                     {!isCollapsed && (
                         <div className="flex justify-center mt-2.5">
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v1.9.6 • Atualizado: {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v1.10.7 • Atualizado: 26/05/2026 19:38</span>
                         </div>
                     )}
                 </div>

@@ -36,31 +36,29 @@ export default function TecnicoDashboardPage() {
         color: string;
         responsible: string;
     }> = {
-        '01': { label: 'Solicitação de Cliente', statusDesc: 'Orçamentos pendentes', icon: 'mail', href: '/sgq/site/orcamentos', permission: 'sistema_site', statusKey: 'RECEBIDO', color: 'blue', responsible: 'Comercial / Administrativo' },
-        '02': { label: 'Envio da Proposta', statusDesc: 'Aguardando aceite', icon: 'send_money', href: '/sgq/envio-proposta', permission: 'tecnico_envio_proposta', statusKey: 'AGUARDANDO_ACEITE', color: 'orange', responsible: 'Assistente Administrativo' },
-        '03': { label: 'Agendamento', statusDesc: 'Aguardando agendamento', icon: 'calendar_month', href: '/sgq/aguardando-agendamento', permission: 'tecnico_aguardando_agendamento', statusKey: 'AGUARDANDO_AGENDAMENTO', color: 'amber', responsible: 'Assistente Administrativo' },
-        '04': { label: 'Execução do Ensaio', statusDesc: 'Trabalho no laboratório', icon: 'science', href: '/sgq/execucao-ensaios', permission: 'tecnico_execucao_ensaios', statusKey: 'EM_EXECUCAO', color: 'purple', responsible: 'Equipe Técnica' },
-        '05': { label: 'Elaboração do Relatório', statusDesc: 'Redigindo documento', icon: 'edit_note', href: '/sgq/elaboracao-relatorio', permission: 'tecnico_elaboracao_relatorio', statusKey: 'ELABORANDO_RELATORIO', color: 'orange', responsible: 'Equipe Técnica/Responsável' },
-        '06': { label: 'Aprovação de Relatório', statusDesc: 'Aprovação pendente', icon: 'task', href: '/sgq/aprovacao', permission: 'tecnico_aprovacao', statusKey: 'AGUARDANDO_APROVACAO', color: 'red', responsible: 'Responsável Técnico' },
-        '07': { label: 'Cobrança', statusDesc: 'Envio de fatura', icon: 'payments', href: '/sgq/admin/receber/cobrancas', permission: 'tecnico_cobrancas', statusKey: 'COBRANCA', color: 'teal', responsible: 'Setor Técnico' },
-        '08': { label: 'Pagamento', statusDesc: 'Confirmação de recebimento', icon: 'account_balance_wallet', href: '/sgq/admin/receber/recebimentos', permission: 'tecnico_recebimentos', statusKey: 'PAGAMENTO', color: 'indigo', responsible: 'Setor Técnico' },
-        '09': { label: 'Pesquisa de Satisfação', statusDesc: 'Aguardando feedback', icon: 'sentiment_satisfied', href: '/sgq/pesquisa-satisfacao', permission: 'tecnico_pesquisa_satisfacao', statusKey: 'PESQUISA_PENDENTE', color: 'pink', responsible: 'Qualidade' },
-        '10': { label: 'Processo Finalizado', statusDesc: 'Concluído', icon: 'verified', href: '/sgq/historico-processos', permission: 'tecnico_dashboard', statusKey: 'FINALIZADO', color: 'emerald', responsible: 'Sistema' },
+        '01': { label: 'Envio da Proposta', statusDesc: 'Aguardando aceite', icon: 'send_money', href: '/sgq/envio-proposta', permission: 'tecnico_envio_proposta', statusKey: 'AGUARDANDO_ACEITE', color: 'orange', responsible: 'Assistente Administrativo' },
+        '02': { label: 'Agendamento', statusDesc: 'Aguardando agendamento', icon: 'calendar_month', href: '/sgq/aguardando-agendamento', permission: 'tecnico_aguardando_agendamento', statusKey: 'AGUARDANDO_AGENDAMENTO', color: 'amber', responsible: 'Assistente Administrativo' },
+        '03': { label: 'Execução do Ensaio', statusDesc: 'Trabalho no laboratório', icon: 'science', href: '/sgq/execucao-ensaios', permission: 'tecnico_execucao_ensaios', statusKey: 'EM_EXECUCAO', color: 'purple', responsible: 'Equipe Técnica' },
+        '04': { label: 'Elaboração do Relatório', statusDesc: 'Redigindo documento', icon: 'edit_note', href: '/sgq/elaboracao-relatorio', permission: 'tecnico_elaboracao_relatorio', statusKey: 'ELABORANDO_RELATORIO', color: 'orange', responsible: 'Equipe Técnica/Responsável' },
+        '05': { label: 'Aprovação de Relatório', statusDesc: 'Aprovação pendente', icon: 'task', href: '/sgq/aprovacao', permission: 'tecnico_aprovacao', statusKey: 'AGUARDANDO_APROVACAO', color: 'red', responsible: 'Responsável Técnico' },
+        '06': { label: 'Cobrança', statusDesc: 'Envio de fatura', icon: 'payments', href: '/sgq/admin/receber/cobrancas', permission: 'tecnico_cobrancas', statusKey: 'COBRANCA', color: 'teal', responsible: 'Setor Técnico' },
+        '07': { label: 'Pagamento', statusDesc: 'Confirmação de recebimento', icon: 'account_balance_wallet', href: '/sgq/admin/receber/recebimentos', permission: 'tecnico_recebimentos', statusKey: 'PAGAMENTO', color: 'indigo', responsible: 'Setor Técnico' },
+        '08': { label: 'Pesquisa de Satisfação', statusDesc: 'Aguardando feedback', icon: 'sentiment_satisfied', href: '/sgq/pesquisa-satisfacao', permission: 'tecnico_pesquisa_satisfacao', statusKey: 'PESQUISA_PENDENTE', color: 'pink', responsible: 'Qualidade' },
+        '09': { label: 'Processo Finalizado', statusDesc: 'Concluído', icon: 'verified', href: '/sgq/historico-processos', permission: 'tecnico_dashboard', statusKey: 'FINALIZADO', color: 'emerald', responsible: 'Sistema' },
     }
 
     const getCountByStep = (stepId: string) => {
         if (!counts) return 0
         switch (stepId) {
-            case '01': return counts.orcamentos
-            case '02': return counts.propostas
-            case '03': return counts.agendamento
-            case '04': return counts.execucao
-            case '05': return counts.elaboracao
-            case '06': return counts.envioRelatorio
-            case '07': return counts.cobranca
-            case '08': return counts.pagamento
-            case '09': return counts.pesquisa
-            case '10': return counts.finalizado
+            case '01': return counts.propostas
+            case '02': return counts.agendamento
+            case '03': return counts.execucao
+            case '04': return counts.elaboracao
+            case '05': return counts.envioRelatorio
+            case '06': return counts.cobranca
+            case '07': return counts.pagamento
+            case '08': return counts.pesquisa
+            case '09': return counts.finalizado
             default: return 0
         }
     }
@@ -69,7 +67,7 @@ export default function TecnicoDashboardPage() {
     const userRoles = userRole.split(',').map((r: string) => r.trim()).filter(Boolean)
 
     const hasPermission = (permission: string) => {
-        if (!data && isLoading) return true
+        if (!data && isLoading) return false
         if (userRoles.includes("DESENVOLVEDOR")) return true
         return userPermissions.includes(permission)
     }
@@ -155,7 +153,7 @@ export default function TecnicoDashboardPage() {
                                 </div>
 
                                 {/* Actions / Pendentes */}
-                                <div className="grid grid-cols-2 gap-2 sm:gap-3 relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
+                                <div className="flex justify-between items-end relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
                                     <div className="flex flex-col">
                                         <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Pendentes</span>
                                         <div className="flex items-center gap-2">
@@ -168,13 +166,6 @@ export default function TecnicoDashboardPage() {
                                                     <span className={`relative inline-flex rounded-full h-2 w-2 bg-${config.color}-500`}></span>
                                                 </span>
                                             )}
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-end justify-end">
-                                        <div className={`flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold transition-all bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:bg-${config.color}-500 group-hover:text-white shadow-sm`}>
-                                            Acessar
-                                            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                                         </div>
                                     </div>
                                 </div>
@@ -214,19 +205,13 @@ export default function TecnicoDashboardPage() {
                                 </div>
 
                                 {/* Actions / Pendentes */}
-                                <div className="grid grid-cols-2 gap-2 sm:gap-3 relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
+                                <div className="flex justify-between items-end relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
                                     <div className="flex flex-col">
                                         <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1">Pendentes</span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-2xl font-black text-slate-300 dark:text-slate-700">
                                                 {isLoading ? '--' : count.toString().padStart(2, '0')}
                                             </span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-end justify-end">
-                                        <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold bg-slate-100/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-600">
-                                            <span className="material-symbols-outlined text-[16px]">lock</span>
                                         </div>
                                     </div>
                                 </div>

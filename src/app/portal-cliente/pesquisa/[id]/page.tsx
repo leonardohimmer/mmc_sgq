@@ -215,7 +215,7 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
                         alt="MMC LAB"
                         width={180}
                         height={60}
-                        className="mx-auto object-contain dark:brightness-200 dark:grayscale mb-6"
+                        className="mx-auto object-contain mb-6"
                     />
                     <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">Pesquisa de Satisfação</h1>
                 </div>

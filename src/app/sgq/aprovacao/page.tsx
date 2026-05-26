@@ -90,23 +90,25 @@ function AprovacaoContent() {
                         if (area === 'impermeabilizacao' && !typeNormal.includes('impermeabilizacao')) return false
                     }
                     
-                    // 2. Filtro de permissão do Responsável Técnico
-                    // Diretores e Desenvolvedores veem tudo
                     if (isResponsavelTecnico && !isDesenvolvedor && !isDiretor) {
-                        const hasAcustica = userPermissions.includes('resp_acustica')
-                        const hasAderencia = userPermissions.includes('resp_aderencia')
-                        const hasGuardaCorpo = userPermissions.includes('resp_guarda_corpo')
-                        const hasLuminico = userPermissions.includes('resp_luminico')
-                        const hasPercussao = userPermissions.includes('resp_percussao')
-                        const hasImpermeabilizacao = userPermissions.includes('resp_impermeabilizacao')
-
                         // Se o tipo do ensaio corresponde a uma área que ele NÃO tem permissão, filtra fora
-                        if (typeNormal.includes('acustica') && !hasAcustica) return false
-                        if (typeNormal.includes('aderencia') && !hasAderencia) return false
-                        if (typeNormal.includes('guarda-corpo') && !hasGuardaCorpo) return false
-                        if (typeNormal.includes('luminico') && !hasLuminico) return false
-                        if (typeNormal.includes('percussao') && !hasPercussao) return false
-                        if (typeNormal.includes('impermeabilizacao') && !hasImpermeabilizacao) return false
+                        if (typeNormal.includes('isolamento acustico em laboratorio') && !userPermissions.includes('resp_iso_acustico_lab') && !userPermissions.includes('resp_acustica')) return false
+                        if (typeNormal.includes('ruido de impacto') && !userPermissions.includes('resp_iso_ruido_impacto') && !userPermissions.includes('resp_acustica')) return false
+                        if (typeNormal.includes('mapa de ruido') && !userPermissions.includes('resp_mapa_ruido') && !userPermissions.includes('resp_acustica')) return false
+                        if (typeNormal.includes('camera acustica') && !userPermissions.includes('resp_insp_camera_acustica') && !userPermissions.includes('resp_acustica')) return false
+                        if (typeNormal.includes('ancoragem') && !userPermissions.includes('resp_ancoragem')) return false
+                        if (typeNormal.includes('esclerometria') && !userPermissions.includes('resp_esclerometria')) return false
+                        if (typeNormal.includes('guarda-corpo') && !userPermissions.includes('resp_guarda_corpo')) return false
+                        if (typeNormal.includes('impacto de corpo') && !userPermissions.includes('resp_impacto_corpo')) return false
+                        if ((typeNormal.includes('integridade de estacas') || typeNormal.includes('pit')) && !userPermissions.includes('resp_pit')) return false
+                        if (typeNormal.includes('pecas suspensas') && !userPermissions.includes('resp_pecas_suspensas')) return false
+                        if (typeNormal.includes('percussao') && !userPermissions.includes('resp_percussao')) return false
+                        if (typeNormal.includes('permeabilidade') && !userPermissions.includes('resp_permeabilidade')) return false
+                        if ((typeNormal.includes('aderencia') || typeNormal.includes('arrancamento')) && !userPermissions.includes('resp_arrancamento') && !userPermissions.includes('resp_aderencia')) return false
+                        if (typeNormal.includes('luminico') && !userPermissions.includes('resp_luminico')) return false
+                        if (typeNormal.includes('inspecao de fachadas') && !userPermissions.includes('resp_insp_fachadas')) return false
+                        if (typeNormal.includes('termografica') && !userPermissions.includes('resp_insp_termografica')) return false
+                        if (typeNormal.includes('impermeabilizacao') && !userPermissions.includes('resp_impermeabilizacao')) return false
                     }
                     
                     return true

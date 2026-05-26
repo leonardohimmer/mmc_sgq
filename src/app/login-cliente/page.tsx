@@ -138,7 +138,7 @@ export default function LoginClientePage() {
                     <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
 
                     <div className="flex justify-center mb-6 pt-4 cursor-pointer">
-                        <Image src="/logo.png" alt="MMC LAB" width={160} height={50} className="object-contain dark:brightness-200 dark:grayscale" priority />
+                        <Image src="/logo.png" alt="MMC LAB" width={160} height={50} className="object-contain" priority />
                     </div>
 
                     <h2 className="text-2xl font-extrabold text-center mb-2 text-slate-900 dark:text-white">Portal do Cliente</h2>
