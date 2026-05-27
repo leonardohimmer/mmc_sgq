@@ -23,6 +23,7 @@ export const viewport = {
 import { Toaster } from "sonner";
 import ClickTracker from "@/components/ClickTracker";
 import ScrollToTop from "@/components/ScrollToTop";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
   children,
@@ -48,6 +49,7 @@ export default function RootLayout({
             <ScrollToTop />
           </AuthProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
