@@ -247,11 +247,27 @@ export default function EnvioPropostaPage() {
                                         {selectedRequest.rua ? `${selectedRequest.rua}, ${selectedRequest.numero} - ${selectedRequest.bairro}, ${selectedRequest.cidade}/${selectedRequest.estado} (CEP: ${selectedRequest.cep})` : selectedRequest.address}
                                     </p>
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">E-mails Proposta</p>
-                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight">
-                                        {selectedRequest.emailsProposta?.join(', ') || selectedRequest.proposalEmail || "Não informado"}
-                                    </p>
+                                <div className="space-y-1.5 md:col-span-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 p-3.5 rounded-xl">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">mail</span>
+                                            E-mails Destinados para Receber a Proposta
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                        {((selectedRequest.emailsProposta && selectedRequest.emailsProposta.length > 0)
+                                            ? selectedRequest.emailsProposta
+                                            : (selectedRequest.proposalEmail ? [selectedRequest.proposalEmail] : (selectedRequest.clientEmail ? [selectedRequest.clientEmail] : []))
+                                        ).map((email, idx) => (
+                                            <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-blue-950 dark:text-blue-100 border border-blue-300 dark:border-blue-700/60 shadow-xs">
+                                                <span className="material-symbols-outlined text-[15px] text-blue-600 dark:text-blue-400">alternate_email</span>
+                                                <span className="select-all">{email}</span>
+                                            </span>
+                                        ))}
+                                        {(!selectedRequest.emailsProposta || selectedRequest.emailsProposta.length === 0) && !selectedRequest.proposalEmail && !selectedRequest.clientEmail && (
+                                            <span className="text-xs text-slate-500 dark:text-slate-400 italic">Nenhum e-mail informado</span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="space-y-1 md:col-span-3">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Observações / Mensagem do Cliente</p>
