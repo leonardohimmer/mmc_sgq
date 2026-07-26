@@ -15,6 +15,7 @@ type TestRequest = {
     address?: string | null
     proposalEmail?: string | null
     reportEmail?: string | null
+    sharedEmails?: string[]
     desiredDate: string
     observations: string | null
     status: string
@@ -237,6 +238,12 @@ export default function MeusEnsaiosPage() {
                                                         <p className="flex items-center gap-2">
                                                             <span className="material-symbols-outlined text-[16px] text-blue-500">drafts</span>
                                                             <span className="text-slate-700 dark:text-slate-300 text-xs">Rel: {req.reportEmail}</span>
+                                                        </p>
+                                                    )}
+                                                    {req.sharedEmails && req.sharedEmails.length > 0 && (
+                                                        <p className="flex items-center gap-2">
+                                                            <span className="material-symbols-outlined text-[16px] text-indigo-500">share</span>
+                                                            <span className="text-slate-700 dark:text-slate-300 text-xs">Compartilhado: {req.sharedEmails.join(", ")}</span>
                                                         </p>
                                                     )}
                                                 </div>

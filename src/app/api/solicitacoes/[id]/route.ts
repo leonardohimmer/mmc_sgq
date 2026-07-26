@@ -92,12 +92,12 @@ export async function PATCH(
         if (result !== undefined) updateData.result = result
         if (technicalObservations !== undefined) updateData.technicalObservations = technicalObservations
         if (reportNumber !== undefined) updateData.reportNumber = reportNumber
-        if (reportPdfUrl !== undefined) updateData.reportPdfUrl = reportPdfUrl
+        if (reportPdfUrl !== undefined && !reportPdfUrl.startsWith('/api/')) updateData.reportPdfUrl = reportPdfUrl
         if (isSigned !== undefined) updateData.isSigned = isSigned
         if (step !== undefined) updateData.step = step
         if (performedAt !== undefined) updateData.performedAt = performedAt ? new Date(performedAt) : null
         if (invoiceNumber !== undefined) updateData.invoiceNumber = invoiceNumber
-        if (invoicePdfUrl !== undefined) updateData.invoicePdfUrl = invoicePdfUrl
+        if (invoicePdfUrl !== undefined && !invoicePdfUrl.startsWith('/api/')) updateData.invoicePdfUrl = invoicePdfUrl
         if (invoiceDate !== undefined) updateData.invoiceDate = invoiceDate ? new Date(invoiceDate) : null
         if (paymentConfirmedAt !== undefined) updateData.paymentConfirmedAt = paymentConfirmedAt ? new Date(paymentConfirmedAt) : null
         if (paymentConfirmedBy !== undefined) updateData.paymentConfirmedBy = paymentConfirmedBy
@@ -274,6 +274,31 @@ export async function GET(
 
     } catch (error) {
         console.error('Erro ao buscar histórico:', error)
+        return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
+    }
+}
+
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const session = await getServerSession(authOptions)
+
+        if (!session || !session.user) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+        }
+
+        const { id } = await params
+
+        // Excluir registros associados em cascata
+        await prisma.testRequestHistory.deleteMany({ where: { requestId: id } })
+        await prisma.satisfactionSurvey.deleteMany({ where: { requestId: id } })
+        await prisma.testRequest.delete({ where: { id } })
+
+        return NextResponse.json({ success: true, message: 'Solicitação/Proposta excluída com sucesso' })
+    } catch (error) {
+        console.error('Erro ao excluir solicitação:', error)
         return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
     }
 }

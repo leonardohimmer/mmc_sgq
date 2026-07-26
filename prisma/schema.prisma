@@ -25,6 +25,9 @@ model User {
   profile      Profile?      @relation(fields: [profileId], references: [id])
   resetToken   String?       @unique
   resetTokenExpires DateTime?   @db.Timestamptz(6)
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
   createdAt    DateTime      @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
   auditLogs    AuditLog[]
@@ -97,6 +100,7 @@ model TestRequest {
   reportEmail         String?
   emailsProposta      String[]             @default([])
   emailsRelatorio     String[]             @default([])
+  sharedEmails        String[]             @default([])
   desiredDate         DateTime             @db.Timestamptz(6)
   datasDesejadas      String?              @db.Text
   quantidadeEnsaios   String?
