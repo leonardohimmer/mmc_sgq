@@ -759,23 +759,6 @@ export default function PortalClientePage() {
 
             {/* Main Content */}
             <main className="max-w-[1600px] mx-auto px-4 py-6 sm:py-8">
-                {/* Custom Tab Navigation - Responsive */}
-                {activeTab === "Status de cada ensaio" && (
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-                        <div className="flex items-center gap-1 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl w-fit">
-                            <div className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-white dark:bg-slate-700 text-primary shadow-sm flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[18px]">list_alt</span>
-                                Status dos Ensaios
-                            </div>
-                        </div>
-
-                        <div className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            {ensaios.length} ensaios encontrados
-                        </div>
-                    </div>
-                )}
-
                 {/* Tab: Status List */}
                 {activeTab === "Status de cada ensaio" && (
                     <div className="space-y-4 sm:space-y-6">
@@ -833,9 +816,9 @@ export default function PortalClientePage() {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                                 {filteredEnsaios.map((ensaio) => (
-                                    <div key={ensaio.rawId} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden flex flex-col h-full">
+                                    <div key={ensaio.rawId} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden flex flex-col h-full">
                                         {/* Status Header */}
-                                        <div className="flex justify-between items-start mb-5 relative z-10 gap-2 flex-wrap">
+                                        <div className="flex justify-between items-start mb-3 relative z-10 gap-2 flex-wrap">
                                             <div className="flex items-center gap-2">
                                                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-wider ${getStatusColors(ensaio.statusColor)}`}>
                                                     <span className="material-symbols-outlined text-[16px]">{ensaio.icon}</span>
@@ -854,12 +837,12 @@ export default function PortalClientePage() {
                                         </div>
 
                                         {/* Content Area */}
-                                        <div className="flex-1 mb-6 relative z-10">
-                                            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs font-bold mb-2 uppercase tracking-wide">
+                                        <div className="flex-1 mb-3 relative z-10">
+                                            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs font-bold mb-1.5 uppercase tracking-wide">
                                                 <span className="material-symbols-outlined text-[14px]">calendar_today</span>
                                                 {ensaio.data}
                                             </div>
-                                            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight mb-3 group-hover:text-primary transition-colors">
+                                            <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-primary transition-colors">
                                                 {ensaio.titulo}
                                             </h3>
                                             
@@ -867,7 +850,7 @@ export default function PortalClientePage() {
                                             {ensaio.hasPendingSurvey && (
                                                 <Link 
                                                     href={`/portal-cliente/pesquisa/${ensaio.rawId}`}
-                                                    className="inline-flex items-center gap-2 w-full p-3 mb-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl text-amber-700 dark:text-amber-400 text-xs font-bold animate-pulse"
+                                                    className="inline-flex items-center gap-2 w-full p-2.5 mb-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl text-amber-700 dark:text-amber-400 text-xs font-bold animate-pulse"
                                                 >
                                                     <span className="material-symbols-outlined text-[18px]">rate_review</span>
                                                     Pendente: Pesquisa de Satisfação
@@ -875,39 +858,25 @@ export default function PortalClientePage() {
                                             )}
 
 
-                                            {/* Banner de Confirmação de Pagamento */}
-                                            {ensaio.status === "Aguardando Pagamento" && (
-                                                <div className="mt-4 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 flex flex-col gap-3 relative z-10">
-                                                    {ensaio.clientPaymentConfirmed ? (
-                                                        <>
-                                                            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
-                                                                <span className="material-symbols-outlined text-[20px] text-emerald-600 dark:text-emerald-400">check_circle</span>
-                                                                Pagamento confirmado
-                                                            </div>
-                                                            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal font-semibold">
-                                                                Você já confirmou o pagamento deste ensaio. Nossa equipe financeira está realizando a conciliação financeira.
-                                                            </p>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 text-xs font-bold">
-                                                                <span className="material-symbols-outlined text-[20px] text-blue-600 dark:text-blue-400">payments</span>
-                                                                Aguardando Confirmação de Pagamento
-                                                            </div>
-                                                            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal font-semibold">
-                                                                Identificamos que o faturamento foi processado. Se você já efetuou o pagamento, confirme no botão abaixo.
-                                                            </p>
-                                                            <div className="flex mt-1">
-                                                                <button
-                                                                    onClick={() => handleConfirmPayment(ensaio)}
-                                                                    className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]"
-                                                                >
-                                                                    <span className="material-symbols-outlined text-[16px]">payments</span>
-                                                                    Confirmar que já paguei
-                                                                </button>
-                                                            </div>
-                                                        </>
-                                                    )}
+                                            {/* Banner de Confirmação de Pagamento (Apenas quando ainda NÃO confirmado) */}
+                                            {ensaio.status === "Aguardando Pagamento" && !ensaio.clientPaymentConfirmed && (
+                                                <div className="mt-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10">
+                                                    <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 text-xs font-bold">
+                                                        <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">payments</span>
+                                                        Aguardando Confirmação de Pagamento
+                                                    </div>
+                                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight font-semibold">
+                                                        Identificamos que o faturamento foi processado. Se você já efetuou o pagamento, confirme no botão abaixo.
+                                                    </p>
+                                                    <div className="flex mt-0.5">
+                                                        <button
+                                                            onClick={() => handleConfirmPayment(ensaio)}
+                                                            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[16px]">payments</span>
+                                                            Confirmar que já paguei
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
