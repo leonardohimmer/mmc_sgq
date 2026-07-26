@@ -545,6 +545,8 @@ export default function PortalClientePage() {
         });
         setEditingRequestId(ensaio.rawId);
         setIsEditing(true);
+        setActiveTab("Nova Solicitação");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleAcceptProposal = (ensaio: Ensaio) => {
