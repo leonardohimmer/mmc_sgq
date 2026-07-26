@@ -28,6 +28,7 @@ interface Ensaio {
     hasPendingSurvey?: boolean;
     hasCompletedSurvey?: boolean;
     sharedEmails?: string[];
+    isOwner?: boolean;
     fullData?: any;
 }
 
@@ -200,28 +201,41 @@ export default function PortalClientePage() {
 
         const nameEncoded = encodeURIComponent(session.user.name);
         const emailEncoded = encodeURIComponent(session.user.email || '');
+        const currentUserEmail = (session.user.email || '').toLowerCase().trim();
+        const currentUserName = (session.user.name || '').toLowerCase().trim();
+
         fetch(`/api/solicitacoes/cliente?clientName=${nameEncoded}&userEmail=${emailEncoded}`)
             .then(res => res.json())
             .then((data: any[]) => {
                 if (Array.isArray(data)) {
-                    const formatted = data.map(req => ({
-                        id: req.id.split('-')[0].toUpperCase(),
-                        rawId: req.id,
-                        data: new Date(req.createdAt).toLocaleDateString("pt-BR"),
-                        titulo: req.type,
-                        status: req.status === "RECEBIDO" ? "Recebido" : req.status === "AGUARDANDO_ACEITE" ? "Aguardando Aceite" : req.status === "AGUARDANDO_AGENDAMENTO" ? "Aguardando Agendamento" : req.status === "EM_EXECUCAO" ? "Em execução" : req.status === "ELABORANDO_RELATORIO" ? "Elaborando Relatório" : req.status === "AGUARDANDO_APROVACAO" ? "Em análise" : req.status === "COBRANCA" ? "Faturamento em Processamento" : req.status === "PAGAMENTO" ? "Aguardando Pagamento" : "Finalizado",
-                        statusColor: req.status === "RECEBIDO" ? "slate" : req.status === "AGUARDANDO_ACEITE" ? "purple" : req.status === "AGUARDANDO_AGENDAMENTO" ? "emerald" : req.status === "EM_EXECUCAO" ? "blue" : req.status === "ELABORANDO_RELATORIO" ? "orange" : req.status === "AGUARDANDO_APROVACAO" ? "orange" : req.status === "COBRANCA" ? "blue" : req.status === "PAGAMENTO" ? "blue" : "emerald",
-                        icon: req.status === "RECEBIDO" ? "inventory_2" : req.status === "AGUARDANDO_ACEITE" ? "mark_email_read" : req.status === "AGUARDANDO_AGENDAMENTO" ? "calendar_month" : req.status === "EM_EXECUCAO" ? "build_circle" : req.status === "ELABORANDO_RELATORIO" ? "edit_document" : req.status === "AGUARDANDO_APROVACAO" ? "fact_check" : req.status === "COBRANCA" ? "receipt" : req.status === "PAGAMENTO" ? "payments" : "check_circle",
-                        reportPdfUrl: req.reportPdfUrl,
-                        reportNumber: req.reportNumber,
-                        proposalPdfUrl: req.proposalPdfUrl,
-                        invoicePdfUrl: req.invoicePdfUrl,
-                        clientPaymentConfirmed: req.clientPaymentConfirmed,
-                        hasPendingSurvey: req.satisfactionSurvey?.status === 'PENDING',
-                        hasCompletedSurvey: req.satisfactionSurvey?.status === 'COMPLETED',
-                        sharedEmails: req.sharedEmails || [],
-                        fullData: req // Store full data for editing
-                    })) as (Ensaio & { fullData: any })[];
+                    const formatted = data.map(req => {
+                        const reqClientEmail = (req.clientEmail || '').toLowerCase().trim();
+                        const reqClientName = (req.clientName || '').toLowerCase().trim();
+                        const isOwner = Boolean(
+                            (currentUserEmail && reqClientEmail && currentUserEmail === reqClientEmail) ||
+                            (currentUserName && reqClientName && currentUserName === reqClientName)
+                        );
+
+                        return {
+                            id: req.id.split('-')[0].toUpperCase(),
+                            rawId: req.id,
+                            data: new Date(req.createdAt).toLocaleDateString("pt-BR"),
+                            titulo: req.type,
+                            status: req.status === "RECEBIDO" ? "Recebido" : req.status === "AGUARDANDO_ACEITE" ? "Aguardando Aceite" : req.status === "AGUARDANDO_AGENDAMENTO" ? "Aguardando Agendamento" : req.status === "EM_EXECUCAO" ? "Em execução" : req.status === "ELABORANDO_RELATORIO" ? "Elaborando Relatório" : req.status === "AGUARDANDO_APROVACAO" ? "Em análise" : req.status === "COBRANCA" ? "Faturamento em Processamento" : req.status === "PAGAMENTO" ? "Aguardando Pagamento" : "Finalizado",
+                            statusColor: req.status === "RECEBIDO" ? "slate" : req.status === "AGUARDANDO_ACEITE" ? "purple" : req.status === "AGUARDANDO_AGENDAMENTO" ? "emerald" : req.status === "EM_EXECUCAO" ? "blue" : req.status === "ELABORANDO_RELATORIO" ? "orange" : req.status === "AGUARDANDO_APROVACAO" ? "orange" : req.status === "COBRANCA" ? "blue" : req.status === "PAGAMENTO" ? "blue" : "emerald",
+                            icon: req.status === "RECEBIDO" ? "inventory_2" : req.status === "AGUARDANDO_ACEITE" ? "mark_email_read" : req.status === "AGUARDANDO_AGENDAMENTO" ? "calendar_month" : req.status === "EM_EXECUCAO" ? "build_circle" : req.status === "ELABORANDO_RELATORIO" ? "edit_document" : req.status === "AGUARDANDO_APROVACAO" ? "fact_check" : req.status === "COBRANCA" ? "receipt" : req.status === "PAGAMENTO" ? "payments" : "check_circle",
+                            reportPdfUrl: req.reportPdfUrl,
+                            reportNumber: req.reportNumber,
+                            proposalPdfUrl: req.proposalPdfUrl,
+                            invoicePdfUrl: req.invoicePdfUrl,
+                            clientPaymentConfirmed: req.clientPaymentConfirmed,
+                            hasPendingSurvey: req.satisfactionSurvey?.status === 'PENDING',
+                            hasCompletedSurvey: req.satisfactionSurvey?.status === 'COMPLETED',
+                            sharedEmails: req.sharedEmails || [],
+                            isOwner: isOwner,
+                            fullData: req // Store full data for editing
+                        };
+                    }) as (Ensaio & { fullData: any })[];
                     setEnsaios(formatted);
                 }
             })
@@ -846,8 +860,8 @@ export default function PortalClientePage() {
                                                 {ensaio.titulo}
                                             </h3>
                                             
-                                            {/* Survey Indicator */}
-                                            {ensaio.hasPendingSurvey && (
+                                            {/* Survey Indicator (Apenas para o criador do ensaio) */}
+                                            {ensaio.hasPendingSurvey && ensaio.isOwner && (
                                                 <Link 
                                                     href={`/portal-cliente/pesquisa/${ensaio.rawId}`}
                                                     className="inline-flex items-center gap-2 w-full p-2.5 mb-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl text-amber-700 dark:text-amber-400 text-xs font-bold animate-pulse"
@@ -857,9 +871,8 @@ export default function PortalClientePage() {
                                                 </Link>
                                             )}
 
-
-                                            {/* Banner de Confirmação de Pagamento (Apenas quando ainda NÃO confirmado) */}
-                                            {ensaio.status === "Aguardando Pagamento" && !ensaio.clientPaymentConfirmed && (
+                                            {/* Banner de Confirmação de Pagamento (Apenas quando ainda NÃO confirmado e para o criador) */}
+                                            {ensaio.status === "Aguardando Pagamento" && !ensaio.clientPaymentConfirmed && ensaio.isOwner && (
                                                 <div className="mt-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10">
                                                     <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 text-xs font-bold">
                                                         <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">payments</span>
@@ -918,40 +931,47 @@ export default function PortalClientePage() {
                                                  </div>
                                              )}
 
-                                             {/* Primary Actions Row (Aceitar Proposta, Revisar, Compartilhar) */}
-                                             <div className="flex flex-row gap-2 relative z-10 w-full">
-                                                 {ensaio.status === "Aguardando Aceite" && (
-                                                     <button
-                                                         onClick={() => handleAcceptProposal(ensaio)}
-                                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
-                                                     >
-                                                         <span className="material-symbols-outlined text-[16px] shrink-0">check_circle</span>
-                                                         <span className="truncate">Aceitar Proposta</span>
-                                                     </button>
-                                                 )}
-                                                 {(ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite") && (
-                                                     <button
-                                                         onClick={() => handleEditRequest(ensaio)}
-                                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
-                                                     >
-                                                         <span className="material-symbols-outlined text-[16px] shrink-0">edit</span>
-                                                         <span className="truncate">Revisar</span>
-                                                     </button>
-                                                 )}
-                                                 <button
-                                                     onClick={() => handleOpenShareModal(ensaio)}
-                                                     className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-primary/10 hover:text-primary hover:border-primary/30 active:scale-[0.98] truncate"
-                                                     title="Compartilhar visualização do ensaio por e-mail"
-                                                 >
-                                                     <span className="material-symbols-outlined text-[16px] text-primary shrink-0">share</span>
-                                                     <span className="truncate">Compartilhar</span>
-                                                     {ensaio.sharedEmails && ensaio.sharedEmails.length > 0 && (
-                                                         <span className="ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-primary/20 text-primary font-extrabold">
-                                                             {ensaio.sharedEmails.length}
-                                                         </span>
+                                             {/* Primary Actions Row */}
+                                             {ensaio.isOwner ? (
+                                                 <div className="flex flex-row gap-2 relative z-10 w-full">
+                                                     {ensaio.status === "Aguardando Aceite" && (
+                                                         <button
+                                                             onClick={() => handleAcceptProposal(ensaio)}
+                                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
+                                                         >
+                                                             <span className="material-symbols-outlined text-[16px] shrink-0">check_circle</span>
+                                                             <span className="truncate">Aceitar Proposta</span>
+                                                         </button>
                                                      )}
-                                                 </button>
-                                             </div>
+                                                     {(ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite") && (
+                                                         <button
+                                                             onClick={() => handleEditRequest(ensaio)}
+                                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
+                                                         >
+                                                             <span className="material-symbols-outlined text-[16px] shrink-0">edit</span>
+                                                             <span className="truncate">Revisar</span>
+                                                         </button>
+                                                     )}
+                                                     <button
+                                                         onClick={() => handleOpenShareModal(ensaio)}
+                                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-primary/10 hover:text-primary hover:border-primary/30 active:scale-[0.98] truncate"
+                                                         title="Compartilhar visualização do ensaio por e-mail"
+                                                     >
+                                                         <span className="material-symbols-outlined text-[16px] text-primary shrink-0">share</span>
+                                                         <span className="truncate">Compartilhar</span>
+                                                         {ensaio.sharedEmails && ensaio.sharedEmails.length > 0 && (
+                                                             <span className="ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-primary/20 text-primary font-extrabold">
+                                                                 {ensaio.sharedEmails.length}
+                                                             </span>
+                                                         )}
+                                                     </button>
+                                                 </div>
+                                             ) : (
+                                                 <div className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                                                     <span className="material-symbols-outlined text-[14px]">visibility</span>
+                                                     Acesso apenas para visualização
+                                                 </div>
+                                             )}
                                          </div>
 
                                         {/* Decorative Background Icon */}

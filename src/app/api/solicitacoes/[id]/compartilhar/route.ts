@@ -39,6 +39,22 @@ export async function POST(
             return NextResponse.json({ error: 'Solicitação não encontrada' }, { status: 404 })
         }
 
+        // Apenas o criador (dono) ou ADMIN/TECNICO pode alterar e-mails compartilhados
+        const userEmail = (session.user.email || '').toLowerCase().trim()
+        const userName = (session.user.name || '').toLowerCase().trim()
+        const ownerEmail = (existing.clientEmail || '').toLowerCase().trim()
+        const ownerName = (existing.clientName || '').toLowerCase().trim()
+
+        const isOwner = (userEmail && ownerEmail && userEmail === ownerEmail) ||
+                        (userName && ownerName && userName === ownerName)
+
+        if (!isOwner && session.user.role !== 'ADMIN' && session.user.role !== 'TECNICO') {
+            return NextResponse.json(
+                { error: 'Somente o criador da solicitação de ensaio pode compartilhar ou remover permissões.' },
+                { status: 403 }
+            )
+        }
+
         const updated = await prisma.testRequest.update({
             where: { id },
             data: {
