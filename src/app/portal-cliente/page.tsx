@@ -29,6 +29,7 @@ interface Ensaio {
     hasCompletedSurvey?: boolean;
     sharedEmails?: string[];
     isOwner?: boolean;
+    obra?: string;
     fullData?: any;
 }
 
@@ -233,6 +234,7 @@ export default function PortalClientePage() {
                             hasCompletedSurvey: req.satisfactionSurvey?.status === 'COMPLETED',
                             sharedEmails: req.sharedEmails || [],
                             isOwner: isOwner,
+                            obra: req.workName || req.location || req.contractorName || "",
                             fullData: req // Store full data for editing
                         };
                     }) as (Ensaio & { fullData: any })[];
@@ -828,35 +830,46 @@ export default function PortalClientePage() {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
                                 {filteredEnsaios.map((ensaio) => (
-                                    <div key={ensaio.rawId} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden flex flex-col h-full">
+                                    <div key={ensaio.rawId} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300 relative overflow-hidden flex flex-col">
                                         {/* Status Header */}
-                                        <div className="flex justify-between items-start mb-3 relative z-10 gap-2 flex-wrap">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-wider ${getStatusColors(ensaio.statusColor)}`}>
-                                                    <span className="material-symbols-outlined text-[16px]">{ensaio.icon}</span>
+                                        <div className="flex justify-between items-start mb-2 relative z-10 gap-1.5 flex-wrap">
+                                            <div className="flex items-center gap-1.5">
+                                                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getStatusColors(ensaio.statusColor)}`}>
+                                                    <span className="material-symbols-outlined text-[14px]">{ensaio.icon}</span>
                                                     {ensaio.status}
                                                 </div>
                                                 {ensaio.sharedEmails && ensaio.sharedEmails.length > 0 && (
-                                                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30" title={`Compartilhado com: ${ensaio.sharedEmails.join(', ')}`}>
+                                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30" title={`Compartilhado com: ${ensaio.sharedEmails.join(', ')}`}>
                                                         <span className="material-symbols-outlined text-[12px]">group</span>
                                                         <span>{ensaio.sharedEmails.length}</span>
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2.5 py-1 rounded-lg">
+                                            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
                                                 ID: #{ensaio.id}
                                             </div>
                                         </div>
 
                                         {/* Content Area */}
-                                        <div className="flex-1 mb-3 relative z-10">
-                                            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs font-bold mb-1.5 uppercase tracking-wide">
-                                                <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                                                {ensaio.data}
+                                        <div className="flex-1 mb-2 relative z-10">
+                                            <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[10px] sm:text-[11px] font-bold mb-1 uppercase tracking-wide flex-wrap">
+                                                <span className="flex items-center gap-1 shrink-0">
+                                                    <span className="material-symbols-outlined text-[13px]">calendar_today</span>
+                                                    {ensaio.data}
+                                                </span>
+                                                {ensaio.obra && (
+                                                    <>
+                                                        <span className="text-slate-300 dark:text-slate-700">•</span>
+                                                        <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300 font-bold truncate max-w-[200px]" title={ensaio.obra}>
+                                                            <span className="material-symbols-outlined text-[13px] text-primary shrink-0">apartment</span>
+                                                            <span className="truncate">{ensaio.obra}</span>
+                                                        </span>
+                                                    </>
+                                                )}
                                             </div>
-                                            <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-primary transition-colors">
+                                            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug mb-1.5 group-hover:text-primary transition-colors">
                                                 {ensaio.titulo}
                                             </h3>
                                             
@@ -864,29 +877,29 @@ export default function PortalClientePage() {
                                             {ensaio.hasPendingSurvey && ensaio.isOwner && (
                                                 <Link 
                                                     href={`/portal-cliente/pesquisa/${ensaio.rawId}`}
-                                                    className="inline-flex items-center gap-2 w-full p-2.5 mb-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl text-amber-700 dark:text-amber-400 text-xs font-bold animate-pulse"
+                                                    className="inline-flex items-center gap-1.5 w-full p-2 my-1 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-lg text-amber-700 dark:text-amber-400 text-[11px] font-bold animate-pulse"
                                                 >
-                                                    <span className="material-symbols-outlined text-[18px]">rate_review</span>
-                                                    Pendente: Pesquisa de Satisfação
+                                                    <span className="material-symbols-outlined text-[16px] shrink-0">rate_review</span>
+                                                    <span>Pendente: Pesquisa de Satisfação</span>
                                                 </Link>
                                             )}
 
                                             {/* Banner de Confirmação de Pagamento (Apenas quando ainda NÃO confirmado e para o criador) */}
                                             {ensaio.status === "Aguardando Pagamento" && !ensaio.clientPaymentConfirmed && ensaio.isOwner && (
-                                                <div className="mt-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10">
-                                                    <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 text-xs font-bold">
-                                                        <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">payments</span>
+                                                <div className="mt-2 p-2.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-1.5 relative z-10">
+                                                    <div className="flex items-center gap-1.5 text-blue-800 dark:text-blue-300 text-[11px] font-bold">
+                                                        <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">payments</span>
                                                         Aguardando Confirmação de Pagamento
                                                     </div>
-                                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight font-semibold">
+                                                    <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 leading-tight font-semibold">
                                                         Identificamos que o faturamento foi processado. Se você já efetuou o pagamento, confirme no botão abaixo.
                                                     </p>
                                                     <div className="flex mt-0.5">
                                                         <button
                                                             onClick={() => handleConfirmPayment(ensaio)}
-                                                            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
+                                                            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-md text-[10px] sm:text-[11px] font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
                                                         >
-                                                            <span className="material-symbols-outlined text-[16px]">payments</span>
+                                                            <span className="material-symbols-outlined text-[14px]">payments</span>
                                                             Confirmar que já paguei
                                                         </button>
                                                     </div>
@@ -895,16 +908,16 @@ export default function PortalClientePage() {
                                         </div>
 
                                          {/* Actions Grid */}
-                                         <div className="flex flex-col gap-2 w-full mt-4">
+                                         <div className="flex flex-col gap-1.5 w-full mt-2">
                                              {/* Documents Row (Relatório, Proposta, Nota Fiscal) */}
                                              {(!!ensaio.reportPdfUrl || !!ensaio.proposalPdfUrl || !!ensaio.invoicePdfUrl) && (
-                                                 <div className="flex flex-row gap-2 relative z-10 w-full">
+                                                 <div className="flex flex-row gap-1.5 relative z-10 w-full">
                                                      {!!ensaio.reportPdfUrl && (
                                                          <button
                                                              onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
-                                                             className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 active:scale-[0.98] truncate"
+                                                             className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 active:scale-[0.98] truncate"
                                                          >
-                                                             <span className="material-symbols-outlined text-[16px] shrink-0">description</span>
+                                                             <span className="material-symbols-outlined text-[14px] shrink-0">description</span>
                                                              <span className="truncate">Relatório</span>
                                                          </button>
                                                      )}
@@ -912,9 +925,9 @@ export default function PortalClientePage() {
                                                      {!!ensaio.proposalPdfUrl && (
                                                          <button
                                                              onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'view')}
-                                                             className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 active:scale-[0.98] truncate"
+                                                             className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 active:scale-[0.98] truncate"
                                                          >
-                                                             <span className="material-symbols-outlined text-[16px] shrink-0">assignment</span>
+                                                             <span className="material-symbols-outlined text-[14px] shrink-0">assignment</span>
                                                              <span className="truncate">Proposta</span>
                                                          </button>
                                                      )}
@@ -922,9 +935,9 @@ export default function PortalClientePage() {
                                                      {!!ensaio.invoicePdfUrl && (
                                                          <button
                                                              onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
-                                                             className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100 active:scale-[0.98] truncate"
+                                                             className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100 active:scale-[0.98] truncate"
                                                          >
-                                                             <span className="material-symbols-outlined text-[16px] shrink-0">receipt</span>
+                                                             <span className="material-symbols-outlined text-[14px] shrink-0">receipt</span>
                                                              <span className="truncate">Nota Fiscal</span>
                                                          </button>
                                                      )}
@@ -933,42 +946,42 @@ export default function PortalClientePage() {
 
                                              {/* Primary Actions Row */}
                                              {ensaio.isOwner ? (
-                                                 <div className="flex flex-row gap-2 relative z-10 w-full">
+                                                 <div className="flex flex-row gap-1.5 relative z-10 w-full">
                                                      {ensaio.status === "Aguardando Aceite" && (
                                                          <button
                                                              onClick={() => handleAcceptProposal(ensaio)}
-                                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
+                                                             className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
                                                          >
-                                                             <span className="material-symbols-outlined text-[16px] shrink-0">check_circle</span>
+                                                             <span className="material-symbols-outlined text-[14px] shrink-0">check_circle</span>
                                                              <span className="truncate">Aceitar Proposta</span>
                                                          </button>
                                                      )}
                                                      {(ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite") && (
                                                          <button
                                                              onClick={() => handleEditRequest(ensaio)}
-                                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
+                                                             className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
                                                          >
-                                                             <span className="material-symbols-outlined text-[16px] shrink-0">edit</span>
+                                                             <span className="material-symbols-outlined text-[14px] shrink-0">edit</span>
                                                              <span className="truncate">Revisar</span>
                                                          </button>
                                                      )}
                                                      <button
                                                          onClick={() => handleOpenShareModal(ensaio)}
-                                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold transition-all border bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-primary/10 hover:text-primary hover:border-primary/30 active:scale-[0.98] truncate"
+                                                         className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-primary/10 hover:text-primary hover:border-primary/30 active:scale-[0.98] truncate"
                                                          title="Compartilhar visualização do ensaio por e-mail"
                                                      >
-                                                         <span className="material-symbols-outlined text-[16px] text-primary shrink-0">share</span>
+                                                         <span className="material-symbols-outlined text-[14px] text-primary shrink-0">share</span>
                                                          <span className="truncate">Compartilhar</span>
                                                          {ensaio.sharedEmails && ensaio.sharedEmails.length > 0 && (
-                                                             <span className="ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-primary/20 text-primary font-extrabold">
+                                                             <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] bg-primary/20 text-primary font-extrabold">
                                                                  {ensaio.sharedEmails.length}
                                                              </span>
                                                          )}
                                                      </button>
                                                  </div>
                                              ) : (
-                                                 <div className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-                                                     <span className="material-symbols-outlined text-[14px]">visibility</span>
+                                                 <div className="w-full flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                                                     <span className="material-symbols-outlined text-[13px]">visibility</span>
                                                      Acesso apenas para visualização
                                                  </div>
                                              )}
