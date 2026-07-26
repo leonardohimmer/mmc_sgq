@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import SuccessModal from "@/components/SuccessModal"
+import ConfirmModal from "@/components/ConfirmModal"
 
 type TestRequest = {
     id: string
@@ -45,6 +46,19 @@ export default function EnvioPropostaPage() {
     const [saving, setSaving] = useState(false)
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
 
+    // Confirm Modal
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean
+        title: string
+        message: string
+        onConfirm: () => void
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        onConfirm: () => {}
+    })
+
     // Form states
     const [proposalCode, setProposalCode] = useState("")
     const [proposalPdfUrl, setProposalPdfUrl] = useState("")
@@ -61,9 +75,7 @@ export default function EnvioPropostaPage() {
             const res = await fetch('/api/solicitacoes')
             if (res.ok) {
                 const data = await res.json()
-                // Filtra as solicitações que ainda não tiveram proposta enviada
                 const pending = data.filter((req: TestRequest) => req.status === 'RECEBIDO')
-                // Filtra as solicitações que já tiveram proposta enviada e aguardam aceite
                 const sent = data.filter((req: TestRequest) => req.status === 'AGUARDANDO_ACEITE')
                 
                 setRequests(pending)
@@ -81,6 +93,30 @@ export default function EnvioPropostaPage() {
         setProposalCode("")
         setProposalPdfUrl("")
         setEmailConfirmed(false)
+    }
+
+    const handleDeleteRequest = (req: TestRequest, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation()
+        setConfirmModal({
+            isOpen: true,
+            title: "Excluir Proposta",
+            message: `Tem certeza que deseja excluir a proposta de "${req.type}" (${req.clientName})? Esta ação não pode ser desfeita.`,
+            onConfirm: async () => {
+                try {
+                    const res = await fetch(`/api/solicitacoes/${req.id}`, { method: 'DELETE' })
+                    if (res.ok) {
+                        toast.success("Proposta excluída com sucesso!")
+                        if (selectedRequest?.id === req.id) setSelectedRequest(null)
+                        fetchRequests()
+                    } else {
+                        toast.error("Erro ao excluir proposta.")
+                    }
+                } catch (error) {
+                    console.error("Erro ao excluir", error)
+                    toast.error("Erro de conexão ao excluir proposta.")
+                }
+            }
+        })
     }
 
     const handleSave = async () => {
@@ -148,9 +184,9 @@ export default function EnvioPropostaPage() {
                                 <div
                                     key={req.id}
                                     onClick={() => handleSelectRequest(req)}
-                                    className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedRequest?.id === req.id ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'}`}
+                                    className={`p-4 rounded-xl border cursor-pointer transition-all relative group ${selectedRequest?.id === req.id ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'}`}
                                 >
-                                    <div className="flex justify-between items-start mb-2">
+                                    <div className="flex justify-between items-start mb-2 pr-6">
                                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${req.observations?.includes('SOLICITAÇÃO REVISADA') ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 animate-pulse' : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300'}`}>
                                             {req.observations?.includes('SOLICITAÇÃO REVISADA') ? 'Revisada pelo Cliente' : 'Recém Recebido'}
                                         </span>
@@ -312,13 +348,15 @@ export default function EnvioPropostaPage() {
 
             {/* Nova Seção: Propostas Aguardando Aceite */}
             <div className="pt-8 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-400">
-                        <span className="material-symbols-outlined">pending_actions</span>
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Aguardando Aceite do Cliente</h2>
-                        <p className="text-sm text-slate-500">Propostas já enviadas que aguardam a confirmação do cliente para iniciar o processo.</p>
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-400">
+                            <span className="material-symbols-outlined">pending_actions</span>
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Aguardando Aceite do Cliente</h2>
+                            <p className="text-sm text-slate-500">Propostas já enviadas que aguardam a confirmação do cliente para iniciar o processo.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -329,8 +367,8 @@ export default function EnvioPropostaPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {awaitingAcceptance.map(req => (
-                            <div key={req.id} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all animate-in fade-in zoom-in-95 duration-300">
-                                <div className="flex justify-between items-start mb-3">
+                            <div key={req.id} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all animate-in fade-in zoom-in-95 duration-300 relative group">
+                                <div className="flex justify-between items-start mb-3 pr-6">
                                     <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                                         Aguardando Aceite
                                     </span>
@@ -340,9 +378,11 @@ export default function EnvioPropostaPage() {
                                 </div>
                                 <h4 className="font-bold text-slate-800 dark:text-slate-200 truncate">{req.type}</h4>
                                 <p className="text-sm text-slate-500 mt-1 truncate">{req.clientName}</p>
-                                <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
-                                    <span className="material-symbols-outlined text-sm">location_on</span>
-                                    <span className="truncate">{req.location}</span>
+                                <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
+                                    <div className="flex items-center gap-1.5 truncate">
+                                        <span className="material-symbols-outlined text-sm">location_on</span>
+                                        <span className="truncate">{req.location}</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -355,6 +395,15 @@ export default function EnvioPropostaPage() {
                 onClose={() => setIsSuccessModalOpen(false)}
                 title="Proposta enviada com sucesso!"
                 message="O processo agora aguarda o aceite do cliente para prosseguir."
+            />
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                type="danger"
             />
         </div>
     )
