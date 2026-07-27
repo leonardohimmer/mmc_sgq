@@ -11,6 +11,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import MMCLoadingScreen from "@/components/MMCLoadingScreen";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import Cropper from "react-easy-crop";
+import EnsaioDetailsModal from "@/components/EnsaioDetailsModal";
 
 
 
@@ -120,6 +121,15 @@ export default function PortalClientePage() {
     const [constructorLogoUrl, setConstructorLogoUrl] = useState<string | null>(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+    // Estados para o Modal de Detalhes
+    const [selectedEnsaioForDetails, setSelectedEnsaioForDetails] = useState<Ensaio | null>(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+    const handleOpenDetailsModal = (ensaio: Ensaio) => {
+        setSelectedEnsaioForDetails(ensaio);
+        setShowDetailsModal(true);
+    };
 
     // Estados para o Modal de Compartilhamento
     const [sharingEnsaio, setSharingEnsaio] = useState<Ensaio | null>(null);
@@ -873,7 +883,11 @@ export default function PortalClientePage() {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
                                 {filteredEnsaios.map((ensaio) => (
-                                    <div key={ensaio.rawId} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300 relative overflow-hidden flex flex-col">
+                                    <div 
+                                        key={ensaio.rawId} 
+                                        onClick={() => handleOpenDetailsModal(ensaio)}
+                                        className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-sm hover:shadow-md hover:border-primary/50 cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col hover:-translate-y-0.5"
+                                    >
                                         {/* Status Header */}
                                         <div className="flex justify-between items-start mb-2 relative z-10 gap-1.5 flex-wrap">
                                             <div className="flex items-center gap-1.5">
@@ -888,8 +902,13 @@ export default function PortalClientePage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
-                                                ID: #{ensaio.id}
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-[10px] font-bold text-primary group-hover:underline hidden sm:inline-flex items-center gap-0.5">
+                                                    Detalhes <span className="material-symbols-outlined text-[12px]">visibility</span>
+                                                </span>
+                                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
+                                                    ID: #{ensaio.id}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -918,6 +937,7 @@ export default function PortalClientePage() {
                                             {ensaio.hasPendingSurvey && ensaio.isOwner && (
                                                 <Link 
                                                     href={`/portal-cliente/pesquisa/${ensaio.rawId}`}
+                                                    onClick={(e) => e.stopPropagation()}
                                                     className="inline-flex items-center gap-1.5 w-full p-2 my-1 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-lg text-amber-700 dark:text-amber-400 text-[11px] font-bold animate-pulse"
                                                 >
                                                     <span className="material-symbols-outlined text-[16px] shrink-0">rate_review</span>
@@ -937,7 +957,7 @@ export default function PortalClientePage() {
                                                     </p>
                                                     <div className="flex mt-0.5">
                                                         <button
-                                                            onClick={() => handleConfirmPayment(ensaio)}
+                                                            onClick={(e) => { e.stopPropagation(); handleConfirmPayment(ensaio); }}
                                                             className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-md text-[10px] sm:text-[11px] font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
                                                         >
                                                             <span className="material-symbols-outlined text-[14px]">payments</span>
@@ -955,7 +975,7 @@ export default function PortalClientePage() {
                                                  <div className="flex flex-row gap-1.5 relative z-10 w-full">
                                                      {!!ensaio.reportPdfUrl && (
                                                          <button
-                                                             onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
+                                                             onClick={(e) => { e.stopPropagation(); openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view'); }}
                                                              className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 active:scale-[0.98] truncate"
                                                          >
                                                              <span className="material-symbols-outlined text-[14px] shrink-0">description</span>
@@ -965,7 +985,7 @@ export default function PortalClientePage() {
 
                                                      {!!ensaio.proposalPdfUrl && (
                                                          <button
-                                                             onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'view')}
+                                                             onClick={(e) => { e.stopPropagation(); openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'view'); }}
                                                              className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 active:scale-[0.98] truncate"
                                                          >
                                                              <span className="material-symbols-outlined text-[14px] shrink-0">assignment</span>
@@ -975,7 +995,7 @@ export default function PortalClientePage() {
 
                                                      {!!ensaio.invoicePdfUrl && (
                                                          <button
-                                                             onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
+                                                             onClick={(e) => { e.stopPropagation(); openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view'); }}
                                                              className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100 active:scale-[0.98] truncate"
                                                          >
                                                              <span className="material-symbols-outlined text-[14px] shrink-0">receipt</span>
@@ -990,7 +1010,7 @@ export default function PortalClientePage() {
                                                  <div className="flex flex-row gap-1.5 relative z-10 w-full">
                                                      {ensaio.status === "Aguardando Aceite" && (
                                                          <button
-                                                             onClick={() => handleAcceptProposal(ensaio)}
+                                                             onClick={(e) => { e.stopPropagation(); handleAcceptProposal(ensaio); }}
                                                              className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
                                                          >
                                                              <span className="material-symbols-outlined text-[14px] shrink-0">check_circle</span>
@@ -999,7 +1019,7 @@ export default function PortalClientePage() {
                                                      )}
                                                      {(ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite") && (
                                                          <button
-                                                             onClick={() => handleEditRequest(ensaio)}
+                                                             onClick={(e) => { e.stopPropagation(); handleEditRequest(ensaio); }}
                                                              className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
                                                          >
                                                              <span className="material-symbols-outlined text-[14px] shrink-0">edit</span>
@@ -1007,7 +1027,7 @@ export default function PortalClientePage() {
                                                          </button>
                                                      )}
                                                      <button
-                                                         onClick={() => handleOpenShareModal(ensaio)}
+                                                         onClick={(e) => { e.stopPropagation(); handleOpenShareModal(ensaio); }}
                                                          className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-primary/10 hover:text-primary hover:border-primary/30 active:scale-[0.98] truncate"
                                                          title="Compartilhar visualização do ensaio por e-mail"
                                                      >
@@ -1027,6 +1047,7 @@ export default function PortalClientePage() {
                                                  </div>
                                              )}
                                          </div>
+
 
                                         {/* Decorative Background Icon */}
                                         <span className="absolute -bottom-4 -right-4 material-symbols-outlined text-[120px] opacity-[0.03] dark:opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform duration-500">
@@ -1543,6 +1564,16 @@ export default function PortalClientePage() {
                                     </div>
                                 </div>
                             )}
+                            
+                            <EnsaioDetailsModal
+                                isOpen={showDetailsModal}
+                                onClose={() => setShowDetailsModal(false)}
+                                ensaio={selectedEnsaioForDetails}
+                                onEdit={handleEditRequest}
+                                onShare={handleOpenShareModal}
+                                onAcceptProposal={handleAcceptProposal}
+                                onConfirmPayment={handleConfirmPayment}
+                            />
                         </div>
                     );
                 }
