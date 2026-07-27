@@ -12,6 +12,7 @@ import MMCLoadingScreen from "@/components/MMCLoadingScreen";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import Cropper from "react-easy-crop";
 import EnsaioDetailsModal from "@/components/EnsaioDetailsModal";
+import { ModalPasswordChange } from "@/components/ModalPasswordChange";
 
 
 
@@ -121,6 +122,7 @@ export default function PortalClientePage() {
     const [constructorLogoUrl, setConstructorLogoUrl] = useState<string | null>(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
     // Estados para o Modal de Detalhes
     const [selectedEnsaioForDetails, setSelectedEnsaioForDetails] = useState<Ensaio | null>(null);
@@ -1462,6 +1464,19 @@ export default function PortalClientePage() {
                                                         <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">E-mail</label>
                                                         <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5">{session?.user?.email}</div>
                                                     </div>
+                                                    <div className="border-t border-slate-200/50 dark:border-slate-800/50 pt-3">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setIsPasswordModalOpen(true)}
+                                                            className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all border border-slate-200/60 dark:border-slate-700/60 group"
+                                                        >
+                                                            <span className="flex items-center gap-2">
+                                                                <span className="material-symbols-outlined text-primary text-[18px] group-hover:scale-110 transition-transform">lock_reset</span>
+                                                                <span>Redefinir / Alterar Senha</span>
+                                                            </span>
+                                                            <span className="material-symbols-outlined text-[18px] text-slate-400 dark:text-slate-500 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1568,6 +1583,11 @@ export default function PortalClientePage() {
                                 onShare={handleOpenShareModal}
                                 onAcceptProposal={handleAcceptProposal}
                                 onConfirmPayment={handleConfirmPayment}
+                            />
+
+                            <ModalPasswordChange
+                                isOpen={isPasswordModalOpen}
+                                onClose={() => setIsPasswordModalOpen(false)}
                             />
                         </div>
                     );
