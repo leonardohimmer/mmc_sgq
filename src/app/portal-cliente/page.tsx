@@ -902,13 +902,8 @@ export default function PortalClientePage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="text-[10px] font-bold text-primary group-hover:underline hidden sm:inline-flex items-center gap-0.5">
-                                                    Detalhes <span className="material-symbols-outlined text-[12px]">visibility</span>
-                                                </span>
-                                                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
-                                                    ID: #{ensaio.id}
-                                                </div>
+                                            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
+                                                ID: #{ensaio.id}
                                             </div>
                                         </div>
 
