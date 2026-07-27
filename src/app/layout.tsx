@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import Script from "next/script";
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta-sans",
@@ -48,6 +49,19 @@ export default function RootLayout({
             <ScrollToTop />
           </AuthProvider>
         </ThemeProvider>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-FSJBXGRSMZ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-FSJBXGRSMZ');
+          `}
+        </Script>
       </body>
     </html>
   );

@@ -4,32 +4,32 @@ import Link from "next/link";
 
 export default function IndustriaPage() {
     return (
-        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[104px] overflow-hidden">
+        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[80px] overflow-hidden">
             <SiteHeader />
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="relative pt-24 pb-32 sm:pt-32 sm:pb-40 overflow-hidden bg-slate-900 border-b border-slate-800">
+                <section className="relative pt-10 sm:pt-14 subpage-hero overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-b border-slate-200 dark:border-primary/20 transition-colors duration-300">
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-sky-500/20 shadow-[0_0_20px_rgba(14,165,233,0.8)]"></div>
-                        <div className="absolute top-0 right-1/4 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-sky-500/15 rounded-full blur-[80px] md:blur-[100px] mix-blend-screen animate-pulse"></div>
+                        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-sky-500/10 dark:bg-sky-500/20 shadow-[0_0_20px_rgba(14,165,233,0.3)] dark:shadow-[0_0_20px_rgba(14,165,233,0.8)]"></div>
+                        <div className="absolute top-0 right-1/4 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-sky-500/5 dark:bg-sky-500/15 rounded-full blur-[80px] md:blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
                     </div>
 
                     <div className="max-w-[1280px] mx-auto px-6 sm:px-8 relative z-10 text-center flex flex-col items-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/80 text-sky-400 font-semibold text-sm mb-6 md:mb-8 border border-sky-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(14,165,233,0.3)] hover:shadow-[0_0_25px_rgba(14,165,233,0.5)] transition-all">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 dark:bg-slate-800/80 text-sky-600 dark:text-sky-400 font-semibold text-sm mb-6 md:mb-8 border border-sky-500/20 dark:border-sky-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(14,165,233,0.15)] dark:shadow-[0_0_15px_rgba(14,165,233,0.3)] hover:shadow-[0_0_25px_rgba(14,165,233,0.3)] dark:hover:shadow-[0_0_25px_rgba(14,165,233,0.5)] transition-all">
                             <span className="material-symbols-outlined text-[18px]">factory</span>
                             Soluções Industriais
                         </div>
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 md:mb-8 drop-shadow-md mx-auto max-w-4xl">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1] mb-6 md:mb-8 drop-shadow-md mx-auto max-w-4xl transition-colors duration-300">
                             Engenharia para <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Indústrias</span>
                         </h1>
-                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-300 font-medium leading-[1.6] mb-10">
+                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-600 dark:text-slate-300 font-medium leading-[1.6] mb-10 transition-colors duration-300">
                             Equipamentos aferidos e metodologias exclusivas para atender às altas exigências do setor industrial, de chão de fábrica a avaliações ocupacionais sonoras.
                         </p>
                     </div>
                 </section>
 
-                <section className="py-24 bg-background-light dark:bg-slate-950 relative">
+                <section className="py-24 subpage-content bg-background-light dark:bg-slate-950 relative">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 

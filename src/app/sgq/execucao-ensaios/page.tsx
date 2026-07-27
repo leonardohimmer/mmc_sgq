@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 type TestRequest = {
     id: string
@@ -47,6 +48,16 @@ export default function ExecucaoEnsaiosPage() {
     const [technicalObservations, setTechnicalObservations] = useState("")
 
     useEffect(() => {
+        try {
+            const cached = localStorage.getItem("sgq_cache_execucao_ensaios")
+            if (cached) {
+                const parsed = JSON.parse(cached)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setRequests(parsed)
+                    setLoading(false)
+                }
+            }
+        } catch (e) {}
         fetchRequests()
     }, [])
 
@@ -58,6 +69,9 @@ export default function ExecucaoEnsaiosPage() {
                 // Only show those EM_EXECUCAO
                 const execRequests = data.filter((req: TestRequest) => req.status === 'EM_EXECUCAO')
                 setRequests(execRequests)
+                try {
+                    localStorage.setItem("sgq_cache_execucao_ensaios", JSON.stringify(execRequests))
+                } catch (e) {}
             }
         } catch (error) {
             console.error("Erro ao carregar solicitações", error)
@@ -65,6 +79,7 @@ export default function ExecucaoEnsaiosPage() {
             setLoading(false)
         }
     }
+
 
     const handleSelectRequest = (req: TestRequest) => {
         setSelectedRequest(req)
@@ -118,9 +133,11 @@ export default function ExecucaoEnsaiosPage() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-                <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                compact={true}
+                message="Carregando ensaios em execução..."
+                submessage="Sincronizando tarefas de laboratório com a MMC LAB"
+            />
         )
     }
 

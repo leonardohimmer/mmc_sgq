@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
+import { SkeletonTable } from "@/components/SkeletonCard"
 
 type TestRequest = {
     id: string
@@ -41,7 +43,20 @@ export default function MeusEnsaiosPage() {
     const [updatingId, setUpdatingId] = useState<string | null>(null)
     const [historyModalOpen, setHistoryModalOpen] = useState<string | null>(null)
 
+    // 1. Tentar ler do cache local imediatamente (0ms delay)
     useEffect(() => {
+        try {
+            const cached = localStorage.getItem("sgq_cache_meus_ensaios")
+            if (cached) {
+                const parsed = JSON.parse(cached)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setRequests(parsed)
+                    setLoading(false)
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao ler cache local de ensaios SGQ:", e)
+        }
         fetchData()
     }, [])
 
@@ -52,7 +67,13 @@ export default function MeusEnsaiosPage() {
                 fetch('/api/users/tecnicos')
             ])
 
-            if (reqRes.ok) setRequests(await reqRes.json())
+            if (reqRes.ok) {
+                const reqData = await reqRes.json()
+                setRequests(reqData)
+                try {
+                    localStorage.setItem("sgq_cache_meus_ensaios", JSON.stringify(reqData))
+                } catch (e) {}
+            }
             if (usersRes.ok) setTechUsers(await usersRes.json())
         } catch (error) {
             console.error("Erro ao carregar dados", error)
@@ -60,6 +81,7 @@ export default function MeusEnsaiosPage() {
             setLoading(false)
         }
     }
+
 
     const handleUpdateStatus = async (id: string, newStatus: string) => {
         setUpdatingId(id)
@@ -161,8 +183,13 @@ export default function MeusEnsaiosPage() {
             </div>
 
             {loading ? (
-                <div className="py-20 flex justify-center">
-                    <div className="w-10 h-10 rounded-full border-4 border-slate-200 dark:border-slate-800 border-t-primary animate-spin"></div>
+                <div className="space-y-6 animate-in fade-in duration-300">
+                    <MMCLoadingScreen 
+                        compact={true} 
+                        message="Carregando gerenciador de ensaios..." 
+                        submessage="Buscando requisições técnicas do sistema MMC LAB" 
+                    />
+                    <SkeletonTable rows={6} />
                 </div>
             ) : filteredRequests.length === 0 ? (
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-16 text-center transition-colors">

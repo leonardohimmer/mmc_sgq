@@ -82,12 +82,29 @@ function AprovacaoContent() {
                     
                     // 1. Filtro por Área da URL (se houver)
                     if (area) {
+                        if (area === 'resp_iso_acustico_lab' && !typeNormal.includes('isolamento acustico em laboratorio')) return false
+                        if (area === 'resp_iso_ruido_impacto' && !typeNormal.includes('ruido de impacto')) return false
+                        if (area === 'resp_mapa_ruido' && !typeNormal.includes('mapa de ruido')) return false
+                        if (area === 'resp_insp_camera_acustica' && !typeNormal.includes('camera acustica')) return false
+                        if (area === 'resp_ancoragem' && !typeNormal.includes('ancoragem')) return false
+                        if (area === 'resp_esclerometria' && !typeNormal.includes('esclerometria')) return false
+                        if (area === 'resp_guarda_corpo' && !typeNormal.includes('guarda-corpo')) return false
+                        if (area === 'resp_impacto_corpo' && !typeNormal.includes('impacto de corpo')) return false
+                        if (area === 'resp_pit' && !typeNormal.includes('integridade de estacas') && !typeNormal.includes('pit')) return false
+                        if (area === 'resp_pecas_suspensas' && !typeNormal.includes('pecas suspensas')) return false
+                        if (area === 'resp_percussao' && !typeNormal.includes('percussao')) return false
+                        if (area === 'resp_permeabilidade' && !typeNormal.includes('permeabilidade')) return false
+                        if (area === 'resp_arrancamento' && !typeNormal.includes('aderencia') && !typeNormal.includes('arrancamento')) return false
+                        if (area === 'resp_luminico' && !typeNormal.includes('luminico')) return false
+                        if (area === 'resp_insp_fachadas' && !typeNormal.includes('inspecao de fachadas')) return false
+                        if (area === 'resp_insp_termografica' && !typeNormal.includes('termografica')) return false
+                        
+                        // Retrocompatibilidade para parâmetros de área legados
                         if (area === 'acustica' && !typeNormal.includes('acustica')) return false
                         if (area === 'aderencia' && !typeNormal.includes('aderencia')) return false
                         if (area === 'guarda-corpo' && !typeNormal.includes('guarda-corpo')) return false
                         if (area === 'luminico' && !typeNormal.includes('luminico')) return false
                         if (area === 'percussao' && !typeNormal.includes('percussao')) return false
-                        if (area === 'impermeabilizacao' && !typeNormal.includes('impermeabilizacao')) return false
                     }
                     
                     if (isResponsavelTecnico && !isDesenvolvedor && !isDiretor) {
@@ -108,7 +125,6 @@ function AprovacaoContent() {
                         if (typeNormal.includes('luminico') && !userPermissions.includes('resp_luminico')) return false
                         if (typeNormal.includes('inspecao de fachadas') && !userPermissions.includes('resp_insp_fachadas')) return false
                         if (typeNormal.includes('termografica') && !userPermissions.includes('resp_insp_termografica')) return false
-                        if (typeNormal.includes('impermeabilizacao') && !userPermissions.includes('resp_impermeabilizacao')) return false
                     }
                     
                     return true
@@ -305,12 +321,12 @@ function AprovacaoContent() {
                                             }}
                                             className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                                         />
-                                        {reportPdfUrl && !reportPdfUrl.startsWith('http') && (
+                                        {reportPdfUrl && !reportPdfUrl.startsWith('http') && !reportPdfUrl.startsWith('/') && (
                                             <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-bold mt-2">
                                                 <span className="material-symbols-outlined text-[14px]">check_circle</span> Arquivo carregado com sucesso
                                             </p>
                                         )}
-                                        {reportPdfUrl && reportPdfUrl.startsWith('http') && (
+                                        {reportPdfUrl && (reportPdfUrl.startsWith('http') || reportPdfUrl.startsWith('/')) && (
                                             <p className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 font-bold mt-2">
                                                 <span className="material-symbols-outlined text-[14px]">link</span> Relatório anterior via link anexado
                                             </p>

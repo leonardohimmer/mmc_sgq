@@ -10,12 +10,12 @@ export const metadata = {
 
 export default function InspecaoTermograficaPage() {
     return (
-        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[104px] overflow-hidden">
+        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[80px] overflow-hidden">
             <SiteHeader />
 
             <main className="flex-1 flex flex-col">
                 {/* Banner de Cabeçalho estilo Imagem */}
-                <section className="relative py-24 px-6 sm:px-8 text-white overflow-hidden bg-slate-950">
+                <section className="relative py-12 px-6 sm:px-8 text-white overflow-hidden bg-slate-950">
                     {/* Imagem de Fundo Premium */}
                     <div className="absolute inset-0 w-full h-full">
                         <img 
@@ -40,8 +40,6 @@ export default function InspecaoTermograficaPage() {
                             <Link href="/" className="hover:text-white hover:underline transition-all">Home</Link>
                             <span className="opacity-50">&gt;</span>
                             <Link href="/ensaios" className="hover:text-white hover:underline transition-all">Ensaios</Link>
-                            <span className="opacity-50">&gt;</span>
-                            <Link href="/ensaios/campo" className="hover:text-white hover:underline transition-all">Em Campo</Link>
                             <span className="opacity-50">&gt;</span>
                             <span className="text-[#00bfa5] font-bold">Inspeção Termográfica</span>
                         </div>

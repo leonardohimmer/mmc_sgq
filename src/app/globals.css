@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 :root {
+  --subpage-hero-pb: 2rem; /* Espaço inferior do hero da subpágina (ajustável) */
+  --subpage-hero-p-mb: 1.5rem; /* Margem inferior do texto do hero da subpágina (ajustável) */
+  --subpage-content-pt: 3rem; /* Espaço superior do conteúdo principal da subpágina (ajustável) */
   --primary-teal: #4DB6AC;
   --secondary-sand: #C1B598;
   --background-light: #F8F9FA;
@@ -99,9 +102,296 @@ body {
   .animate-bounce-short {
     animation: bounce-short 1s ease-in-out infinite;
   }
+
+  @keyframes pulse-fast {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .animate-pulse-fast {
+    animation: pulse-fast 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-urgent {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.15; }
+  }
+  .animate-pulse-urgent {
+    animation: pulse-urgent 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }
 
 /* Formatar todos os textos de parágrafo no formato justificado */
 p {
   text-align: justify;
+}
+
+/* --- ESTILOS DE REDESENHO PREMIUM FUTURISTA --- */
+
+/* Ajustes de Tipografia Global para Maior Legibilidade e Respiro */
+p {
+  line-height: 1.75 !important;
+  letter-spacing: -0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+}
+
+/* Transição de cores suaves ao carregar a página */
+.page-transition {
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Efeito de Link Premium (Underline Deslizante) */
+.premium-hover-link {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.premium-hover-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--primary-teal);
+  transform-origin: bottom right;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-hover-link:hover {
+  color: var(--primary-teal) !important;
+}
+
+.premium-hover-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Efeito de Botão com Brilho Glow no Hover */
+.btn-hover-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-hover-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(77, 182, 172, 0.4), 
+              0 8px 10px -6px rgba(77, 182, 172, 0.4) !important;
+}
+
+.btn-hover-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: all 0.6s ease;
+}
+
+.btn-hover-glow:hover::before {
+  left: 100%;
+}
+
+/* Cards Premium com Sombras Suaves e Bordas Delicadas */
+.premium-card {
+  background: var(--surface-light);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 24px; /* Cantos muito suaves e modernos */
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.02), 
+              0 10px 30px -4px rgba(0, 0, 0, 0.03);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .premium-card {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.premium-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(77, 182, 172, 0.3);
+  box-shadow: 0 20px 40px -15px rgba(77, 182, 172, 0.15), 
+              0 15px 25px -10px rgba(0, 0, 0, 0.05);
+}
+
+/* Paineis e Cards Glassmorphism */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 20px 40px -10px rgba(0, 0, 0, 0.05),
+    inset 0 0 15px rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px;
+  transition: all 0.3s ease;
+}
+
+:root.dark .glass-panel,
+.dark .glass-panel,
+.dark\:glass-panel {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 0 25px rgba(255, 255, 255, 0.02) !important;
+  border-radius: 24px;
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 20px 40px -10px rgba(0, 0, 0, 0.05),
+    inset 0 0 15px rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px;
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(9, 13, 24, 0.5) 100%) !important;
+  backdrop-filter: blur(20px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(130%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 24px;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.35),
+    inset 0 0 20px rgba(255, 255, 255, 0.01) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.glass-card:hover {
+  border-color: rgba(77, 182, 172, 0.3) !important;
+  transform: translateY(-6px);
+  box-shadow: 
+    0 25px 45px -10px rgba(77, 182, 172, 0.25), 
+    inset 0 0 20px rgba(77, 182, 172, 0.06) !important;
+}
+
+.glass-card-secondary:hover {
+  border-color: rgba(193, 181, 152, 0.35) !important;
+  transform: translateY(-6px);
+  box-shadow: 
+    0 25px 45px -10px rgba(193, 181, 152, 0.25), 
+    inset 0 0 20px rgba(193, 181, 152, 0.06) !important;
+}
+
+/* Grelhas Técnicas de Laboratório */
+.bg-tech-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+.bg-tech-grid-light {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+}
+
+.bg-tech-grid-dense {
+  background-size: 20px 20px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
+.bg-tech-grid-dense-light {
+  background-size: 20px 20px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+}
+
+/* Brilho Neon e Efeitos de Texto */
+.text-glow-teal {
+  text-shadow: 0 0 12px rgba(77, 182, 172, 0.6);
+}
+
+.text-glow-gold {
+  text-shadow: 0 0 12px rgba(193, 181, 152, 0.6);
+}
+
+.text-glow-rose {
+  text-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
+}
+
+/* Animações de Ondas SVGs de Dados */
+@keyframes flow-offset {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+.animate-flow-dash {
+  stroke-dasharray: 40, 20;
+  animation: flow-offset 30s linear infinite;
+}
+
+.animate-flow-dash-reverse {
+  stroke-dasharray: 30, 15;
+  animation: flow-offset 20s linear infinite reverse;
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.015);
+  }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes blink-slow {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.animate-blink-slow {
+  animation: blink-slow 3.5s ease-in-out infinite;
+}
+
+/* Ajustes de Bordas Técnicas */
+.border-glow-teal {
+  box-shadow: 0 0 15px rgba(77, 182, 172, 0.15);
+}
+.border-glow-gold {
+  box-shadow: 0 0 15px rgba(193, 181, 152, 0.15);
+}
+
+/* Classes Ajustáveis de Espaçamento das Subpáginas */
+.subpage-hero {
+  padding-bottom: var(--subpage-hero-pb, 2rem) !important;
+}
+
+.subpage-hero-p {
+  margin-bottom: var(--subpage-hero-p-mb, 1.5rem) !important;
+}
+
+.subpage-content {
+  padding-top: var(--subpage-content-pt, 3rem) !important;
 }

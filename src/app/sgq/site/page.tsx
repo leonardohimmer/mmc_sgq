@@ -21,6 +21,7 @@ interface Review {
     rating: number
     text: string
     source: string
+    link?: string
 }
 
 export default function SiteAdminPage() {
@@ -52,37 +53,24 @@ export default function SiteAdminPage() {
     const [cropMode, setCropMode] = useState<"team" | "ensaio">("team")
     const [ensaioPhotoIndexToCrop, setEnsaioPhotoIndexToCrop] = useState<number | null>(null)
     const [ensaioFotos, setEnsaioFotos] = useState<Record<string, string[]>>({})
-    const [selectedCategory, setSelectedCategory] = useState<"campo" | "laboratorio">("campo")
     const [selectedAssayId, setSelectedAssayId] = useState<string>("campo-acustica")
 
-    const ensaiosList = {
-        campo: [
-            { id: "campo-acustica", label: "Acústica em Campo" },
-            { id: "campo-guarda-corpo", label: "Guarda-corpos e Corrimãos" },
-            { id: "campo-aderencia", label: "Aderência à Tração" },
-            { id: "campo-pit", label: "Integridade de Estacas (PIT)" },
-            { id: "campo-ancoragem", label: "Teste de Ancoragem (Arrancamento)" },
-            { id: "campo-permeabilidade", label: "Permeabilidade e Estanqueidade" },
-            { id: "campo-esclerometria", label: "Esclerometria no Concreto" },
-            { id: "campo-luminico", label: "Ensaio Lumínico" },
-            { id: "campo-impacto", label: "Impacto de Corpo Mole e Duro" },
-            { id: "campo-pecas-suspensas", label: "Ensaio de Peças Suspensas" },
-            { id: "campo-inspecao-fachada", label: "Inspeção de Fachadas" },
-            { id: "campo-percussao", label: "Ensaio de Percussão" },
-            { id: "campo-termografia", label: "Inspeção Termográfica" }
-        ],
-        laboratorio: [
-            { id: "laboratorio-guarda-corpo", label: "Ensaio de guarda-corpo e parapeito" },
-            { id: "laboratorio-isolamento-acustico", label: "Ensaio de Isolamento Acústico em Laboratório (Rw)" },
-            { id: "laboratorio-aderencia", label: "Ensaio de resistência de aderência à tração" }
-        ]
-    }
-
-    const handleCategoryChange = (cat: "campo" | "laboratorio") => {
-        setSelectedCategory(cat)
-        const firstId = cat === "campo" ? "campo-acustica" : "laboratorio-guarda-corpo"
-        setSelectedAssayId(firstId)
-    }
+    const ensaiosList = [
+        { id: "campo-acustica", label: "Acústica em Campo" },
+        { id: "laboratorio-isolamento-acustico", label: "Isolamento Acústico em Laboratório (Rw)" },
+        { id: "campo-guarda-corpo", label: "Guarda-corpos e Corrimãos" },
+        { id: "campo-aderencia", label: "Aderência à Tração" },
+        { id: "campo-pit", label: "Integridade de Estacas (PIT)" },
+        { id: "campo-ancoragem", label: "Teste de Ancoragem" },
+        { id: "campo-permeabilidade", label: "Permeabilidade e Estanqueidade" },
+        { id: "campo-esclerometria", label: "Esclerometria no Concreto" },
+        { id: "campo-luminico", label: "Ensaio Lumínico" },
+        { id: "campo-impacto", label: "Impacto de Corpo Mole e Duro" },
+        { id: "campo-pecas-suspensas", label: "Ensaio de Peças Suspensas" },
+        { id: "campo-inspecao-fachada", label: "Inspeção de Fachadas" },
+        { id: "campo-percussao", label: "Ensaio de Percussão" },
+        { id: "campo-termografia", label: "Inspeção Termográfica" }
+    ]
 
     const handleRemovePhoto = (idx: number) => {
         const currentList = ensaioFotos[selectedAssayId] || []
@@ -90,6 +78,23 @@ export default function SiteAdminPage() {
         setEnsaioFotos({
             ...ensaioFotos,
             [selectedAssayId]: updatedList
+        })
+    }
+
+    const handleMovePhoto = (idx: number, direction: "left" | "right") => {
+        const currentList = [...(ensaioFotos[selectedAssayId] || [])]
+        if (currentList.length <= 1) return
+        
+        const targetIdx = direction === "left" ? idx - 1 : idx + 1
+        if (targetIdx < 0 || targetIdx >= currentList.length) return
+        
+        const temp = currentList[idx]
+        currentList[idx] = currentList[targetIdx]
+        currentList[targetIdx] = temp
+        
+        setEnsaioFotos({
+            ...ensaioFotos,
+            [selectedAssayId]: currentList
         })
     }
 
@@ -174,13 +179,14 @@ export default function SiteAdminPage() {
             if (res.ok) {
                 setMessage("✅ Salvo com sucesso!")
             } else {
-                setMessage("❌ Erro ao salvar")
+                const errData = await res.json().catch(() => ({}))
+                setMessage(`❌ Erro ao salvar (${res.status}): ${errData.details || errData.error || "Erro interno"}`)
             }
-        } catch {
-            setMessage("❌ Erro de conexão")
+        } catch (e: any) {
+            setMessage(`❌ Erro de conexão: ${e?.message || e}`)
         } finally {
             setSaving(false)
-            setTimeout(() => setMessage(""), 3000)
+            setTimeout(() => setMessage(""), 8000)
         }
     }
 
@@ -188,7 +194,12 @@ export default function SiteAdminPage() {
     const saveStats = () => saveSection("stats", { items: stats })
     const saveTeam = () => saveSection("team", { members: team })
     const saveTestimonials = () => saveSection("testimonials", { reviews: testimonials })
-    const saveEnsaioFotos = () => saveSection("ensaio_fotos", ensaioFotos)
+    const saveEnsaioFotos = () => {
+        saveSection("ensaio_fotos", {
+            assayId: selectedAssayId,
+            photos: ensaioFotos[selectedAssayId] || []
+        })
+    }
 
     const tabs = [
         { key: "history" as const, label: "História", icon: "history_edu" },
@@ -495,13 +506,24 @@ export default function SiteAdminPage() {
                                         className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-primary/30 outline-none"
                                     />
                                 </div>
+                                <div className="w-full sm:w-auto flex-1 min-w-[200px]">
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Link do Comentário (opcional)</label>
+                                    <input
+                                        value={review.link || ""}
+                                        onChange={(e) => {
+                                            const n = [...testimonials]; n[i] = { ...n[i], link: e.target.value }; setTestimonials(n)
+                                        }}
+                                        placeholder="https://maps.app.goo.gl/..."
+                                        className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-primary/30 outline-none"
+                                    />
+                                </div>
                                 <button onClick={() => setTestimonials(testimonials.filter((_, idx) => idx !== i))} className="w-9 h-9 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
                                     <span className="material-symbols-outlined text-[18px]">delete</span>
                                 </button>
                             </div>
                         ))}
                         <button
-                            onClick={() => setTestimonials([...testimonials, { name: "", rating: 5, text: "", source: "Google" }])}
+                            onClick={() => setTestimonials([...testimonials, { name: "", rating: 5, text: "", source: "Google", link: "" }])}
                             className="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-hover transition-colors"
                         >
                             <span className="material-symbols-outlined text-[18px]">add_comment</span>
@@ -517,41 +539,20 @@ export default function SiteAdminPage() {
                 {/* ========== FOTOS DOS ENSAIOS ========== */}
                 {activeTab === "ensaio_fotos" && (
                     <div className="space-y-6">
-                        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                        <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div className="space-y-1">
-                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Modalidade</label>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handleCategoryChange("campo")}
-                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                                            selectedCategory === "campo"
-                                                ? "bg-primary text-slate-950 shadow-md shadow-primary/20"
-                                                : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                        }`}
-                                    >
-                                        Ensaios em Campo
-                                    </button>
-                                    <button
-                                        onClick={() => handleCategoryChange("laboratorio")}
-                                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                                            selectedCategory === "laboratorio"
-                                                ? "bg-primary text-slate-950 shadow-md shadow-primary/20"
-                                                : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                        }`}
-                                    >
-                                        Ensaios em Laboratório
-                                    </button>
-                                </div>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Gerenciador de Fotos dos Ensaios</h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Selecione o ensaio e gerencie as fotos exibidas no site público.</p>
                             </div>
 
-                            <div className="w-full md:w-80 space-y-1">
+                            <div className="w-full sm:w-80 space-y-1">
                                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Selecione o Ensaio</label>
                                 <select
                                     value={selectedAssayId}
                                     onChange={(e) => setSelectedAssayId(e.target.value)}
                                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold focus:ring-2 focus:ring-primary/30 outline-none"
                                 >
-                                    {ensaiosList[selectedCategory].map((ensaio) => (
+                                    {ensaiosList.map((ensaio) => (
                                         <option key={ensaio.id} value={ensaio.id}>
                                             {ensaio.label}
                                         </option>
@@ -581,7 +582,16 @@ export default function SiteAdminPage() {
                                             <img src={photo} alt="" className="w-full h-full object-cover" />
                                             
                                             {/* Ações ao passar o mouse */}
-                                            <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                            <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                                                {idx > 0 && (
+                                                    <button
+                                                        onClick={() => handleMovePhoto(idx, "left")}
+                                                        className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 text-slate-800 flex items-center justify-center shadow transition-all hover:scale-105"
+                                                        title="Mover para esquerda"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => {
                                                         setImageToCrop(photo);
@@ -591,18 +601,27 @@ export default function SiteAdminPage() {
                                                         setCrop({ x: 0, y: 0 });
                                                         setZoom(1);
                                                     }}
-                                                    className="w-10 h-10 rounded-xl bg-white hover:bg-slate-100 text-slate-800 flex items-center justify-center shadow transition-all hover:scale-105"
+                                                    className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 text-slate-800 flex items-center justify-center shadow transition-all hover:scale-105"
                                                     title="Ajustar / Cortar"
                                                 >
-                                                    <span className="material-symbols-outlined text-[20px]">crop</span>
+                                                    <span className="material-symbols-outlined text-[18px]">crop</span>
                                                 </button>
                                                 <button
                                                     onClick={() => handleRemovePhoto(idx)}
-                                                    className="w-10 h-10 rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow transition-all hover:scale-105"
+                                                    className="w-9 h-9 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow transition-all hover:scale-105"
                                                     title="Excluir foto"
                                                 >
-                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
                                                 </button>
+                                                {idx < (ensaioFotos[selectedAssayId] || []).length - 1 && (
+                                                    <button
+                                                        onClick={() => handleMovePhoto(idx, "right")}
+                                                        className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 text-slate-800 flex items-center justify-center shadow transition-all hover:scale-105"
+                                                        title="Mover para direita"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -678,7 +697,7 @@ export default function SiteAdminPage() {
                                                 image={imageToCrop}
                                                 crop={crop}
                                                 zoom={zoom}
-                                                aspect={cropMode === "team" ? 1 : 16 / 9}
+                                                aspect={cropMode === "team" ? 1 : 16 / 10}
                                                 onCropChange={setCrop}
                                                 onCropComplete={onCropComplete}
                                                 onZoomChange={setZoom}

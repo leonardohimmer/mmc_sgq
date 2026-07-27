@@ -63,9 +63,22 @@ const PERMISSION_GROUPS = [
     {
         title: "Responsável técnico",
         items: [
-            { id: "resp_acustica", label: "Acústica" },
-            { id: "resp_aderencia", label: "Aderência" },
-            { id: "resp_guarda_corpo", label: "Guarda-corpo" },
+            { id: "resp_iso_acustico_lab", label: "Isolamento Acústico (Lab)" },
+            { id: "resp_iso_ruido_impacto", label: "Ruído de Impacto" },
+            { id: "resp_mapa_ruido", label: "Mapa de Ruído" },
+            { id: "resp_insp_camera_acustica", label: "Câmera Acústica" },
+            { id: "resp_ancoragem", label: "Ancoragem" },
+            { id: "resp_esclerometria", label: "Esclerometria" },
+            { id: "resp_guarda_corpo", label: "Guarda-corpo e Parapeito" },
+            { id: "resp_impacto_corpo", label: "Impacto de Corpo Mole/Duro" },
+            { id: "resp_pit", label: "Integridade de Estacas (PIT)" },
+            { id: "resp_pecas_suspensas", label: "Peças Suspensas" },
+            { id: "resp_percussao", label: "Percussão" },
+            { id: "resp_permeabilidade", label: "Permeabilidade" },
+            { id: "resp_arrancamento", label: "Aderência (Arrancamento)" },
+            { id: "resp_luminico", label: "Lumínico" },
+            { id: "resp_insp_fachadas", label: "Inspeção de Fachadas" },
+            { id: "resp_insp_termografica", label: "Inspeção Termográfica" },
         ]
     },
     {
@@ -163,7 +176,14 @@ export default function CadastrosPage() {
                 fetch("/api/profiles")
             ])
             if (usersRes.ok) setUsers(await usersRes.json())
-            if (profilesRes.ok) setProfiles(await profilesRes.json())
+            if (profilesRes.ok) {
+                const profilesData = await profilesRes.json()
+                setProfiles(profilesData)
+                if (profilesData.length > 0 && !selectedProfileId) {
+                    setSelectedProfileId(profilesData[0].id)
+                    setProfilePermissions(profilesData[0].permissions || [])
+                }
+            }
         } catch (error) {
             console.error("Erro ao carregar dados", error)
         } finally {
@@ -268,8 +288,9 @@ export default function CadastrosPage() {
 
     const handleOpenProfileModal = () => {
         if (profiles.length > 0) {
-            setSelectedProfileId(profiles[0].id)
-            setProfilePermissions(profiles[0].permissions || [])
+            const current = profiles.find(p => p.id === selectedProfileId) || profiles[0]
+            setSelectedProfileId(current.id)
+            setProfilePermissions(current.permissions || [])
         }
         setIsProfileModalOpen(true)
     }
@@ -345,67 +366,69 @@ export default function CadastrosPage() {
         }
     }
 
-    if (isLoading) return <div className="p-8">Carregando...</div>
+    if (isLoading) return <div className="p-8 text-slate-500 font-medium">Carregando dados...</div>
 
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Cadastros e Permissões</h1>
+                <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 transition-colors">Cadastros e Permissões</h1>
                 <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full sm:w-auto">
                     <button
                         onClick={handleOpenProfileModal}
-                        className="flex-1 sm:flex-none px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-lg font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition text-sm sm:text-base text-center"
+                        className="flex-1 sm:flex-none px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition text-sm sm:text-base text-center shadow-sm flex items-center justify-center gap-2"
                     >
+                        <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
                         Gerenciar Perfis
                     </button>
                     <button
                         onClick={() => handleOpenUserModal()}
-                        className="flex-1 sm:flex-none px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition text-sm sm:text-base text-center"
+                        className="flex-1 sm:flex-none px-4 py-2 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition text-sm sm:text-base text-center shadow-lg shadow-primary/20 dark:shadow-none flex items-center justify-center gap-2"
                     >
+                        <span className="material-symbols-outlined text-[20px]">person_add</span>
                         Novo Colaborador
                     </button>
                 </div>
             </div>
 
             {/* Tabela de Colaboradores - Desktop */}
-            <div className="hidden md:block bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="hidden md:block bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200/50 dark:border-slate-800 overflow-hidden">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                            <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Nome</th>
-                            <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Empresa</th>
-                            <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Data Nasc.</th>
-                            <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Email</th>
-                            <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400">Perfil / Role</th>
-                            <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 text-right">Ações</th>
+                            <th className="px-6 py-4 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nome</th>
+                            <th className="px-6 py-4 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Empresa</th>
+                            <th className="px-6 py-4 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Data Nasc.</th>
+                            <th className="px-6 py-4 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email</th>
+                            <th className="px-6 py-4 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Perfil / Role</th>
+                            <th className="px-6 py-4 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map(user => (
-                            <tr key={user.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                                <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</td>
+                            <tr key={user.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                                <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-slate-100">{user.name}</td>
                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{user.company || '-'}</td>
                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{user.birthDate ? new Date(user.birthDate).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) : '-'}</td>
                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{user.email}</td>
                                 <td className="px-6 py-4">
-                                    <div className="flex flex-wrap gap-1">
+                                    <div className="flex flex-wrap gap-1.5">
                                         {(user.role || "").split(',').map((r, i) => r.trim() ? (
-                                            <span key={i} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                            <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300 border border-blue-200/50 dark:border-blue-500/20">
                                                 {r.trim()}
                                             </span>
                                         ) : null)}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-right space-x-2">
+                                <td className="px-6 py-4 text-right space-x-3">
                                     <button
                                         onClick={() => handleOpenUserModal(user)}
-                                        className="text-primary hover:text-primary/80 font-medium text-sm"
+                                        className="text-primary hover:text-primary/80 font-bold text-sm transition-colors"
                                     >
                                         Editar
                                     </button>
                                     <button
                                         onClick={() => handleDeleteUser(user.id)}
-                                        className="text-red-500 hover:text-red-600 font-medium text-sm"
+                                        className="text-red-500 hover:text-red-600 font-bold text-sm transition-colors"
                                     >
                                         Excluir
                                     </button>
@@ -415,20 +438,20 @@ export default function CadastrosPage() {
                     </tbody>
                 </table>
                 {users.length === 0 && (
-                    <div className="p-8 text-center text-slate-500">Nenhum colaborador encontrado.</div>
+                    <div className="p-8 text-center text-slate-500 font-medium">Nenhum colaborador encontrado.</div>
                 )}
             </div>
 
             {/* Cards de Colaboradores - Mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
                 {users.map(user => (
-                    <div key={user.id} className="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-4">
+                    <div key={user.id} className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-4">
                         <div className="space-y-3">
                             <div className="flex justify-between items-start gap-2">
-                                <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base">{user.name}</h3>
+                                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">{user.name}</h3>
                                 <div className="flex flex-wrap gap-1 justify-end max-w-[50%] shrink-0">
                                     {(user.role || "").split(',').map((r, i) => r.trim() ? (
-                                        <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                        <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
                                             {r.trim()}
                                         </span>
                                     ) : null)}
@@ -443,13 +466,13 @@ export default function CadastrosPage() {
                         <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                             <button
                                 onClick={() => handleOpenUserModal(user)}
-                                className="text-primary hover:text-primary/80 font-semibold text-sm px-3.5 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex-1 text-center"
+                                className="text-primary hover:text-primary/80 font-bold text-sm px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex-1 text-center"
                             >
                                 Editar
                             </button>
                             <button
                                 onClick={() => handleDeleteUser(user.id)}
-                                className="text-red-500 hover:text-red-600 font-semibold text-sm px-3.5 py-2 rounded-lg bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/30 transition flex-1 text-center"
+                                className="text-red-500 hover:text-red-600 font-bold text-sm px-3.5 py-2 rounded-xl bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/30 transition flex-1 text-center"
                             >
                                 Excluir
                             </button>
@@ -457,58 +480,58 @@ export default function CadastrosPage() {
                     </div>
                 ))}
                 {users.length === 0 && (
-                    <div className="p-8 text-center text-slate-500 col-span-full bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">Nenhum colaborador encontrado.</div>
+                    <div className="p-8 text-center text-slate-500 col-span-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 font-medium">Nenhum colaborador encontrado.</div>
                 )}
             </div>
 
             {/* Modal de Usuário */}
             {isUserModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-xl max-w-3xl w-full p-6 shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
-                        <h2 className="text-xl font-bold mb-4">{editingUser ? "Editar Colaborador" : "Novo Colaborador"}</h2>
-                        <form onSubmit={handleSaveUser} className="flex flex-col min-h-0">
-                            <div className="flex flex-col md:flex-row gap-6 overflow-y-auto pr-2 pb-2">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
+                        <h2 className="text-xl font-bold mb-4 text-slate-900 dark:text-slate-100">{editingUser ? "Editar Colaborador" : "Novo Colaborador"}</h2>
+                        <form onSubmit={handleSaveUser} className="flex flex-col min-h-0 flex-1">
+                            <div className="flex flex-col md:flex-row gap-6 overflow-y-auto pr-2 pb-2 flex-1">
                                 {/* Coluna 1: Dados Pessoais */}
                                 <div className="flex-1 space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">Nome</label>
+                                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Nome</label>
                                         <input
                                             type="text" required
-                                            className="w-full px-3 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
+                                            className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
                                             value={userForm.name} onChange={e => setUserForm({ ...userForm, name: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">Empresa</label>
+                                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Empresa</label>
                                         <input
                                             type="text"
-                                            className="w-full px-3 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
+                                            className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
                                             value={userForm.company} onChange={e => setUserForm({ ...userForm, company: e.target.value })}
                                             placeholder="Nome da Empresa (Opcional)"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">Data de Nascimento</label>
+                                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Data de Nascimento</label>
                                         <input
                                             type="date"
-                                            className="w-full px-3 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
+                                            className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
                                             value={userForm.birthDate} onChange={e => setUserForm({ ...userForm, birthDate: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">Email</label>
+                                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Email</label>
                                         <input
                                             type="email" required
-                                            className="w-full px-3 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
+                                            className="w-full px-3.5 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
                                             value={userForm.email} onChange={e => setUserForm({ ...userForm, email: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">Senha {editingUser && "(Deixe em branco para não alterar)"}</label>
+                                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Senha {editingUser && "(Deixe em branco para não alterar)"}</label>
                                         <div className="relative">
                                             <input
                                                 type={showPassword ? "text" : "password"} required={!editingUser}
-                                                className="w-full pl-3 pr-10 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
+                                                className="w-full pl-3.5 pr-10 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
                                                 value={userForm.password} onChange={e => setUserForm({ ...userForm, password: e.target.value })}
                                             />
                                             <button
@@ -527,12 +550,12 @@ export default function CadastrosPage() {
                                 {/* Coluna 2: Perfis */}
                                 <div className="flex-1 space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium mb-2">Perfis (Macro)</label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 border rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+                                        <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Perfis (Macro)</label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 border rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 max-h-[300px] overflow-y-auto">
                                             {profiles.map(p => {
                                                 const isChecked = userForm.role.split(',').map(r => r.trim()).includes(p.name)
                                                 return (
-                                                    <label key={p.id} className="flex items-center gap-2.5 cursor-pointer p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                                                    <label key={p.id} className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition select-none">
                                                         <input
                                                             type="checkbox"
                                                             checked={isChecked}
@@ -546,9 +569,9 @@ export default function CadastrosPage() {
                                                                 }
                                                                 setUserForm({ ...userForm, role: roles.join(',') })
                                                             }}
-                                                            className="rounded border-slate-300 text-primary focus:ring-primary dark:border-slate-700 bg-transparent"
+                                                            className="rounded border-slate-300 text-primary focus:ring-primary dark:border-slate-700 bg-transparent w-4 h-4"
                                                         />
-                                                        <span className="text-sm text-slate-700 dark:text-slate-300 line-clamp-1 truncate" title={p.name}>{p.name}</span>
+                                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider truncate" title={p.name}>{p.name}</span>
                                                     </label>
                                                 )
                                             })}
@@ -556,65 +579,93 @@ export default function CadastrosPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 shrink-0">
-                                <button type="button" onClick={() => setIsUserModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg" disabled={isSubmitting}>Cancelar</button>
-                                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50" disabled={isSubmitting}>
+                            <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
+                                <button type="button" onClick={() => setIsUserModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" disabled={isSubmitting}>Cancelar</button>
+                                <button type="submit" className="px-5 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50 transition" disabled={isSubmitting}>
                                     {isSubmitting ? "Salvando..." : "Salvar"}
                                 </button>
                             </div>
                         </form>
-                         {/* Modal de Perfis/Permissões */}
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Perfis/Permissões */}
             {isProfileModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-xl max-w-2xl w-full p-6 shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
-                        <h2 className="text-xl font-bold mb-4 text-slate-900 dark:text-slate-100">Gerenciar Permissões de Perfil</h2>
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#0b1329] text-slate-100 rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-700/60 flex flex-col max-h-[85vh] transition-all">
+                        
+                        {/* Header */}
+                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
+                            <h2 className="text-xl font-extrabold text-slate-100 tracking-tight flex items-center gap-2">
+                                <span className="material-symbols-outlined text-teal-400">admin_panel_settings</span>
+                                Gerenciar Permissões de Perfil
+                            </h2>
+                            <button
+                                onClick={() => setIsProfileModalOpen(false)}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">close</span>
+                            </button>
+                        </div>
 
                         <div className="flex flex-col md:flex-row gap-6 flex-1 min-h-0">
+                            
                             {/* Seleção de Perfil para Mobile (Dropdown) */}
                             <div className="block md:hidden shrink-0">
-                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Selecionar Perfil</label>
+                                <label className="block text-xs font-mono font-bold text-slate-400 uppercase tracking-widest mb-2">Selecionar Perfil</label>
                                 <select
                                     value={selectedProfileId}
                                     onChange={(e) => handleProfileSelect(e.target.value)}
-                                    className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+                                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-bold text-slate-100 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-teal-500/30 transition"
                                 >
                                     {profiles.map(p => (
                                         <option key={p.id} value={p.id}>
-                                            {p.name}
+                                            {p.name.toUpperCase()}
                                         </option>
                                     ))}
                                 </select>
                             </div>
 
                             {/* Tabs Laterais para Desktop */}
-                            <div className="hidden md:block w-1/3 border-r border-slate-200 dark:border-slate-800 pr-4 overflow-y-auto">
-                                {profiles.map(p => (
-                                    <button
-                                        key={p.id}
-                                        onClick={() => handleProfileSelect(p.id)}
-                                        className={`w-full text-left px-3 py-2 rounded-lg mb-1 text-sm font-medium transition ${selectedProfileId === p.id ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
-                                    >
-                                        {p.name}
-                                    </button>
-                                ))}
+                            <div className="hidden md:block w-5/12 border-r border-slate-800/80 pr-4 overflow-y-auto space-y-1">
+                                {profiles.map(p => {
+                                    const isSelected = selectedProfileId === p.id
+                                    return (
+                                        <button
+                                            key={p.id}
+                                            onClick={() => handleProfileSelect(p.id)}
+                                            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-between ${
+                                                isSelected
+                                                    ? 'bg-teal-500/10 text-teal-300 border-l-4 border-teal-400 bg-slate-800/80 shadow-sm'
+                                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                                            }`}
+                                        >
+                                            <span className="truncate">{p.name}</span>
+                                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0 ml-2"></span>}
+                                        </button>
+                                    )
+                                })}
                             </div>
 
-                            {/* Lista de Checkboxes */}
-                            <div className="flex-1 md:w-2/3 md:pl-4 overflow-y-auto">
-                                <h3 className="font-semibold mb-3 text-sm text-slate-500 uppercase tracking-wider">Acessos Permitidos</h3>
-                                <div className="space-y-6 pr-1">
+                            {/* Lista de Checkboxes de Permissões */}
+                            <div className="flex-1 md:w-7/12 md:pl-2 overflow-y-auto pr-2">
+                                <h3 className="font-mono text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span>ACESSOS PERMITIDOS</span>
+                                </h3>
+                                <div className="space-y-6">
                                     {PERMISSION_GROUPS.map((group) => {
                                         const groupPermIds = group.items.map(item => item.id)
                                         const allSelected = groupPermIds.length > 0 && groupPermIds.every(id => profilePermissions.includes(id))
                                         const someSelected = groupPermIds.some(id => profilePermissions.includes(id))
 
                                         return (
-                                            <div key={group.title} className="space-y-3">
-                                                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-1">
-                                                    <label className="flex items-center gap-2 cursor-pointer group">
-                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition ${allSelected ? 'bg-primary border-primary' : someSelected ? 'bg-primary border-primary' : 'border-slate-300 dark:border-slate-600 group-hover:border-primary'}`}>
-                                                            {allSelected && <span className="material-symbols-outlined text-[12px] text-white">check</span>}
-                                                            {!allSelected && someSelected && <span className="material-symbols-outlined text-[12px] text-white pt-0.5">horizontal_rule</span>}
+                                            <div key={group.title} className="space-y-3 bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/60">
+                                                <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                                                    <label className="flex items-center gap-2.5 cursor-pointer group select-none">
+                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${allSelected ? 'bg-teal-500 border-teal-500' : someSelected ? 'bg-teal-500/40 border-teal-400' : 'border-slate-700 bg-slate-900 group-hover:border-teal-500'}`}>
+                                                            {allSelected && <span className="material-symbols-outlined text-[12px] text-slate-950 font-bold">check</span>}
+                                                            {!allSelected && someSelected && <span className="material-symbols-outlined text-[12px] text-teal-200 font-bold">remove</span>}
                                                         </div>
                                                         <input
                                                             type="checkbox"
@@ -622,16 +673,16 @@ export default function CadastrosPage() {
                                                             checked={allSelected}
                                                             onChange={() => toggleGroupPermissions(group.title)}
                                                         />
-                                                        <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">{group.title}</h4>
+                                                        <h4 className="text-sm font-bold text-slate-200 group-hover:text-teal-300 transition-colors">{group.title}</h4>
                                                     </label>
                                                 </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                                                     {group.items.map(perm => {
                                                         const isChecked = profilePermissions.includes(perm.id)
                                                         return (
-                                                            <label key={perm.id} className="flex items-center gap-3 cursor-pointer group p-1 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-                                                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition ${isChecked ? 'bg-primary border-primary' : 'border-slate-300 dark:border-slate-600 group-hover:border-primary'}`}>
-                                                                    {isChecked && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
+                                                            <label key={perm.id} className="flex items-center gap-2.5 cursor-pointer group p-1.5 rounded-lg hover:bg-slate-800/60 transition select-none">
+                                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${isChecked ? 'bg-teal-500 border-teal-500' : 'border-slate-700 bg-slate-900 group-hover:border-slate-500'}`}>
+                                                                    {isChecked && <span className="material-symbols-outlined text-[12px] text-slate-950 font-bold">check</span>}
                                                                 </div>
                                                                 <input
                                                                     type="checkbox"
@@ -639,7 +690,7 @@ export default function CadastrosPage() {
                                                                     checked={isChecked}
                                                                     onChange={() => togglePermission(perm.id)}
                                                                 />
-                                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{perm.label}</span>
+                                                                <span className="text-xs font-semibold text-slate-300 group-hover:text-slate-100 transition-colors leading-tight">{perm.label}</span>
                                                             </label>
                                                         )
                                                     })}
@@ -651,13 +702,22 @@ export default function CadastrosPage() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
-                            <button onClick={() => setIsProfileModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">Cancelar</button>
-                            <button onClick={handleSaveProfilePerms} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">Salvar Permissões</button>
+                        {/* Modal Footer */}
+                        <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-slate-800 shrink-0">
+                            <button
+                                onClick={() => setIsProfileModalOpen(false)}
+                                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-all"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSaveProfilePerms}
+                                className="px-5 py-2 text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 rounded-xl shadow-lg shadow-teal-500/20 hover:-translate-y-0.5 transition-all"
+                            >
+                                Salvar Permissões
+                            </button>
                         </div>
                     </div>
-                </div>
-            )}            </div>
                 </div>
             )}
 

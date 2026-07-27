@@ -65,7 +65,7 @@ export function EnsaioCarousel({ ensaioId }: EnsaioCarouselProps) {
                 </p>
             </div>
 
-            <div className="relative w-full max-w-4xl mx-auto aspect-[16/9] md:aspect-[21/9] rounded-[2rem] overflow-hidden shadow-2xl bg-slate-900 border border-slate-200 dark:border-slate-800 group">
+            <div className="relative w-full max-w-4xl mx-auto aspect-[4/3] sm:aspect-[16/10] rounded-[2rem] overflow-hidden shadow-2xl bg-slate-900 border border-slate-200 dark:border-slate-800 group">
                 {/* Imagens com Framer Motion */}
                 <div className="absolute inset-0 w-full h-full">
                     <AnimatePresence mode="wait">

@@ -8,6 +8,7 @@ import { useEffect, useState, useRef } from "react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { BackButton } from "@/components/BackButton"
 import { ModalPasswordChange } from "@/components/ModalPasswordChange"
+import packageJson from "../../../package.json"
 
 export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const { data: session } = useSession()
@@ -34,6 +35,12 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
             const savedCollapsedGroups = localStorage.getItem("sgq:sidebar:collapsedGroups")
             if (savedCollapsedGroups !== null) setCollapsedGroups(JSON.parse(savedCollapsedGroups))
+
+            const savedPermissions = localStorage.getItem("sgq:userPermissions")
+            if (savedPermissions !== null) setUserPermissions(JSON.parse(savedPermissions))
+
+            const savedAvatar = localStorage.getItem("sgq:userAvatar")
+            if (savedAvatar !== null) setUserAvatar(savedAvatar)
         } catch (e) {
             console.error("Failed to parse sidebar state from localStorage", e)
         }
@@ -75,17 +82,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 { label: "Aguardando agendamento", href: "/sgq/aguardando-agendamento", icon: "pending_actions", permissionId: "tecnico_aguardando_agendamento" },
                 { label: "Execução de Ensaios", href: "/sgq/execucao-ensaios", icon: "assignment", permissionId: "tecnico_execucao_ensaios" },
                 { label: "Elaboração de Relatório", href: "/sgq/elaboracao-relatorio", icon: "edit_document", permissionId: "tecnico_elaboracao_relatorio" },
-                {
-                    label: "Aprovação", icon: "fact_check", permissionId: "tecnico_aprovacao",
-                    subItems: [
-                        { label: "Acústica", href: "/sgq/aprovacao?area=acustica", permissionId: "resp_acustica" },
-                        { label: "Aderência", href: "/sgq/aprovacao?area=aderencia", permissionId: "resp_aderencia" },
-                        { label: "Guarda-corpo", href: "/sgq/aprovacao?area=guarda-corpo", permissionId: "resp_guarda_corpo" },
-                        { label: "Lumínico", href: "/sgq/aprovacao?area=luminico", permissionId: "resp_luminico" },
-                        { label: "Percussão", href: "/sgq/aprovacao?area=percussao", permissionId: "resp_percussao" },
-                        { label: "Impermeabilização", href: "/sgq/aprovacao?area=impermeabilizacao", permissionId: "resp_impermeabilizacao" }
-                    ]
-                },
+                { label: "Aprovação", href: "/sgq/aprovacao", icon: "fact_check", permissionId: "tecnico_aprovacao" },
                 { label: "Emissão de cobranças", href: "/sgq/admin/receber/cobrancas", icon: "receipt", permissionId: "tecnico_cobrancas" },
                 { label: "Recebimentos", href: "/sgq/admin/receber/recebimentos", icon: "payments", permissionId: "tecnico_recebimentos" },
                 { label: "Pesquisa de Satisfação", href: "/sgq/pesquisa-satisfacao", icon: "sentiment_satisfied", permissionId: "tecnico_pesquisa_satisfacao" },
@@ -292,23 +289,19 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
             }
         }
 
-        const checkInactivity = async () => {
-            // Se inativo por mais de 5 minutos, desconecta e vai pra home
-            if (Date.now() - lastActivityRef.current > 5 * 60 * 1000) {
-                try {
-                    await fetch('/api/users/offline', { method: 'POST' })
-                } catch (e) { }
-                signOut({ callbackUrl: "/" })
-            }
-        }
-
         const fetchProfile = async () => {
             try {
                 const res = await fetch('/api/users/profile')
                 if (res.ok) {
                     const data = await res.json()
-                    setUserAvatar(data.avatarUrl || null)
-                    setUserPermissions(data.profile?.permissions || [])
+                    const avatar = data.avatarUrl || null
+                    const permissions = data.profile?.permissions || []
+                    setUserAvatar(avatar)
+                    setUserPermissions(permissions)
+                    try {
+                        localStorage.setItem("sgq:userPermissions", JSON.stringify(permissions))
+                        if (avatar) localStorage.setItem("sgq:userAvatar", avatar)
+                    } catch (e) { }
                 }
             } catch (error) {
                 console.error("Erro ao buscar perfil:", error)
@@ -319,13 +312,11 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
         pingPresence()
         fetchProfile()
 
-        // Ping a cada 1 minuto e checagem de inatividade a cada 15 segundos
+        // Ping a cada 1 minuto
         const pingInterval = setInterval(pingPresence, 60000)
-        const inactivityInterval = setInterval(checkInactivity, 15000)
 
         return () => {
             clearInterval(pingInterval)
-            clearInterval(inactivityInterval)
         }
     }, [session])
 
@@ -359,7 +350,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
             <aside className={`
                 fixed lg:static inset-y-0 left-0 z-40
                 ${isCollapsed ? "w-20" : "w-72 lg:w-64"}
-                bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800
+                bg-white dark:bg-[#070b13]/85 dark:backdrop-blur-xl border-r border-slate-200 dark:border-white/5
                 flex flex-col shadow-sm transition-all duration-300 relative
                 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
             `}>
@@ -367,7 +358,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 {/* Botão de ocultar/abrir na borda - TOPO */}
                 <button
                     onClick={() => handleSetIsCollapsed(!isCollapsed)}
-                    className="absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
+                    className="absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/10 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
                     title={isCollapsed ? "Expandir Menu" : "Ocultar Menu"}
                 >
                     <span className="material-symbols-outlined text-[16px] group-hover:scale-110 transition-transform">
@@ -378,7 +369,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 {/* Botão de ocultar/abrir na borda - MEIO */}
                 <button
                     onClick={() => handleSetIsCollapsed(!isCollapsed)}
-                    className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
+                    className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/10 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
                     title={isCollapsed ? "Expandir Menu" : "Ocultar Menu"}
                 >
                     <span className="material-symbols-outlined text-[16px] group-hover:scale-110 transition-transform">
@@ -389,7 +380,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 {/* Botão de ocultar/abrir na borda - FINAL */}
                 <button
                     onClick={() => handleSetIsCollapsed(!isCollapsed)}
-                    className="absolute -right-3 bottom-20 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
+                    className="absolute -right-3 bottom-20 w-6 h-6 bg-white dark:bg-[#0c1220] border border-slate-200 dark:border-white/10 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all z-50 group"
                     title={isCollapsed ? "Expandir Menu" : "Ocultar Menu"}
                 >
                     <span className="material-symbols-outlined text-[16px] group-hover:scale-110 transition-transform">
@@ -397,7 +388,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     </span>
                 </button>
 
-                <div className={`h-20 flex items-center ${isCollapsed ? "justify-center" : "justify-between px-6"} border-b border-slate-100 dark:border-slate-800 shrink-0 overflow-hidden`}>
+                <div className={`h-20 flex items-center ${isCollapsed ? "justify-center" : "justify-between px-6"} border-b border-slate-100 dark:border-white/5 shrink-0 overflow-hidden`}>
                     {isCollapsed ? (
                         <div className="flex items-center justify-center">
                             <Image
@@ -609,7 +600,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
                     {!isCollapsed && (
                         <div className="flex justify-center mt-2.5">
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v1.10.7 • Atualizado: 26/05/2026 19:38</span>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v{packageJson.version} • Atualizado: 31/05/2026</span>
                         </div>
                     )}
                 </div>

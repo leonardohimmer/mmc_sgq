@@ -10,12 +10,12 @@ export const metadata = {
 
 export default function EnsaioGuardaCorpoPage() {
     return (
-        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[104px] overflow-hidden">
+        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[80px] overflow-hidden">
             <SiteHeader />
 
             <main className="flex-1 flex flex-col">
                 {/* Banner de Cabeçalho estilo Imagem */}
-                <section className="relative py-24 px-6 sm:px-8 text-white overflow-hidden bg-slate-950">
+                <section className="relative py-12 px-6 sm:px-8 text-white overflow-hidden bg-slate-950">
                     {/* Imagem de Fundo Premium */}
                     <div className="absolute inset-0 w-full h-full">
                         <img 
@@ -41,8 +41,6 @@ export default function EnsaioGuardaCorpoPage() {
                             <span className="opacity-50">&gt;</span>
                             <Link href="/ensaios" className="hover:text-white hover:underline transition-all">Ensaios</Link>
                             <span className="opacity-50">&gt;</span>
-                            <Link href="/ensaios/campo" className="hover:text-white hover:underline transition-all">Em Campo</Link>
-                            <span className="opacity-50">&gt;</span>
                             <span className="text-[#00bfa5] font-bold">Guarda-Corpo e Parapeito</span>
                         </div>
                     </div>
@@ -60,6 +58,7 @@ export default function EnsaioGuardaCorpoPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
                             {/* Coluna Esquerda: Texto Principal */}
                             <div className="lg:col-span-7 space-y-8">
+
                                 <div className="space-y-4">
                                     <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white tracking-tight leading-tight">
                                         Segurança e Desempenho Construtivo sob Rigor Técnico
@@ -149,6 +148,66 @@ export default function EnsaioGuardaCorpoPage() {
                                         </li>
                                     </ul>
                                 </div>
+
+                                {/* Selo de Aprovação CCB 2025-2027 (Versão Vertical/Ultra Compacta) */}
+                                <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/20 dark:via-amber-500/5 dark:to-transparent p-3.5 shadow-[0_4px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.1)] transition-all duration-300 hover:border-amber-500/50 group flex flex-col gap-2">
+                                    
+                                    {/* Luzes de Fundo */}
+                                    <div className="absolute -right-12 -top-12 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl transition-transform duration-500 group-hover:scale-110"></div>
+                                    
+                                    {/* Topo do Card: Badges na Esquerda e CCB + Triângulo na Direita */}
+                                    <div className="flex items-center justify-between gap-3">
+                                        {/* Badges Subidas */}
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            <span className="text-[8px] font-black uppercase tracking-wider bg-amber-500/20 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">
+                                                Proficiência Aprovada
+                                            </span>
+                                            <span className="text-[8px] font-black uppercase tracking-wider bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                                                Ciclo 2025-2027
+                                            </span>
+                                        </div>
+
+                                        {/* CCB + Triângulo Laranja 2º */}
+                                        <div className="flex items-center gap-1.5">
+                                            {/* CCB Mini Logo */}
+                                            <div className="relative w-8 h-8 bg-[#0f4c81] rounded flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                                                <span className="text-white text-[10px] font-black tracking-tighter">CCB</span>
+                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500"></div>
+                                            </div>
+
+                                            {/* Triângulo Laranja 2º */}
+                                            <div className="relative w-10 h-10 flex-shrink-0 animate-float-slow">
+                                                <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_4px_rgba(245,158,11,0.3)]">
+                                                    <path 
+                                                        d="M20,15 L80,45 A10,10 0 0 1 80,55 L20,85 A10,10 0 0 1 10,75 L10,25 A10,10 0 0 1 20,15 Z" 
+                                                        fill="#f59e0b" 
+                                                    />
+                                                    <text 
+                                                        x="38" 
+                                                        y="58" 
+                                                        fill="white" 
+                                                        fontSize="30" 
+                                                        fontWeight="900" 
+                                                        fontFamily="sans-serif"
+                                                    >
+                                                        2º
+                                                    </text>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Corpo do Card */}
+                                    <div className="space-y-1">
+                                        <h4 className="text-xs font-extrabold text-slate-950 dark:text-white tracking-tight leading-tight">
+                                            Selo de Excelência Técnica Interlaboratorial
+                                        </h4>
+                                        
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold leading-normal">
+                                            Desempenho satisfatório comprovado no <strong>2º Programa de Ensaios de Proficiência de Guarda-Corpos (ABNT NBR 14718)</strong>, promovido pelo <strong>CCB</strong>.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -227,7 +286,6 @@ export default function EnsaioGuardaCorpoPage() {
                         </div>
 
                         <EnsaioCarousel ensaioId="campo-guarda-corpo" />
-                        <EnsaioCarousel ensaioId="laboratorio-guarda-corpo" />
 
                         {/* Diferenciais da MMC Lab */}
                         <div className="mt-24 space-y-12">

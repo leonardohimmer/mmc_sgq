@@ -8,6 +8,8 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import SuccessModal from "@/components/SuccessModal";
 import ConfirmModal from "@/components/ConfirmModal";
+import MMCLoadingScreen from "@/components/MMCLoadingScreen";
+import { SkeletonGrid } from "@/components/SkeletonCard";
 import Cropper from "react-easy-crop";
 
 
@@ -186,6 +188,24 @@ export default function PortalClientePage() {
     };
 
     const [ensaios, setEnsaios] = useState<Ensaio[]>([]);
+    const [isLoadingData, setIsLoadingData] = useState(true);
+
+    // 1. Carregar cache local de ensaios imediatamente ao montar (Zero Delay)
+    useEffect(() => {
+        try {
+            const cachedKey = `mmc_client_ensaios_cache_${session?.user?.email || 'user'}`;
+            const cached = localStorage.getItem(cachedKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setEnsaios(parsed);
+                    setIsLoadingData(false);
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao ler cache local de ensaios:", e);
+        }
+    }, [session?.user?.email]);
 
     const filteredEnsaios = ensaios.filter(ensaio => {
         const query = searchTerm.toLowerCase().trim();
@@ -238,11 +258,21 @@ export default function PortalClientePage() {
                             fullData: req // Store full data for editing
                         };
                     }) as (Ensaio & { fullData: any })[];
+
                     setEnsaios(formatted);
+                    // Salvar no cache local para recarregamentos futuros sem delay
+                    try {
+                        const cachedKey = `mmc_client_ensaios_cache_${session?.user?.email || 'user'}`;
+                        localStorage.setItem(cachedKey, JSON.stringify(formatted));
+                    } catch (e) {
+                        console.error("Erro ao salvar cache de ensaios:", e);
+                    }
                 }
             })
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setIsLoadingData(false));
     }, [session, status]);
+
 
     // Carregar foto do perfil do usuário e logo da construtora
     useEffect(() => {
@@ -804,7 +834,16 @@ export default function PortalClientePage() {
                             </div>
                         )}
 
-                        {ensaios.length === 0 ? (
+                        {(status === "loading" || isLoadingData) && ensaios.length === 0 ? (
+                            <div className="space-y-6 animate-in fade-in duration-300">
+                                <MMCLoadingScreen 
+                                    compact={true} 
+                                    message="Buscando seus ensaios..." 
+                                    submessage="Sincronizando em tempo real com os servidores MMC LAB" 
+                                />
+                                <SkeletonGrid count={6} />
+                            </div>
+                        ) : ensaios.length === 0 ? (
                             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-sm">
                                 <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-4xl">inventory_2</span>

@@ -5,12 +5,12 @@ import { EnsaioCarousel } from "@/components/EnsaioCarousel";
 
 export default function AcusticaPage() {
     return (
-        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[104px] overflow-hidden">
+        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[80px] overflow-hidden">
             <SiteHeader />
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="relative pt-24 pb-32 sm:pt-32 sm:pb-40 overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-b border-slate-200 dark:border-primary/20">
+                <section className="relative pt-10 sm:pt-14 subpage-hero overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-b border-slate-200 dark:border-primary/20">
                     {/* Efeitos Modernos Neon / Movimento com ondas sonoras concept */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 md:w-[600px] h-80 md:h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[80px] md:blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDuration: '3s' }}></div>
@@ -32,13 +32,13 @@ export default function AcusticaPage() {
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1] mb-6 md:mb-8 drop-shadow-md mx-auto max-w-4xl">
                             Consultoria e <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-400 dark:from-emerald-400 dark:to-teal-200">Projetos Acústicos</span>
                         </h1>
-                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-600 dark:text-slate-300 font-medium leading-[1.6] mb-10">
+                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-600 dark:text-slate-300 font-medium leading-[1.6] mb-6 subpage-hero-p">
                             Entendemos o som para transformar ambientes. Da consultoria pontual ao mapa de ruído urbano, entregamos soluções precisas contra o desconforto sonoro.
                         </p>
                     </div>
                 </section>
 
-                <section className="py-24 bg-background-light dark:bg-slate-950 relative">
+                <section className="py-24 subpage-content bg-background-light dark:bg-slate-950 relative">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 
@@ -88,13 +88,24 @@ export default function AcusticaPage() {
                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-cyan-500/5 dark:border-cyan-500/10 rounded-full animate-[spin_10s_linear_infinite]"></div>
                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-cyan-500/10 dark:border-cyan-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
 
-                                <div className="md:w-1/3 relative z-10 flex justify-center">
-                                    <div className="w-32 h-32 rounded-full bg-cyan-500/10 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ring-2 ring-cyan-500/30 dark:ring-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.2)] dark:shadow-[0_0_30px_rgba(6,182,212,0.4)] backdrop-blur-sm">
-                                        <span className="material-symbols-outlined text-[64px]">map</span>
+                                <div className="md:w-5/12 w-full relative z-10 grid grid-cols-2 gap-4 shrink-0">
+                                    <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg border border-cyan-500/20 dark:border-cyan-500/30 group-hover:scale-[1.03] transition-transform duration-500">
+                                        <img 
+                                            src="/images/ensaios/mapa-ruido-1.jpg" 
+                                            alt="Analista elaborando mapeamento de ruído" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg border border-cyan-500/20 dark:border-cyan-500/30 group-hover:scale-[1.03] transition-transform duration-500">
+                                        <img 
+                                            src="/images/ensaios/mapa-ruido-2.jpg" 
+                                            alt="Mapeamento de ruído 3D urbano" 
+                                            className="w-full h-full object-cover"
+                                        />
                                     </div>
                                 </div>
 
-                                <div className="md:w-2/3 relative z-10 text-center md:text-left">
+                                <div className="md:w-7/12 relative z-10 text-center md:text-left">
                                     <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-4">Mapeamento de Ruído</h3>
                                     <p className="text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed mb-8">
                                         Visualização precisa e espacial do impacto sonoro. Nossos mapas de ruído identificam as fontes primárias de poluição sonora em complexos industriais e faixas urbanas, subsidiando planos de ação efetivos.

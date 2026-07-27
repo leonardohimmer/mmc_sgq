@@ -8,7 +8,7 @@ import SuccessModal from "@/components/SuccessModal";
 
 
 const SERVICOS_AGRUPADOS = {
-    "Em campo": [
+    "Ensaios": [
         {
             label: "Ensaios Acústicos",
             subitens: [
@@ -28,26 +28,6 @@ const SERVICOS_AGRUPADOS = {
         "Ensaio de Permeabilidade",
         "Ensaio de Resistência de Aderência à Tração (Arrancamento)",
         "Ensaio Lumínico",
-        "Inspeção de Fachadas",
-        "Inspeção Termográfica",
-    ],
-    "Em laboratório": [
-        {
-            label: "Ensaios Acústicos",
-            subitens: [
-                "Ensaio de Isolamento Acústico em Laboratório (Rw)",
-                "Ensaio de Isolamento ao Ruído de Impacto",
-                "Inspeção com Câmera Acústica",
-            ]
-        },
-        "Ensaio de Guarda-corpo e Parapeito",
-        "Ensaio de Impacto de Corpo Mole e Corpo Duro",
-        "Ensaio de Resistência de Aderência à Tração",
-        "Ensaio de Peças Suspensas",
-        "Ensaio de Integridade de Estacas (PIT)",
-        "Ensaio de Percussão",
-        "Ensaio de Permeabilidade",
-        "Ensaio de Esclerometria",
         "Inspeção de Fachadas",
         "Inspeção Termográfica",
     ],
@@ -177,12 +157,12 @@ export default function ContatoPage() {
     }
 
     return (
-        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[104px] overflow-hidden">
+        <div className="bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen transition-colors duration-300 flex flex-col pt-[80px] overflow-hidden">
             <SiteHeader />
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="relative pt-24 pb-32 overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-b border-slate-200 dark:border-primary/20">
+                <section className="relative pt-10 pb-16 sm:pt-14 overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-b border-slate-200 dark:border-primary/20">
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 w-full max-w-2xl h-[400px] bg-primary/10 dark:bg-primary/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
                     </div>
@@ -195,13 +175,13 @@ export default function ContatoPage() {
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight drop-shadow-lg">
                             Fale com a <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">MMC Lab</span>
                         </h1>
-                        <p className="max-w-2xl text-lg md:text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed mb-10">
+                        <p className="max-w-2xl text-lg md:text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed mb-6 subpage-hero-p">
                             Preencha o formulário abaixo para análise da equipe técnica.
                         </p>
                     </div>
                 </section>
 
-                <section className="py-24 bg-background-light dark:bg-slate-950 relative">
+                <section className="py-24 subpage-content bg-background-light dark:bg-slate-950 relative">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
@@ -637,7 +617,14 @@ export default function ContatoPage() {
                                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl flex flex-col justify-center">
                                         <span className="material-symbols-outlined text-primary text-3xl mb-4">location_on</span>
                                         <h4 className="font-bold text-slate-900 dark:text-white mb-2">Endereço Sede</h4>
-                                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Rua Bagé, 351<br />Niterói - Canoas/RS</p>
+                                        <a 
+                                            href="https://www.google.com/maps/place/MMC+LAB+Controle+Tecnol%C3%B3gico+Ltda./@-29.9539486,-51.1727562,948m/data=!3m2!1e3!4b1!4m6!3m5!1s0x951977a750f45963:0xd3ae1b88081f216e!8m2!3d-29.9539486!4d-51.1727562!16s%2Fg%2F12mkvnkhn?entry=ttu&g_ep=EgoyMDI2MDcwOC4wIKXMDSoASAFQAw%3D%3D"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                                        >
+                                            Rua Bagé, 351<br />Niterói - Canoas/RS
+                                        </a>
                                     </div>
                                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl flex flex-col justify-center">
                                         <span className="material-symbols-outlined text-primary text-3xl mb-4">call</span>

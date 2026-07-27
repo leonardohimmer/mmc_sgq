@@ -36,14 +36,13 @@ export default function DashboardPage() {
             <div className="space-y-8 font-sans transition-colors duration-300">
                 <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
                     <div className="flex items-center gap-4">
-
                         <div>
                             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 transition-colors">Painel de controle Técnico</h1>
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium transition-colors">Olá, {session?.user?.name || "Técnico"}. Resumo das suas atividades laboratoriais.</p>
                         </div>
                     </div>
                     <div className="flex gap-3">
-                        <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                        <button className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
                             <span className="material-symbols-outlined text-[20px]">menu_book</span> Consultar Norma
                         </button>
                         <Link href="/sgq/meus-ensaios" className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-primary/20 dark:shadow-none hover:-translate-y-0.5 transition-all">
@@ -91,24 +90,24 @@ export default function DashboardPage() {
                         iconBg="bg-red-100 dark:bg-red-500/10"
                         trend={expiredCount > 0 ? "Revisão Necessária" : "Tudo em dia"}
                         trendIcon={expiredCount > 0 ? "warning" : "check_circle"}
-                        trendColor={expiredCount > 0 ? "text-red-500" : "text-emerald-500"}
+                        trendColor={expiredCount > 0 ? "text-red-500 dark:text-red-400" : "text-emerald-500 dark:text-emerald-400"}
                     />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
+                    <div className="bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 shadow-md rounded-3xl p-6 transition-all duration-300">
                         <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
                             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                             Ensaios em Destaque
                         </h2>
                         <div className="space-y-4">
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-colors cursor-pointer group">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-center justify-between hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-colors cursor-pointer group">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center rounded-lg">
                                         <span className="material-symbols-outlined text-[20px]">pending_actions</span>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-sm mb-0.5 text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Resistência à Compressão</p>
+                                        <p className="font-bold text-sm mb-0.5 text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Resistência à Compressão</p>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Lote #4992 - Construtora B</p>
                                     </div>
                                 </div>
@@ -116,13 +115,13 @@ export default function DashboardPage() {
                                     Pendente
                                 </span>
                             </div>
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-colors cursor-pointer group">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-center justify-between hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-colors cursor-pointer group">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center rounded-lg">
                                         <span className="material-symbols-outlined text-[20px]">autorenew</span>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-sm mb-0.5 text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Medição Acústica (NBR 15575)</p>
+                                        <p className="font-bold text-sm mb-0.5 text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Medição Acústica (NBR 15575)</p>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Edifício Horizonte - Apto 302</p>
                                     </div>
                                 </div>
@@ -136,23 +135,23 @@ export default function DashboardPage() {
                         </button>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
+                    <div className="bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 shadow-md rounded-3xl p-6 transition-all duration-300">
                         <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
                             <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>
                             Avisos e Pendências
                         </h2>
                         <div className="space-y-4">
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex items-start gap-3">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-start gap-3">
                                 <span className="material-symbols-outlined text-amber-500 dark:text-amber-400 shrink-0">hourglass_top</span>
                                 <div>
-                                    <p className="font-bold text-sm text-slate-700 dark:text-slate-300 mb-1">Aprovação de Relatório Pendente</p>
+                                    <p className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-1">Aprovação de Relatório Pendente</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">O relatório do ensaio #REQ-992 precisa da sua assinatura técnica para ser liberado ao cliente. (2 aguardando aprovação)</p>
                                 </div>
                             </div>
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex items-start gap-3">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-start gap-3">
                                 <span className="material-symbols-outlined text-red-500 dark:text-red-400 shrink-0">build_circle</span>
                                 <div>
-                                    <p className="font-bold text-sm text-slate-700 dark:text-slate-300 mb-1">Calibração Próxima</p>
+                                    <p className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-1">Calibração Próxima</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">Atenção, o Paquímetro Digital (EQP-012) vence a calibração em 5 dias.</p>
                                 </div>
                             </div>
@@ -171,7 +170,7 @@ export default function DashboardPage() {
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium transition-colors">Bem-vindo de volta, {session?.user?.name || "Usuário"}. Visão geral do Sistema de Gestão da Qualidade MML LAB.</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                    <button className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
                         <span className="material-symbols-outlined text-[20px]">file_download</span> Exportar
                     </button>
                     <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-primary/20 dark:shadow-none hover:opacity-90 transition-all">
@@ -215,8 +214,8 @@ export default function DashboardPage() {
                     title="Usuários Ativos"
                     value="24"
                     icon="group"
-                    iconColor="text-secondary dark:text-amber-200"
-                    iconBg="bg-secondary/10 dark:bg-amber-200/10"
+                    iconColor="text-amber-600 dark:text-amber-400"
+                    iconBg="bg-amber-50 dark:bg-amber-500/10"
                     trend="Estável"
                     trendIcon="horizontal_rule"
                     trendColor="text-slate-500 dark:text-slate-400"
@@ -224,8 +223,8 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
-                    <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <div className="bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 shadow-md rounded-3xl p-6 transition-all duration-300">
+                    <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100 font-sans">
                         <span className="w-2 h-2 rounded-full bg-primary"></span>
                         Atividades Recentes
                     </h2>
@@ -254,23 +253,23 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
-                    <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <div className="bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 shadow-md rounded-3xl p-6 transition-all duration-300">
+                    <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100 font-sans">
                         <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400"></span>
                         Gestão de Equipamentos
                     </h2>
                     <EquipmentAlerts data={equipments} loading={loadingEq} />
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-6 transition-colors duration-300">
-                    <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <div className="bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 shadow-md rounded-3xl p-6 transition-all duration-300">
+                    <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-slate-900 dark:text-slate-100 font-sans">
                         <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                         Atenção Requerida (Ações)
                     </h2>
                     <div className="space-y-4">
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:border-primary/50 dark:hover:border-primary/50 transition-colors cursor-pointer group">
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-center justify-between hover:border-primary/50 dark:hover:border-teal-400/50 transition-colors cursor-pointer group">
                             <div>
-                                <p className="font-bold text-sm mb-1 text-slate-700 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-primary transition-colors">Assinatura Pendente</p>
+                                <p className="font-bold text-sm mb-1 text-slate-700 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-teal-400 transition-colors">Assinatura Pendente</p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Política de Qualidade 2024</p>
                             </div>
                             <span className="px-3 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-widest rounded-full">
@@ -299,8 +298,8 @@ function EquipmentAlerts({ data, loading }: { data: any[], loading: boolean }) {
 
     if (alerts.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-10 text-slate-400">
-                <span className="material-symbols-outlined text-4xl mb-2 opacity-20">check_circle</span>
+            <div className="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-500">
+                <span className="material-symbols-outlined text-4xl mb-2 opacity-30">check_circle</span>
                 <p className="text-xs font-bold uppercase tracking-widest">Tudo em dia</p>
             </div>
         )
@@ -316,13 +315,13 @@ function EquipmentAlerts({ data, loading }: { data: any[], loading: boolean }) {
                 const isExpired = diffDays <= 0;
 
                 return (
-                    <div key={eq.id} className={`p-4 rounded-xl border flex items-start gap-3 ${isExpired ? 'bg-rose-50 border-rose-100 dark:bg-rose-500/5 dark:border-rose-500/20' : 'bg-amber-50 border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20'}`}>
-                        <span className={`material-symbols-outlined shrink-0 ${isExpired ? 'text-rose-500' : 'text-amber-500'}`}>
+                    <div key={eq.id} className={`p-4 rounded-xl border flex items-start gap-3 transition-colors ${isExpired ? 'bg-rose-50 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/30' : 'bg-amber-50 border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/30'}`}>
+                        <span className={`material-symbols-outlined shrink-0 ${isExpired ? 'text-rose-500 dark:text-rose-400' : 'text-amber-500 dark:text-amber-400'}`}>
                             {isExpired ? 'error' : 'warning'}
                         </span>
                         <div>
-                            <p className="font-bold text-sm text-slate-700 dark:text-slate-300 mb-0.5">{eq.code} - {eq.name}</p>
-                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold mb-1 uppercase tracking-tight">{eq.testType || "Ensaio N/D"}</p>
+                            <p className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-0.5">{eq.code} - {eq.name}</p>
+                            <p className="text-[10px] text-slate-400 dark:text-slate-400 font-bold mb-1 uppercase tracking-tight">{eq.testType || "Ensaio N/D"}</p>
                             <p className={`text-[10px] font-black uppercase tracking-tight ${isExpired ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
                                 {isExpired ? `VENCIDO HÁ ${Math.abs(diffDays)} DIAS` : `VENCE EM ${diffDays} DIAS`}
                             </p>
@@ -331,7 +330,7 @@ function EquipmentAlerts({ data, loading }: { data: any[], loading: boolean }) {
                 )
             })}
             {alerts.length > 3 && (
-                <Link href="/sgq/equipamentos" className="block text-center text-[10px] font-black text-primary uppercase tracking-widest hover:underline pt-2">
+                <Link href="/sgq/equipamentos" className="block text-center text-[10px] font-black text-primary dark:text-teal-400 uppercase tracking-widest hover:underline pt-2">
                     Ver mais {alerts.length - 3} alertas
                 </Link>
             )}
@@ -341,22 +340,30 @@ function EquipmentAlerts({ data, loading }: { data: any[], loading: boolean }) {
 
 
 function StatCard({ title, value, icon, iconColor, iconBg, trend, trendIcon, trendColor }: { title: string, value: string, icon: string, iconColor: string, iconBg: string, trend: string, trendIcon: string, trendColor: string }) {
+    let glowClass = "hover:border-primary/30";
+    if (iconColor.includes("amber")) glowClass = "hover:border-amber-500/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]";
+    if (iconColor.includes("red") || iconColor.includes("rose")) glowClass = "hover:border-rose-500/30 hover:shadow-[0_0_15px_rgba(244,63,94,0.15)]";
+    if (iconColor.includes("blue")) glowClass = "hover:border-blue-500/30 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)]";
+    if (iconColor.includes("emerald")) glowClass = "hover:border-emerald-500/30 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]";
+    if (iconColor.includes("indigo")) glowClass = "hover:border-indigo-500/30 hover:shadow-[0_0_15px_rgba(99,102,241,0.15)]";
+
     return (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group transition-colors duration-300">
+        <div className={`bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl p-6 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 shadow-md relative overflow-hidden group transition-all duration-300 hover:-translate-y-0.5 ${glowClass}`}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             <div className="flex justify-between items-start relative z-10">
                 <div>
-                    <p className="text-slate-400 dark:text-slate-500 text-sm font-medium mb-1 transition-colors">{title}</p>
-                    <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 transition-colors">{value}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs font-mono uppercase tracking-wider mb-1 transition-colors">{title}</p>
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 transition-colors font-sans">{value}</h3>
                     <div className={`mt-2 flex items-center gap-1 text-xs font-bold ${trendColor} transition-colors`}>
                         <span className="material-symbols-outlined text-[16px]">{trendIcon}</span>
                         <span>{trend}</span>
                     </div>
                 </div>
-                <div className={`p-3 rounded-xl transition-colors ${iconBg} ${iconColor}`}>
+                <div className={`p-3 rounded-xl transition-colors ${iconBg} ${iconColor} border border-slate-100 dark:border-slate-800`}>
                     <span className="material-symbols-outlined">{icon}</span>
                 </div>
             </div>
-            <div className="mt-4 bg-slate-50 dark:bg-slate-800/50 h-10 -mx-6 flex items-center px-6 text-xs text-primary font-bold cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/20 transition-all">
+            <div className="mt-4 bg-slate-50 dark:bg-slate-800/60 h-10 -mx-6 flex items-center px-6 text-xs text-primary dark:text-teal-400 font-bold cursor-pointer hover:bg-primary/10 dark:hover:bg-teal-500/20 transition-all border-t border-slate-100 dark:border-slate-800/80">
                 Ver detalhes <span className="material-symbols-outlined text-[16px] ml-auto">arrow_forward</span>
             </div>
         </div>
@@ -372,7 +379,7 @@ function ActivityItem({ action, document, user, time, dotColor }: { action: stri
             </div>
             <div className="pb-4">
                 <p className="font-bold text-sm mb-1 text-slate-700 dark:text-slate-200 transition-colors">{action}</p>
-                <p className="text-sm font-bold text-primary mb-1 cursor-pointer hover:underline transition-colors">{document}</p>
+                <p className="text-sm font-bold text-primary dark:text-teal-400 mb-1 cursor-pointer hover:underline transition-colors">{document}</p>
                 <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium transition-colors">
                     <span className="material-symbols-outlined text-[14px]">account_circle</span>
                     <span>{user}</span>

@@ -16,7 +16,7 @@ export default function TecnicoDashboardPage() {
 
     // Usar SWR para gerenciamento de estado e cache automático
     const { data, error, isLoading, isValidating, mutate } = useSWR('/api/dashboard/stats', fetcher, {
-        refreshInterval: 5000, // Voltando para o padrão de 5 segundos
+        refreshInterval: 5000,
         revalidateOnFocus: true,
         revalidateIfStale: true,
         dedupingInterval: 2000,
@@ -73,12 +73,13 @@ export default function TecnicoDashboardPage() {
     }
 
     return (
-        <div className="p-4 sm:p-8 max-w-[1600px] mx-auto animate-in fade-in duration-700">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div className="w-full animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight transition-colors">Painel Técnico SGQ</h1>
+                    <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight transition-colors">Painel Técnico SGQ</h1>
                     <div className="flex items-center gap-2 mt-1">
-                        <p className="text-slate-500 dark:text-slate-400 font-medium transition-colors">Acompanhamento de fluxo linear</p>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium transition-colors">Acompanhamento do fluxo produtivo linear</p>
                         {lastUpdated && (
                             <>
                                 <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
@@ -100,24 +101,24 @@ export default function TecnicoDashboardPage() {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-4 text-sm bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4 text-sm bg-white dark:bg-slate-900/90 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 transition-colors">
                         <div className="flex items-center gap-2">
                             <span className="relative flex h-2 w-2">
                                 <span className={`absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 ${isValidating ? 'animate-ping' : ''}`}></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
-                            <span className="font-bold text-slate-700 dark:text-slate-300">Fluxo Online</span>
+                            <span className="font-bold text-slate-700 dark:text-slate-300 text-xs">Fluxo Online</span>
                         </div>
                         <div className="w-px h-4 bg-slate-200 dark:bg-slate-800"></div>
-                        <div className="font-medium text-slate-500 dark:text-slate-400">{format(new Date(), "dd 'de' MMMM, yyyy")}</div>
+                        <div className="font-medium text-slate-500 dark:text-slate-400 text-xs">{format(new Date(), "dd 'de' MMMM, yyyy")}</div>
                     </div>
                 </div>
             </div>
 
-            {/* Lista de Etapas (Layout de Grade) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-12">
-                {Object.keys(STEP_CONFIG).sort((a, b) => Number(a) - Number(b)).map((id, index) => {
+            {/* Lista de Etapas (Layout Ampliado e Bem Distribuído) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+                {Object.keys(STEP_CONFIG).sort((a, b) => Number(a) - Number(b)).map((id) => {
                     const config = STEP_CONFIG[id]
                     const count = getCountByStep(id)
                     const permitted = hasPermission(config.permission)
@@ -127,43 +128,42 @@ export default function TecnicoDashboardPage() {
                             <Link 
                                 key={id}
                                 href={config.href}
-                                className={`group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-${config.color}-500/30 dark:hover:border-${config.color}-500/30 transition-all duration-300 relative overflow-hidden flex flex-col h-full ${count > 0 ? `border-t-4 border-t-${config.color}-500` : ''}`}
+                                className={`group bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 lg:p-6 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[140px] ${count > 0 ? `border-t-4 border-t-${config.color}-500` : ''}`}
                             >
-                                {/* Status Header */}
-                                <div className="flex justify-between items-start mb-5 relative z-10">
-                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-${config.color}-100 dark:bg-${config.color}-500/10 text-${config.color}-700 dark:text-${config.color}-400 border-${config.color}-200 dark:border-${config.color}-500/30`}>
+                                {/* Topo: Badge de Status (Esquerda) e Passo (Direita) */}
+                                <div className="flex justify-between items-center mb-4 relative z-10">
+                                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider bg-${config.color}-100 dark:bg-${config.color}-500/10 text-${config.color}-700 dark:text-${config.color}-400 border-${config.color}-200 dark:border-${config.color}-500/30`}>
                                         <span className="material-symbols-outlined text-[16px]">{config.icon}</span>
                                         {config.statusDesc}
                                     </div>
-                                    <div className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2.5 py-1 rounded-lg">
+                                    <div className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/60 px-3 py-1 rounded-xl">
                                         Passo {id}
                                     </div>
                                 </div>
 
-                                {/* Content Area */}
-                                <div className="flex-1 mb-6 relative z-10">
-                                    <h3 className={`text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight mb-3 group-hover:text-${config.color}-600 dark:group-hover:text-${config.color}-400 transition-colors`}>
-                                        {config.label}
-                                    </h3>
-                                    
-                                    <div className="flex flex-col gap-1 mt-3">
-                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Responsabilidade</span>
-                                        <span className="text-[12px] font-bold text-slate-600 dark:text-slate-300">{config.responsible}</span>
+                                {/* Conteúdo: Título/Responsável (Esquerda) e Contador de Pendentes (Direita) */}
+                                <div className="flex justify-between items-end gap-4 relative z-10">
+                                    <div className="flex-1 min-w-0 pr-2">
+                                        <h3 className={`text-lg font-bold text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-${config.color}-600 dark:group-hover:text-${config.color}-400 transition-colors truncate`}>
+                                            {config.label}
+                                        </h3>
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Responsabilidade</span>
+                                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 truncate">{config.responsible}</span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* Actions / Pendentes */}
-                                <div className="flex justify-between items-end relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Pendentes</span>
+                                    {/* Contador de Pendentes alinhado à direita abaixo do Passo */}
+                                    <div className="flex flex-col items-end shrink-0 pl-2">
+                                        <span className="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5">Pendentes</span>
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-2xl font-black ${count > 0 ? `text-${config.color}-600 dark:text-${config.color}-400` : 'text-slate-300 dark:text-slate-600'}`}>
+                                            <span className={`text-3xl font-black tracking-tight ${count > 0 ? `text-${config.color}-600 dark:text-${config.color}-400` : 'text-slate-300 dark:text-slate-600'}`}>
                                                 {isLoading ? '--' : count.toString().padStart(2, '0')}
                                             </span>
                                             {count > 0 && (
-                                                <span className="flex h-2 w-2 relative">
+                                                <span className="flex h-2.5 w-2.5 relative">
                                                     <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-${config.color}-400 opacity-75`}></span>
-                                                    <span className={`relative inline-flex rounded-full h-2 w-2 bg-${config.color}-500`}></span>
+                                                    <span className={`relative inline-flex rounded-full h-2.5 w-2.5 bg-${config.color}-500`}></span>
                                                 </span>
                                             )}
                                         </div>
@@ -176,105 +176,46 @@ export default function TecnicoDashboardPage() {
                             <div 
                                 key={id}
                                 title="Acesso restrito ao responsável por esta etapa"
-                                className="group relative bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100/70 dark:border-slate-800/50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 opacity-60 cursor-not-allowed select-none flex flex-col h-full"
+                                className="group relative bg-slate-50/60 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-5 lg:p-6 opacity-60 cursor-not-allowed select-none flex flex-col justify-between min-h-[140px]"
                             >
-                                {/* Status Header */}
-                                <div className="flex justify-between items-start mb-5 relative z-10">
-                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700`}>
+                                {/* Topo: Badge de Status (Esquerda) e Passo (Direita) */}
+                                <div className="flex justify-between items-center mb-4 relative z-10">
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700">
                                         <span className="material-symbols-outlined text-[16px]">{config.icon}</span>
                                         Acesso Restrito
                                     </div>
-                                    <div className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-600 bg-slate-100/50 dark:bg-slate-800/30 px-2.5 py-1 rounded-lg">
+                                    <div className="text-xs font-bold text-slate-400 dark:text-slate-600 bg-slate-100/80 dark:bg-slate-800/40 px-3 py-1 rounded-xl">
                                         Passo {id}
                                     </div>
                                 </div>
 
-                                {/* Content Area */}
-                                <div className="flex-1 mb-6 relative z-10">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <h3 className="text-base sm:text-lg font-bold text-slate-400 dark:text-slate-500 leading-tight">
-                                            {config.label}
-                                        </h3>
-                                        <span className="material-symbols-outlined text-sm text-slate-400">lock</span>
-                                    </div>
-                                    
-                                    <div className="flex flex-col gap-1 mt-3">
-                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Responsabilidade</span>
-                                        <span className="text-[12px] font-bold text-slate-400 dark:text-slate-600">{config.responsible}</span>
-                                    </div>
-                                </div>
-
-                                {/* Actions / Pendentes */}
-                                <div className="flex justify-between items-end relative z-10 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1">Pendentes</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-2xl font-black text-slate-300 dark:text-slate-700">
-                                                {isLoading ? '--' : count.toString().padStart(2, '0')}
-                                            </span>
+                                {/* Conteúdo: Título/Responsável (Esquerda) e Contador de Pendentes (Direita) */}
+                                <div className="flex justify-between items-end gap-4 relative z-10">
+                                    <div className="flex-1 min-w-0 pr-2">
+                                        <div className="flex items-center gap-1.5 mb-2">
+                                            <h3 className="text-lg font-bold text-slate-400 dark:text-slate-500 leading-tight truncate">
+                                                {config.label}
+                                            </h3>
+                                            <span className="material-symbols-outlined text-sm text-slate-400 shrink-0">lock</span>
                                         </div>
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Responsabilidade</span>
+                                            <span className="text-xs font-bold text-slate-400 dark:text-slate-600 truncate">{config.responsible}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Contador de Pendentes alinhado à direita abaixo do Passo */}
+                                    <div className="flex flex-col items-end shrink-0 pl-2">
+                                        <span className="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-0.5">Pendentes</span>
+                                        <span className="text-3xl font-black tracking-tight text-slate-300 dark:text-slate-700">
+                                            {isLoading ? '--' : count.toString().padStart(2, '0')}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         )
                     }
                 })}
-            </div>
-
-            {/* Resumo e Suporte */}
-            <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm relative overflow-hidden transition-colors">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/30 dark:bg-blue-900/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                    
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-600 shadow-lg shadow-blue-200 dark:shadow-none flex items-center justify-center text-white">
-                                <span className="material-symbols-outlined">dashboard_customize</span>
-                            </div>
-                            <div>
-                                <h2 className="font-black text-slate-900 dark:text-slate-100 text-xl tracking-tight transition-colors">Visão Consolidada</h2>
-                                <p className="text-sm text-slate-400 dark:text-slate-500 font-medium transition-colors">Métricas chave do fluxo produtivo</p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                            {[
-                                { label: 'Novos Orçamentos', value: counts?.orcamentos, color: 'blue' },
-                                { label: 'Ensaios em Execução', value: counts?.execucao, color: 'purple' },
-                                { label: 'Aguardando Pagamento', value: counts?.pagamento, color: 'amber' },
-                                { label: 'Processos Finalizados', value: counts?.finalizado, color: 'emerald', bold: true }
-                            ].map((stat, i) => (
-                                <div key={i} className={`p-5 rounded-3xl border border-slate-50 dark:border-slate-800/50 transition-colors ${stat.bold ? 'bg-emerald-50/50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20' : 'bg-slate-50/50 dark:bg-slate-800/30'}`}>
-                                    <span className={`text-[10px] font-black uppercase tracking-widest block mb-2 transition-colors ${stat.bold ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                                        {stat.label}
-                                    </span>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className={`text-3xl font-black tracking-tighter transition-colors ${isLoading && !counts ? 'animate-pulse bg-slate-200 dark:bg-slate-800 text-transparent rounded-lg' : stat.bold ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'}`}>
-                                            {isLoading && !counts ? '00' : (stat.value || 0).toString().padStart(2, '0')}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
-                    <div className="relative z-10 flex flex-col h-full">
-                        <div className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-white text-3xl">hub</span>
-                        </div>
-                        <h3 className="font-black text-2xl mb-3 tracking-tight">Suporte Técnico</h3>
-                        <p className="text-slate-400 text-sm mb-auto leading-relaxed">
-                            Encontrou alguma inconsistência ou precisa de auxílio no fluxo? Nossa equipe está pronta para ajudar.
-                        </p>
-                        <button className="mt-8 bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-sm hover:bg-blue-50 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-2">
-                            Acessar Central de Ajuda
-                            <span className="material-symbols-outlined text-sm">open_in_new</span>
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     )
