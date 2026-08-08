@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { calculateOsBalance, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service';
 
 // POST /api/solicitacoes/[id]/enviar-relatorio-parcial

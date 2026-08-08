@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { calculateOsBalance, ensureExecutionItemsCreated, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service';
 
 // GET /api/solicitacoes/[id]/itens - Retorna os itens de execução e o resumo do saldo
