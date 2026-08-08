@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { ensureExecutionItemsCreated } from '@/lib/os-balance-service'
 
 export async function GET(request: Request) {
     try {
-        // Para fins do mock do portal do cliente, filtramos por nome ou devolvemos tudo
         const { searchParams } = new URL(request.url)
         const clientName = searchParams.get('clientName') || 'CLAUDIO SCHERER'
         const clientEmail = (searchParams.get('clientEmail') || searchParams.get('userEmail') || '').trim().toLowerCase()
@@ -20,53 +20,18 @@ export async function GET(request: Request) {
                 clientName: clientName
             }
 
-        // Busca solicitações do cliente omitindo os campos pesados de PDFs
         const requests = await prisma.testRequest.findMany({
             where: whereCondition,
-            select: {
-                id: true,
-                type: true,
-                location: true,
-                contractorName: true,
-                constructionCompany: true,
-                workName: true,
-                address: true,
-                rua: true,
-                numero: true,
-                bairro: true,
-                cidade: true,
-                estado: true,
-                cep: true,
-                proposalEmail: true,
-                reportEmail: true,
-                emailsProposta: true,
-                emailsRelatorio: true,
-                sharedEmails: true,
-                desiredDate: true,
-                datasDesejadas: true,
-                quantidadeEnsaios: true,
-                observations: true,
-                appliedStandard: true,
-                measuredData: true,
-                result: true,
-                technicalObservations: true,
-                reportNumber: true,
-                isSigned: true,
-                invoiceNumber: true,
-                invoiceDate: true,
-                paymentConfirmedAt: true,
-                paymentConfirmedBy: true,
-                clientPaymentConfirmed: true,
-                clientPaymentConfirmedAt: true,
-                status: true,
-                step: true,
-                clientName: true,
-                clientPhone: true,
-                clientEmail: true,
-                assignedToId: true,
-                performedAt: true,
-                createdAt: true,
-                updatedAt: true,
+            include: {
+                executionItems: {
+                    orderBy: { numeroSequencial: 'asc' },
+                    include: {
+                        partialInvoice: true
+                    }
+                },
+                partialInvoices: {
+                    orderBy: { createdAt: 'desc' }
+                },
                 satisfactionSurvey: true
             },
             orderBy: { createdAt: 'desc' }
@@ -110,11 +75,32 @@ export async function GET(request: Request) {
         const proposalSet = new Set(requestsWithProposalPdf.map(r => r.id))
         const invoiceSet = new Set(requestsWithInvoicePdf.map(r => r.id))
 
-        const formattedRequests = requests.map(req => ({
-            ...req,
-            reportPdfUrl: reportSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
-            proposalPdfUrl: proposalSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
-            invoicePdfUrl: invoiceSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
+        const formattedRequests = await Promise.all(requests.map(async req => {
+            let items = req.executionItems;
+            if (items.length === 0) {
+                items = await ensureExecutionItemsCreated(req.id, req.quantidadeEnsaios);
+            }
+
+            const qtdContratada = Math.max(req.qtdContratada || 1, items.length);
+            const qtdExecutada = items.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO').length;
+            const qtdEntregue = items.filter(i => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
+            const qtdFaturada = req.partialInvoices.reduce((acc, inv) => acc + inv.qtdFaturada, 0);
+
+            return {
+                ...req,
+                executionItems: items,
+                qtdContratada,
+                qtdExecutada,
+                qtdEntregue,
+                qtdPendenteExecucao: Math.max(0, qtdContratada - qtdExecutada),
+                qtdPendenteEntrega: Math.max(0, qtdContratada - qtdEntregue),
+                qtdFaturada,
+                qtdPendenteFaturamento: Math.max(0, qtdExecutada - qtdFaturada),
+                porcentagemConcluida: Math.min(100, Math.round((qtdEntregue / qtdContratada) * 100)),
+                reportPdfUrl: reportSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
+                proposalPdfUrl: proposalSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
+                invoicePdfUrl: invoiceSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
+            };
         }))
 
         return NextResponse.json(formattedRequests)
@@ -198,7 +184,10 @@ export async function POST(request: Request) {
             }
         })
 
-        // Add history for initial creation
+        // Gerar automaticamente os N itens de execução para a OS
+        await ensureExecutionItemsCreated(newRequest.id, quantidadeEnsaios);
+
+        // Registrar histórico inicial
         await prisma.testRequestHistory.create({
             data: {
                 requestId: newRequest.id,

@@ -131,12 +131,63 @@ model TestRequest {
   createdAt    DateTime             @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime             @default(now()) @updatedAt @db.Timestamptz(6)
   
+  qtdContratada        Int                  @default(1)
+  valorUnitario        Float?
+  valorTotal           Float?
+  executionItems       TestExecutionItem[]
+  partialInvoices      PartialInvoice[]
+
   assignedTo   User?                @relation("UserTestRequests", fields: [assignedToId], references: [id])
   history      TestRequestHistory[]
   satisfactionSurvey SatisfactionSurvey?
 
   @@index([status])
   @@index([status, clientPaymentConfirmed])
+}
+
+model TestExecutionItem {
+  id                   String          @id @default(dbgenerated("(gen_random_uuid())::text"))
+  requestId            String
+  numeroSequencial     Int
+  tecnicoId            String?
+  dataPlanejada        DateTime?       @db.Timestamptz(6)
+  dataExecucao         DateTime?       @db.Timestamptz(6)
+  statusExecucao       String          @default("PENDENTE") // PENDENTE, AGENDADO, EM_EXECUCAO, CONCLUIDO, APROVADO
+  statusFaturamento    String          @default("PENDENTE") // PENDENTE, LIBERADO, FATURADO
+  statusEntrega        String          @default("PENDENTE") // PENDENTE, ENVIADO_AO_CLIENTE
+  reportNumber         String?
+  reportPdfUrl         String?
+  dataEnvioRelatorio   DateTime?       @db.Timestamptz(6)
+  observacoes          String?         @db.Text
+  partialInvoiceId     String?
+  createdAt            DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
+
+  request              TestRequest     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  partialInvoice       PartialInvoice? @relation(fields: [partialInvoiceId], references: [id])
+
+  @@unique([requestId, numeroSequencial])
+  @@index([requestId])
+  @@index([statusExecucao])
+  @@index([statusFaturamento])
+}
+
+model PartialInvoice {
+  id             String              @id @default(dbgenerated("(gen_random_uuid())::text"))
+  requestId      String
+  numeroNf       String
+  qtdFaturada    Int                 @default(1)
+  valorNota      Float
+  dataEmissao    DateTime            @default(now()) @db.Timestamptz(6)
+  notaPdfUrl     String?
+  observacoes    String?             @db.Text
+  createdAt      DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime            @default(now()) @updatedAt @db.Timestamptz(6)
+
+  request        TestRequest         @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  executionItems TestExecutionItem[]
+
+  @@index([requestId])
 }
 
 model TestRequestHistory {

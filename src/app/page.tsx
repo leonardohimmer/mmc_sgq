@@ -233,65 +233,6 @@ export default function HomePage() {
               <p>STATUS_SYS: OK [V.{packageJson.version}]</p>
               <p>NBR 15575 COMPLIANT</p>
             </div>
-            
-            {/* Ondas Neon Fluidas do Conceito (SVG Waveform) */}
-            <svg className="absolute inset-0 w-full h-full opacity-40 dark:opacity-80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1440 800">
-              <defs>
-                <linearGradient id="wave-teal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#4DB6AC" stopOpacity="0.85" />
-                  <stop offset="40%" stopColor="#00e5ff" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#26c6da" stopOpacity="0.05" />
-                </linearGradient>
-                <linearGradient id="wave-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#C1B598" stopOpacity="0.85" />
-                  <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#d97706" stopOpacity="0.05" />
-                </linearGradient>
-                <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="12" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              {/* Onda Neon Ciano principal */}
-              <path
-                d="M-100,320 C200,120 400,600 800,350 C1200,100 1300,550 1600,400"
-                fill="none"
-                stroke="url(#wave-teal-grad)"
-                strokeWidth="5"
-                filter="url(#glow-effect)"
-                className="animate-flow-dash"
-              />
-              <path
-                d="M-100,320 C200,120 400,600 800,350 C1200,100 1300,550 1600,400"
-                fill="none"
-                stroke="#00e5ff"
-                strokeWidth="1.5"
-                strokeOpacity="0.9"
-                className="animate-flow-dash"
-              />
-
-              {/* Onda Neon Ouro/Cobre secundária */}
-              <path
-                d="M-50,480 C350,650 650,250 950,550 C1250,850 1350,350 1550,600"
-                fill="none"
-                stroke="url(#wave-gold-grad)"
-                strokeWidth="4"
-                filter="url(#glow-effect)"
-                className="animate-flow-dash-reverse"
-              />
-              <path
-                d="M-50,480 C350,650 650,250 950,550 C1250,850 1350,350 1550,600"
-                fill="none"
-                stroke="#f59e0b"
-                strokeWidth="1.2"
-                strokeOpacity="0.9"
-                className="animate-flow-dash-reverse"
-              />
-            </svg>
           </div>
 
           {/* Seção dedicada do Carrossel de Ensaios em largura total - No topo */}

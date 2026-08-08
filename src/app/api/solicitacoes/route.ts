@@ -11,58 +11,21 @@ export async function GET() {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
         }
 
-        // Busca solicitações omitindo os campos pesados de PDFs
+        // Busca solicitações com itens de execução e notas fiscais parciais
         const requests = await prisma.testRequest.findMany({
-            select: {
-                id: true,
-                type: true,
-                location: true,
-                contractorName: true,
-                constructionCompany: true,
-                workName: true,
-                address: true,
-                rua: true,
-                numero: true,
-                bairro: true,
-                cidade: true,
-                estado: true,
-                cep: true,
-                proposalEmail: true,
-                reportEmail: true,
-                emailsProposta: true,
-                emailsRelatorio: true,
-                sharedEmails: true,
-                desiredDate: true,
-                datasDesejadas: true,
-                quantidadeEnsaios: true,
-                observations: true,
-                appliedStandard: true,
-                measuredData: true,
-                result: true,
-                technicalObservations: true,
-                reportNumber: true,
-                isSigned: true,
-                invoiceNumber: true,
-                invoiceDate: true,
-                paymentConfirmedAt: true,
-                paymentConfirmedBy: true,
-                clientPaymentConfirmed: true,
-                clientPaymentConfirmedAt: true,
-                status: true,
-                step: true,
-                clientName: true,
-                clientPhone: true,
-                clientEmail: true,
-                assignedToId: true,
-                performedAt: true,
-                createdAt: true,
-                updatedAt: true,
+            include: {
                 assignedTo: {
                     select: {
                         name: true,
                         email: true
                     }
-                }
+                },
+                executionItems: {
+                    orderBy: { numeroSequencial: 'asc' },
+                },
+                partialInvoices: {
+                    orderBy: { createdAt: 'desc' },
+                },
             },
             orderBy: { createdAt: 'desc' }
         })
@@ -102,12 +65,27 @@ export async function GET() {
         const proposalSet = new Set(requestsWithProposalPdf.map(r => r.id))
         const invoiceSet = new Set(requestsWithInvoicePdf.map(r => r.id))
 
-        const formattedRequests = requests.map(req => ({
-            ...req,
-            reportPdfUrl: reportSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
-            proposalPdfUrl: proposalSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
-            invoicePdfUrl: invoiceSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
-        }))
+        const formattedRequests = requests.map(req => {
+            const qtdContratada = Math.max(req.qtdContratada || 1, req.executionItems.length || 1);
+            const qtdExecutada = req.executionItems.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO').length;
+            const qtdEntregue = req.executionItems.filter(i => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
+            const qtdFaturada = req.partialInvoices.reduce((acc, inv) => acc + inv.qtdFaturada, 0);
+
+            return {
+                ...req,
+                qtdContratada,
+                qtdExecutada,
+                qtdEntregue,
+                qtdPendenteExecucao: Math.max(0, qtdContratada - qtdExecutada),
+                qtdPendenteEntrega: Math.max(0, qtdContratada - qtdEntregue),
+                qtdFaturada,
+                qtdPendenteFaturamento: Math.max(0, qtdExecutada - qtdFaturada),
+                porcentagemConcluida: Math.min(100, Math.round((qtdEntregue / qtdContratada) * 100)),
+                reportPdfUrl: reportSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
+                proposalPdfUrl: proposalSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
+                invoicePdfUrl: invoiceSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
+            };
+        })
 
         return NextResponse.json(formattedRequests)
     } catch (error) {
