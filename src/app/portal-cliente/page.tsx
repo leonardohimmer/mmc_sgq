@@ -258,7 +258,7 @@ export default function PortalClientePage() {
                         const dd = String(refDate.getDate()).padStart(2, '0');
                         const hh = String(refDate.getHours()).padStart(2, '0');
                         const min = String(refDate.getMinutes()).padStart(2, '0');
-                        const osCode = req.proposalCode || `OS-${yyyy}${mm}${dd}-${hh}${min}`;
+                        const osCode = `${yyyy}${mm}${dd}-${hh}${min}`;
 
                         const items = req.executionItems || [];
                         const qtdContratada = Math.max(req.qtdContratada || 1, items.length || 1);
@@ -484,7 +484,7 @@ export default function PortalClientePage() {
                 const dd = String(refDate.getDate()).padStart(2, '0');
                 const hh = String(refDate.getHours()).padStart(2, '0');
                 const min = String(refDate.getMinutes()).padStart(2, '0');
-                const osCode = `OS-${yyyy}${mm}${dd}-${hh}${min}`;
+                const osCode = `${yyyy}${mm}${dd}-${hh}${min}`;
 
                 const formattedNovoEnsaio: Ensaio = {
                     id: req.id.split('-')[0].toUpperCase(),
@@ -934,7 +934,7 @@ export default function PortalClientePage() {
                                                 )}
                                             </div>
                                             <div className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-500/30">
-                                                OS: #{ensaio.osCode || ensaio.id}
+                                                OS: {ensaio.osCode}
                                             </div>
                                         </div>
 

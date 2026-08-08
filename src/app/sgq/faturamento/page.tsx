@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 import SuccessModal from "@/components/SuccessModal";
+import { formatOsCode } from "@/lib/os-balance-service";
 
 interface TestExecutionItem {
   id: string;
@@ -281,8 +282,8 @@ export default function FaturamentoParcialPage() {
                   }`}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                      ID: #{req.id.substring(0, 8)}
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 font-mono">
+                      OS: {formatOsCode(req)}
                     </span>
                     {hasPendenteNf && (
                       <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">

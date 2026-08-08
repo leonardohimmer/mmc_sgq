@@ -16,6 +16,26 @@ export interface OsBalanceSummary {
 }
 
 /**
+ * Formata o código da Ordem de Serviço estritamente no padrão YYYYMMDD-HHmm (sem # e sem a palavra proposta).
+ */
+export function formatOsCode(request: {
+  createdAt?: Date | string | null;
+  paymentConfirmedAt?: Date | string | null;
+  clientPaymentConfirmedAt?: Date | string | null;
+}): string {
+  const refDateStr = request.clientPaymentConfirmedAt || request.paymentConfirmedAt || request.createdAt;
+  const refDate = refDateStr ? new Date(refDateStr) : new Date();
+
+  const YYYY = refDate.getFullYear();
+  const MM = String(refDate.getMonth() + 1).padStart(2, '0');
+  const DD = String(refDate.getDate()).padStart(2, '0');
+  const HH = String(refDate.getHours()).padStart(2, '0');
+  const mm = String(refDate.getMinutes()).padStart(2, '0');
+
+  return `${YYYY}${MM}${DD}-${HH}${mm}`;
+}
+
+/**
  * Extrai a quantidade numérica de ensaios a partir da string cadastrada no pedido (ex: "10 ensaios", "5", "1")
  */
 export function parseQuantidadeEnsaios(qtdStr?: string | null): number {

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { formatOsCode } from "@/lib/os-balance-service";
 
 interface EnsaioDetailsModalProps {
     isOpen: boolean;
@@ -93,7 +94,7 @@ export default function EnsaioDetailsModal({
                                     {ensaio.status || data.status || "Em andamento"}
                                 </span>
                                 <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-500/30">
-                                    OS: #{ensaio.osCode || data.proposalCode || ensaio.id}
+                                    OS: {ensaio.osCode || formatOsCode(data)}
                                 </span>
                             </div>
                             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white leading-tight">

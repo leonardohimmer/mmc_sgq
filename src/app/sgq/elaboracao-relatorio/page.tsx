@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { getCountdownMessage } from "@/lib/dateUtils"
 import SuccessModal from "@/components/SuccessModal"
+import { formatOsCode } from "@/lib/os-balance-service"
 
 type TestRequest = {
     id: string
@@ -183,7 +184,7 @@ export default function ElaboracaoRelatorioPage() {
                             <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                                 <h2 className="text-xl font-bold justify-between flex items-center text-slate-800 dark:text-slate-200">
                                     Checklist do Relatório
-                                    <span className="text-sm font-normal text-slate-500">ID: {selectedRequest.id.substring(0, 8)}...</span>
+                                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">OS: {formatOsCode(selectedRequest)}</span>
                                 </h2>
                                 <p className="text-sm text-slate-500 mt-1">
                                     Verifique todos os itens do relatório antes de enviar para aprovação.
