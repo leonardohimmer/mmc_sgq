@@ -163,23 +163,33 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
  * Só encerra (status = FINALIZADO) quando todos os laudos foram entregues ao cliente.
  */
 export async function updateOsStatusBasedOnBalance(requestId: string): Promise<string> {
+  const request = await prisma.testRequest.findUnique({
+    where: { id: requestId },
+    include: { executionItems: true, partialInvoices: true },
+  });
+
+  if (!request) return 'RECEBIDO';
+
   const balance = await calculateOsBalance(requestId);
+
+  const hasScheduledItem = request.executionItems.some(
+    (item) => item.dataPlanejada !== null || item.statusExecucao === 'EM_EXECUCAO' || item.statusExecucao === 'AGENDADO'
+  );
 
   let newStatus: string;
   if (balance.isOsFinalizada) {
     newStatus = 'FINALIZADO';
   } else if (balance.qtdExecutada > 0 || balance.qtdEntregue > 0) {
     newStatus = 'EM_EXECUCAO';
+  } else if (hasScheduledItem || request.status === 'AGUARDANDO_AGENDAMENTO') {
+    newStatus = 'AGUARDANDO_AGENDAMENTO';
+  } else if (request.status === 'AGUARDANDO_ACEITE') {
+    newStatus = 'AGUARDANDO_ACEITE';
   } else {
     newStatus = 'RECEBIDO';
   }
 
-  const currentRequest = await prisma.testRequest.findUnique({
-    where: { id: requestId },
-    select: { status: true },
-  });
-
-  if (currentRequest && currentRequest.status !== newStatus) {
+  if (request.status !== newStatus) {
     await prisma.testRequest.update({
       where: { id: requestId },
       data: { status: newStatus },

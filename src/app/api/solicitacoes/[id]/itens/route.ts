@@ -134,6 +134,20 @@ export async function PATCH(
       },
     });
 
+    // Se foi agendada uma data planejada ou solicitado agendamento
+    if (dataPlanejada || statusExecucao === 'EM_EXECUCAO' || statusExecucao === 'AGENDADO') {
+      const currentReq = await prisma.testRequest.findUnique({ where: { id: requestId }, select: { status: true } });
+      if (currentReq && currentReq.status !== 'EM_EXECUCAO' && currentReq.status !== 'FINALIZADO') {
+        await prisma.testRequest.update({
+          where: { id: requestId },
+          data: {
+            status: 'AGUARDANDO_AGENDAMENTO',
+            ...(dataPlanejada ? { desiredDate: new Date(dataPlanejada) } : {})
+          }
+        });
+      }
+    }
+
     // Atualiza status global da OS Mãe com base nos saldos
     await updateOsStatusBasedOnBalance(requestId);
 
