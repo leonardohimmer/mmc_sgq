@@ -478,9 +478,20 @@ export default function PortalClientePage() {
 
                 // Para nova solicitação, formatar o objeto para o estado local
                 const req = json.request;
+                const refDate = new Date(req?.createdAt || Date.now());
+                const yyyy = refDate.getFullYear();
+                const mm = String(refDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(refDate.getDate()).padStart(2, '0');
+                const hh = String(refDate.getHours()).padStart(2, '0');
+                const min = String(refDate.getMinutes()).padStart(2, '0');
+                const osCode = `OS-${yyyy}${mm}${dd}-${hh}${min}`;
+
                 const formattedNovoEnsaio: Ensaio = {
                     id: req.id.split('-')[0].toUpperCase(),
+                    osCode,
                     rawId: req.id,
+                    qtdContratada: req.qtdContratada || 1,
+                    qtdEntregue: 0,
                     data: new Date(req.createdAt).toLocaleDateString("pt-BR"),
                     titulo: req.type,
                     status: "Recebido",
