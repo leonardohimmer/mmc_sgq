@@ -18,12 +18,15 @@ import { ModalPasswordChange } from "@/components/ModalPasswordChange";
 
 interface Ensaio {
     id: string;
+    osCode: string;
     data: string;
     titulo: string;
     status: string;
     statusColor: "amber" | "emerald" | "blue" | "slate" | "orange" | "purple";
     icon: string;
     rawId: string;
+    qtdContratada: number;
+    qtdEntregue: number;
     reportPdfUrl?: string;
     reportNumber?: string;
     proposalPdfUrl?: string;
@@ -249,9 +252,24 @@ export default function PortalClientePage() {
                             (currentUserName && reqClientName && currentUserName === reqClientName)
                         );
 
+                        const refDate = new Date(req.clientPaymentConfirmedAt || req.paymentConfirmedAt || req.createdAt);
+                        const yyyy = refDate.getFullYear();
+                        const mm = String(refDate.getMonth() + 1).padStart(2, '0');
+                        const dd = String(refDate.getDate()).padStart(2, '0');
+                        const hh = String(refDate.getHours()).padStart(2, '0');
+                        const min = String(refDate.getMinutes()).padStart(2, '0');
+                        const osCode = req.proposalCode || `OS-${yyyy}${mm}${dd}-${hh}${min}`;
+
+                        const items = req.executionItems || [];
+                        const qtdContratada = Math.max(req.qtdContratada || 1, items.length || 1);
+                        const qtdEntregue = req.qtdEntregue !== undefined ? req.qtdEntregue : items.filter((i: any) => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
+
                         return {
                             id: req.id.split('-')[0].toUpperCase(),
+                            osCode,
                             rawId: req.id,
+                            qtdContratada,
+                            qtdEntregue,
                             data: new Date(req.createdAt).toLocaleDateString("pt-BR"),
                             titulo: req.type,
                             status: req.status === "RECEBIDO" ? "Recebido" : req.status === "AGUARDANDO_ACEITE" ? "Aguardando Aceite" : req.status === "AGUARDANDO_AGENDAMENTO" ? "Aguardando Agendamento" : req.status === "EM_EXECUCAO" ? "Em execução" : req.status === "ELABORANDO_RELATORIO" ? "Elaborando Relatório" : req.status === "AGUARDANDO_APROVACAO" ? "Em análise" : req.status === "COBRANCA" ? "Faturamento em Processamento" : req.status === "PAGAMENTO" ? "Aguardando Pagamento" : "Finalizado",
@@ -904,14 +922,14 @@ export default function PortalClientePage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
-                                                ID: #{ensaio.id}
+                                            <div className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-500/30">
+                                                OS: #{ensaio.osCode || ensaio.id}
                                             </div>
                                         </div>
 
                                         {/* Content Area */}
                                         <div className="flex-1 mb-2 relative z-10">
-                                            <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[10px] sm:text-[11px] font-bold mb-1 uppercase tracking-wide flex-wrap">
+                                            <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[10px] sm:text-[11px] font-bold mb-1.5 uppercase tracking-wide flex-wrap">
                                                 <span className="flex items-center gap-1 shrink-0">
                                                     <span className="material-symbols-outlined text-[13px]">calendar_today</span>
                                                     {ensaio.data}
@@ -925,6 +943,15 @@ export default function PortalClientePage() {
                                                         </span>
                                                     </>
                                                 )}
+                                                <span className="text-slate-300 dark:text-slate-700">•</span>
+                                                <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md font-extrabold text-[10px] ${
+                                                    (ensaio.qtdEntregue || 0) > 0 
+                                                        ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30' 
+                                                        : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-500/20'
+                                                }`}>
+                                                    <span className="material-symbols-outlined text-[12px]">description</span>
+                                                    <span>{ensaio.qtdEntregue || 0} de {ensaio.qtdContratada || 1} {ensaio.qtdContratada === 1 ? 'relatório' : 'relatórios'}</span>
+                                                </span>
                                             </div>
                                             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug mb-1.5 group-hover:text-primary transition-colors">
                                                 {ensaio.titulo}

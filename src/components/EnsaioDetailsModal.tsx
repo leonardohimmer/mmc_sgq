@@ -13,6 +13,9 @@ interface EnsaioDetailsModalProps {
         statusColor?: string;
         icon?: string;
         rawId?: string;
+        osCode?: string;
+        qtdContratada?: number;
+        qtdEntregue?: number;
         reportPdfUrl?: string;
         reportNumber?: string;
         proposalPdfUrl?: string;
@@ -89,8 +92,8 @@ export default function EnsaioDetailsModal({
                                 <span className={`px-2.5 py-0.5 rounded-full border text-[11px] font-bold uppercase tracking-wider ${getStatusColors(ensaio.statusColor)}`}>
                                     {ensaio.status || data.status || "Em andamento"}
                                 </span>
-                                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-800">
-                                    ID: #{ensaio.id}
+                                <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-500/30">
+                                    OS: #{ensaio.osCode || data.proposalCode || ensaio.id}
                                 </span>
                             </div>
                             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white leading-tight">
