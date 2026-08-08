@@ -37,6 +37,7 @@ export async function ensureExecutionItemsCreated(requestId: string, quantidadeS
   // Buscar itens já existentes
   const existingItems = await prisma.testExecutionItem.findMany({
     where: { requestId },
+    include: { partialInvoice: true },
     orderBy: { numeroSequencial: 'asc' },
   });
 
@@ -70,6 +71,7 @@ export async function ensureExecutionItemsCreated(requestId: string, quantidadeS
 
   return await prisma.testExecutionItem.findMany({
     where: { requestId },
+    include: { partialInvoice: true },
     orderBy: { numeroSequencial: 'asc' },
   });
 }
