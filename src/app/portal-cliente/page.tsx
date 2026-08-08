@@ -378,6 +378,8 @@ export default function PortalClientePage() {
 
     useEffect(() => {
         fetchClientRequests();
+        const interval = setInterval(fetchClientRequests, 15000);
+        return () => clearInterval(interval);
     }, [fetchClientRequests]);
 
     // Carregar foto do perfil do usuário e logo da construtora
@@ -1108,64 +1110,151 @@ export default function PortalClientePage() {
 
                                             {/* Conteúdo Expandido de Documentos */}
                                             {expandedCardIds[ensaio.rawId] && (
-                                                <div className="w-full p-3 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
+                                                <div className="w-full p-3.5 rounded-2xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
                                                     {/* Proposta Comercial */}
-                                                    <div className="flex items-center justify-between text-[11px]">
-                                                        <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                            <span className="material-symbols-outlined text-[14px] text-blue-500">assignment</span>
+                                                    <div className="flex items-center justify-between text-[11px] pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
+                                                        <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                                            <span className="material-symbols-outlined text-[16px] text-blue-500">assignment</span>
                                                             Proposta Comercial:
                                                         </span>
                                                         {ensaio.proposalPdfUrl ? (
                                                             <button
-                                                                onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'view')}
+                                                                onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.osCode}.pdf`, 'view')}
                                                                 className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center gap-1 shadow-sm"
                                                             >
-                                                                <span className="material-symbols-outlined text-[12px]">download</span>
-                                                                Visualizar PDF
+                                                                <span className="material-symbols-outlined text-[13px]">download</span>
+                                                                Visualizar Proposta
                                                             </button>
                                                         ) : (
                                                             <span className="text-slate-400 italic">Pendente</span>
                                                         )}
                                                     </div>
 
-                                                    {/* Relatórios */}
-                                                    <div className="flex items-center justify-between text-[11px]">
-                                                        <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                            <span className="material-symbols-outlined text-[14px] text-emerald-500">description</span>
-                                                            Relatórios ({ensaio.qtdEntregue} de {ensaio.qtdContratada}):
-                                                        </span>
-                                                        {ensaio.reportPdfUrl ? (
-                                                            <button
-                                                                onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
-                                                                className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-sm"
-                                                            >
-                                                                <span className="material-symbols-outlined text-[12px]">download</span>
-                                                                Visualizar PDF
-                                                            </button>
-                                                        ) : (
-                                                            <span className="text-slate-400 italic font-medium">
-                                                                {ensaio.qtdEntregue > 0 ? `${ensaio.qtdEntregue} entregue(s)` : "Aguardando postagem"}
+                                                    {/* Relatórios de Ensaio (1 de N, 2 de N...) */}
+                                                    <div className="space-y-2 pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
+                                                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                                            <span className="flex items-center gap-1.5">
+                                                                <span className="material-symbols-outlined text-[16px] text-emerald-500">description</span>
+                                                                Relatórios Parciais ({ensaio.qtdEntregue} de {ensaio.qtdContratada}):
                                                             </span>
-                                                        )}
+                                                        </div>
+                                                        
+                                                        {(() => {
+                                                            const items = (ensaio.fullData?.executionItems || []).filter((item: any) => item.reportPdfUrl && item.reportPdfUrl.trim() !== "");
+                                                            if (items.length > 0) {
+                                                                return (
+                                                                    <div className="space-y-1.5 pl-1">
+                                                                        {items.map((item: any) => (
+                                                                            <div key={item.id || item.numeroSequencial} className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
+                                                                                <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
+                                                                                    <span className="w-5 h-5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                                                                                        #{item.numeroSequencial}
+                                                                                    </span>
+                                                                                    <span className="truncate">Relatório {item.numeroSequencial} de {ensaio.qtdContratada}</span>
+                                                                                    {item.reportNumber && <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">({item.reportNumber})</span>}
+                                                                                </span>
+                                                                                <button
+                                                                                    onClick={() => openPdfLink(item.reportPdfUrl, `Relatorio-Ensaio-${item.numeroSequencial}.pdf`, 'view')}
+                                                                                    className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-xs shrink-0"
+                                                                                >
+                                                                                    <span className="material-symbols-outlined text-[13px]">download</span>
+                                                                                    Baixar PDF
+                                                                                </button>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                );
+                                                            } else if (ensaio.reportPdfUrl) {
+                                                                return (
+                                                                    <div className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
+                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                                                            <span className="w-5 h-5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                                                                                #1
+                                                                            </span>
+                                                                            <span>Relatório Geral {ensaio.reportNumber ? `(${ensaio.reportNumber})` : ''}</span>
+                                                                        </span>
+                                                                        <button
+                                                                            onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
+                                                                            className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-xs"
+                                                                        >
+                                                                            <span className="material-symbols-outlined text-[13px]">download</span>
+                                                                            Baixar PDF
+                                                                        </button>
+                                                                    </div>
+                                                                );
+                                                            } else {
+                                                                return (
+                                                                    <div className="text-[11px] text-slate-400 italic pl-5">
+                                                                        {ensaio.qtdEntregue > 0 ? `${ensaio.qtdEntregue} relatório(s) entregue(s)` : "Aguardando postagem de relatórios"}
+                                                                    </div>
+                                                                );
+                                                            }
+                                                        })()}
                                                     </div>
 
-                                                    {/* Notas Fiscais */}
-                                                    <div className="flex items-center justify-between text-[11px]">
-                                                        <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                            <span className="material-symbols-outlined text-[14px] text-purple-500">receipt</span>
-                                                            Notas Fiscais:
-                                                        </span>
-                                                        {ensaio.invoicePdfUrl ? (
-                                                            <button
-                                                                onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
-                                                                className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center gap-1 shadow-sm"
-                                                            >
-                                                                <span className="material-symbols-outlined text-[12px]">download</span>
-                                                                Visualizar NF
-                                                            </button>
-                                                        ) : (
-                                                            <span className="text-slate-400 italic font-medium">Aguardando faturamento</span>
-                                                        )}
+                                                    {/* Notas Fiscais Parciais */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                                            <span className="flex items-center gap-1.5">
+                                                                <span className="material-symbols-outlined text-[16px] text-purple-500">receipt</span>
+                                                                Notas Fiscais Parciais:
+                                                            </span>
+                                                        </div>
+
+                                                        {(() => {
+                                                            const invoices = (ensaio.fullData?.partialInvoices || []).filter((inv: any) => inv.notaPdfUrl || inv.invoicePdfUrl);
+                                                            if (invoices.length > 0) {
+                                                                return (
+                                                                    <div className="space-y-1.5 pl-1">
+                                                                        {invoices.map((inv: any, idx: number) => {
+                                                                            const pdfUrl = inv.notaPdfUrl || inv.invoicePdfUrl;
+                                                                            return (
+                                                                                <div key={inv.id || idx} className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
+                                                                                    <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
+                                                                                        <span className="w-5 h-5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                                                                                            NF
+                                                                                        </span>
+                                                                                        <span className="truncate">Nota Fiscal nº {inv.numeroNf || inv.nfeNumber || (idx + 1)}</span>
+                                                                                        {inv.qtdFaturada && <span className="text-[10px] text-slate-400 hidden sm:inline">({inv.qtdFaturada} ensaio{inv.qtdFaturada > 1 ? 's' : ''})</span>}
+                                                                                    </span>
+                                                                                    <button
+                                                                                        onClick={() => openPdfLink(pdfUrl, `NF-${inv.numeroNf || (idx + 1)}.pdf`, 'view')}
+                                                                                        className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center gap-1 shadow-xs shrink-0"
+                                                                                    >
+                                                                                        <span className="material-symbols-outlined text-[13px]">download</span>
+                                                                                        Baixar NF
+                                                                                    </button>
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                );
+                                                            } else if (ensaio.invoicePdfUrl) {
+                                                                return (
+                                                                    <div className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
+                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                                                            <span className="w-5 h-5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                                                                                NF
+                                                                            </span>
+                                                                            <span>Nota Fiscal Comercial</span>
+                                                                        </span>
+                                                                        <button
+                                                                            onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
+                                                                            className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center gap-1 shadow-xs"
+                                                                        >
+                                                                            <span className="material-symbols-outlined text-[13px]">download</span>
+                                                                            Baixar NF
+                                                                        </button>
+                                                                    </div>
+                                                                );
+                                                            } else {
+                                                                return (
+                                                                    <div className="text-[11px] text-slate-400 italic pl-5">
+                                                                        Aguardando faturamento
+                                                                    </div>
+                                                                );
+                                                            }
+                                                        })()}
                                                     </div>
                                                 </div>
                                             )}
