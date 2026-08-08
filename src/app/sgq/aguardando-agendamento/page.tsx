@@ -23,6 +23,10 @@ type TestRequest = {
     clientPhone?: string | null
     clientEmail?: string | null
     createdAt: string
+    quantidadeEnsaios?: string | number | null
+    qtdContratada?: number | null
+    executionItems?: any[]
+    partialInvoices?: any[]
 }
 
 export default function AguardandoAgendamentoPage() {
@@ -35,6 +39,7 @@ export default function AguardandoAgendamentoPage() {
 
     // Form states
     const [scheduledConfirmed, setScheduledConfirmed] = useState(false)
+    const [qtdAgendar, setQtdAgendar] = useState<number>(1)
 
     useEffect(() => {
         fetchRequests()
@@ -58,6 +63,15 @@ export default function AguardandoAgendamentoPage() {
     const handleSelectRequest = (req: TestRequest) => {
         setSelectedRequest(req)
         setScheduledConfirmed(false)
+        const total = Math.max(
+            req.quantidadeEnsaios ? parseInt(String(req.quantidadeEnsaios)) || 1 : 1,
+            req.executionItems?.length || 1
+        )
+        const entregues = (req.executionItems || []).filter(
+            (i: any) => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO'
+        ).length
+        const disp = Math.max(0, total - entregues)
+        setQtdAgendar(disp > 0 ? disp : 1)
     }
 
     const handleSave = async () => {
@@ -70,7 +84,8 @@ export default function AguardandoAgendamentoPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     requestId: selectedRequest.id,
-                    user: session?.user?.name
+                    user: session?.user?.name,
+                    qtdAExecutar: qtdAgendar
                 })
             })
 
@@ -198,8 +213,95 @@ export default function AguardandoAgendamentoPage() {
                                 </div>
                             </div>
 
-                            <div className="p-6 space-y-6 flex-1">
-                                <div className="pt-4 flex items-center">
+                            <div className="p-6 space-y-5 flex-1">
+                                {/* Seção de Saldo e Quantidade a Realizar */}
+                                {(() => {
+                                    const totalContratado = Math.max(
+                                        selectedRequest.quantidadeEnsaios ? parseInt(String(selectedRequest.quantidadeEnsaios)) || 1 : 1,
+                                        selectedRequest.executionItems?.length || 1
+                                    );
+                                    const qtdConcluida = (selectedRequest.executionItems || []).filter(
+                                        (i: any) => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO'
+                                    ).length;
+                                    const totalDisponivel = Math.max(0, totalContratado - qtdConcluida);
+
+                                    return (
+                                        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-4 shadow-xs">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                                                <div>
+                                                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                                                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">account_balance_wallet</span>
+                                                        Saldo de Ensaios do Contrato
+                                                    </h3>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                                        Escolha a quantidade de ensaios que serão executados nesta visita/coleta
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="px-3 py-1 bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-extrabold text-xs rounded-full shadow-xs">
+                                                        Total Disponível: <strong className="text-blue-900 dark:text-white text-sm ml-1">{totalDisponivel}</strong> de {totalContratado}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Indicadores numéricos de Saldo */}
+                                            <div className="grid grid-cols-3 gap-3 text-center">
+                                                <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Total Contratado</span>
+                                                    <span className="text-base font-extrabold text-slate-900 dark:text-white">{totalContratado} {totalContratado === 1 ? 'ensaio' : 'ensaios'}</span>
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Laudos Entregues</span>
+                                                    <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">{qtdConcluida}</span>
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-950/30">
+                                                    <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase block">Saldo Restante</span>
+                                                    <span className="text-base font-extrabold text-indigo-700 dark:text-indigo-300">{totalDisponivel}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Seleção de Quantidade a Realizar */}
+                                            <div className="pt-2 space-y-2">
+                                                <label className="text-xs font-extrabold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                                                    <span>Quantidade de Ensaios a Realizar nesta Visita:</span>
+                                                    <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 font-mono">
+                                                        {qtdAgendar} {qtdAgendar === 1 ? 'ensaio selecionado' : 'ensaios selecionados'}
+                                                    </span>
+                                                </label>
+
+                                                {totalDisponivel > 0 ? (
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        {Array.from({ length: totalDisponivel }, (_, i) => i + 1).map((num) => (
+                                                            <button
+                                                                key={num}
+                                                                type="button"
+                                                                onClick={() => setQtdAgendar(num)}
+                                                                className={`flex-1 min-w-[70px] py-2.5 px-3 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-1 border shadow-xs ${
+                                                                    qtdAgendar === num
+                                                                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md shadow-blue-500/20 scale-[1.02]'
+                                                                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                                                }`}
+                                                            >
+                                                                <span>{num} {num === 1 ? 'Ensaio' : 'Ensaios'}</span>
+                                                                {num === totalDisponivel && totalDisponivel > 1 && (
+                                                                    <span className={`text-[9px] px-1.5 py-0.2 rounded-full uppercase font-bold ml-1 ${qtdAgendar === num ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                                                                        Total
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-700 dark:text-amber-400 text-xs font-bold">
+                                                        Todos os ensaios do contrato já foram executados.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+
+                                <div className="pt-2 flex items-center">
                                     <label className="relative flex items-center cursor-pointer gap-3 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl w-full">
                                         <input
                                             type="checkbox"
