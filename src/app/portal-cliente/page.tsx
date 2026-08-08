@@ -333,7 +333,12 @@ export default function PortalClientePage() {
 
                         const items = req.executionItems || [];
                         const qtdContratada = Math.max(req.qtdContratada || 1, items.length || 1);
-                        const qtdEntregue = req.qtdEntregue !== undefined ? req.qtdEntregue : items.filter((i: any) => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
+                        const countDelivered = items.filter(
+                            (i: any) => i.statusEntrega === 'ENVIADO_AO_CLIENTE' || i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO' || Boolean(i.reportPdfUrl && i.reportPdfUrl.trim() !== '')
+                        ).length;
+                        const qtdEntregue = req.qtdEntregue !== undefined && req.qtdEntregue > 0
+                            ? req.qtdEntregue
+                            : (countDelivered > 0 ? countDelivered : (req.reportPdfUrl ? 1 : 0));
 
                         return {
                             id: req.id.split('-')[0].toUpperCase(),

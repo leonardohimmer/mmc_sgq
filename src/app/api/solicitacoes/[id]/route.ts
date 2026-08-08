@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { sendFinalizedEmail } from '@/lib/mail'
+import { attachReportToExecutionItem, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service'
 
 export async function PATCH(
     request: Request,
@@ -92,7 +93,10 @@ export async function PATCH(
         if (result !== undefined) updateData.result = result
         if (technicalObservations !== undefined) updateData.technicalObservations = technicalObservations
         if (reportNumber !== undefined) updateData.reportNumber = reportNumber
-        if (reportPdfUrl !== undefined && !reportPdfUrl.startsWith('/api/')) updateData.reportPdfUrl = reportPdfUrl
+        if (reportPdfUrl !== undefined && !reportPdfUrl.startsWith('/api/')) {
+            updateData.reportPdfUrl = reportPdfUrl
+            await attachReportToExecutionItem(id, reportPdfUrl, reportNumber)
+        }
         if (isSigned !== undefined) updateData.isSigned = isSigned
         if (step !== undefined) updateData.step = step
         if (performedAt !== undefined) updateData.performedAt = performedAt ? new Date(performedAt) : null
@@ -238,6 +242,9 @@ export async function PATCH(
                 updatedRequest.type
             )
         }
+
+        // Atualiza status e saldos detalhados da OS Mãe
+        await updateOsStatusBasedOnBalance(id)
 
         return NextResponse.json({ success: true, request: updatedRequest, history: historyRecord })
 

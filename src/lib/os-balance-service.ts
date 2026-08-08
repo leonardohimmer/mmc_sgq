@@ -97,14 +97,52 @@ export async function ensureExecutionItemsCreated(requestId: string, quantidadeS
 }
 
 /**
+ * Anexa um novo relatório enviado ao próximo item de execução disponível da OS Mãe.
+ * Isso garante que múltiplos relatórios parciais sejam armazenados individualmente sem sobrescrever os anteriores.
+ */
+export async function attachReportToExecutionItem(
+  requestId: string,
+  reportPdfUrl: string,
+  reportNumber?: string | null
+) {
+  if (!reportPdfUrl || reportPdfUrl.startsWith('/api/')) return;
+
+  const items = await ensureExecutionItemsCreated(requestId);
+
+  // Procurar o primeiro item que ainda não possui reportPdfUrl
+  let targetItem = items.find(
+    (item) => !item.reportPdfUrl || item.reportPdfUrl.trim() === ''
+  );
+
+  // Se todos já tiverem reportPdfUrl, busca o item que esteja EM_EXECUCAO ou usa o último
+  if (!targetItem) {
+    targetItem = items.find((item) => item.statusExecucao === 'EM_EXECUCAO') || items[items.length - 1];
+  }
+
+  if (targetItem) {
+    await prisma.testExecutionItem.update({
+      where: { id: targetItem.id },
+      data: {
+        reportPdfUrl,
+        reportNumber: reportNumber || targetItem.reportNumber || `REL-${targetItem.numeroSequencial}`,
+        statusExecucao: 'CONCLUIDO',
+        statusEntrega: 'ENVIADO_AO_CLIENTE',
+        dataEnvioRelatorio: new Date(),
+        dataExecucao: targetItem.dataExecucao || new Date(),
+      },
+    });
+  }
+}
+
+/**
  * Calcula o saldo detalhado em tempo real para uma OS Mãe.
  */
 export async function calculateOsBalance(requestId: string): Promise<OsBalanceSummary> {
   const request = await prisma.testRequest.findUnique({
     where: { id: requestId },
     include: {
-      executionItems: true,
-      partialInvoices: true,
+      executionItems: { orderBy: { numeroSequencial: 'asc' } },
+      partialInvoices: { orderBy: { createdAt: 'desc' } },
     },
   });
 
@@ -118,20 +156,43 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
     items = await ensureExecutionItemsCreated(requestId, request.quantidadeEnsaios);
   }
 
+  // Migração/Sincronização automática para OSs que possuem reportPdfUrl principal mas nenhum item atualizado
+  if (request.reportPdfUrl && !request.reportPdfUrl.startsWith('/api/') && !items.some((i) => Boolean(i.reportPdfUrl))) {
+    if (items[0]) {
+      await prisma.testExecutionItem.update({
+        where: { id: items[0].id },
+        data: {
+          reportPdfUrl: request.reportPdfUrl,
+          reportNumber: request.reportNumber || 'REL-01',
+          statusExecucao: 'CONCLUIDO',
+          statusEntrega: 'ENVIADO_AO_CLIENTE',
+          dataEnvioRelatorio: new Date(),
+        },
+      });
+      items[0].reportPdfUrl = request.reportPdfUrl;
+      items[0].reportNumber = request.reportNumber || 'REL-01';
+      items[0].statusExecucao = 'CONCLUIDO';
+      items[0].statusEntrega = 'ENVIADO_AO_CLIENTE';
+    }
+  }
+
   const qtdContratada = Math.max(request.qtdContratada || 1, items.length);
 
   const qtdExecutada = items.filter(
-    (item) => item.statusExecucao === 'CONCLUIDO' || item.statusExecucao === 'APROVADO'
+    (item) => item.statusExecucao === 'CONCLUIDO' || item.statusExecucao === 'APROVADO' || Boolean(item.reportPdfUrl)
   ).length;
 
-  const qtdEntregue = items.filter(
-    (item) => item.statusEntrega === 'ENVIADO_AO_CLIENTE'
+  const qtdEntregueCalc = items.filter(
+    (item) => item.statusEntrega === 'ENVIADO_AO_CLIENTE' || item.statusExecucao === 'CONCLUIDO' || item.statusExecucao === 'APROVADO' || Boolean(item.reportPdfUrl)
   ).length;
 
-  const qtdFaturada = request.partialInvoices.reduce(
+  const qtdEntregue = qtdEntregueCalc > 0 ? qtdEntregueCalc : (request.reportPdfUrl ? 1 : 0);
+
+  const qtdFaturadaCalc = request.partialInvoices.reduce(
     (acc, inv) => acc + (inv.qtdFaturada || 1),
     0
   );
+  const qtdFaturada = qtdFaturadaCalc > 0 ? qtdFaturadaCalc : (request.invoicePdfUrl ? 1 : 0);
 
   const qtdPendenteExecucao = Math.max(0, qtdContratada - qtdExecutada);
   const qtdPendenteEntrega = Math.max(0, qtdContratada - qtdEntregue);
