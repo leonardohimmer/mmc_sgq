@@ -204,6 +204,77 @@ export default function PortalClientePage() {
 
     const [ensaios, setEnsaios] = useState<Ensaio[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [expandedCardIds, setExpandedCardIds] = useState<Record<string, boolean>>({});
+    const [scheduleModal, setScheduleModal] = useState<{
+        isOpen: boolean;
+        ensaio: Ensaio | null;
+        itemNum: number;
+        desiredDate: string;
+        timeSlot: string;
+        notes: string;
+        isSubmitting: boolean;
+    }>({
+        isOpen: false,
+        ensaio: null,
+        itemNum: 1,
+        desiredDate: "",
+        timeSlot: "Manhã (08:00 - 12:00)",
+        notes: "",
+        isSubmitting: false
+    });
+
+    const toggleExpandCard = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExpandedCardIds(prev => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    const handleOpenScheduleModal = (ensaio: Ensaio, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const entregues = ensaio.qtdEntregue || 0;
+        const contratados = ensaio.qtdContratada || 1;
+        const nextItemNum = Math.min(entregues + 1, contratados);
+        setScheduleModal({
+            isOpen: true,
+            ensaio,
+            itemNum: nextItemNum,
+            desiredDate: getTodayString(),
+            timeSlot: "Manhã (08:00 - 12:00)",
+            notes: "",
+            isSubmitting: false
+        });
+    };
+
+    const handleSubmitSchedule = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!scheduleModal.ensaio) return;
+
+        setScheduleModal(prev => ({ ...prev, isSubmitting: true }));
+        try {
+            const res = await fetch(`/api/solicitacoes/${scheduleModal.ensaio.rawId}/itens`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    numeroSequencial: scheduleModal.itemNum,
+                    dataPlanejada: scheduleModal.desiredDate,
+                    observacoes: scheduleModal.notes ? `Horário: ${scheduleModal.timeSlot} | ${scheduleModal.notes}` : `Horário: ${scheduleModal.timeSlot}`,
+                    statusExecucao: 'EM_EXECUCAO'
+                })
+            });
+
+            const json = await res.json();
+            if (res.ok) {
+                toast.success(`Ensaio ${scheduleModal.itemNum} de ${scheduleModal.ensaio.qtdContratada} agendado para ${new Date(scheduleModal.desiredDate + 'T12:00:00').toLocaleDateString('pt-BR')}!`);
+                setScheduleModal(prev => ({ ...prev, isOpen: false }));
+                fetchClientRequests();
+            } else {
+                toast.error(json.error || "Erro ao agendar ensaio.");
+            }
+        } catch (err: any) {
+            toast.error("Erro ao conectar com o servidor.");
+        } finally {
+            setScheduleModal(prev => ({ ...prev, isSubmitting: false }));
+        }
+    };
 
     // 1. Carregar cache local de ensaios imediatamente ao montar (Zero Delay)
     useEffect(() => {
@@ -232,7 +303,7 @@ export default function PortalClientePage() {
         );
     });
 
-    useEffect(() => {
+    const fetchClientRequests = useCallback(() => {
         if (status === "loading" || !session?.user?.name) return;
 
         const nameEncoded = encodeURIComponent(session.user.name);
@@ -285,12 +356,11 @@ export default function PortalClientePage() {
                             sharedEmails: req.sharedEmails || [],
                             isOwner: isOwner,
                             obra: req.workName || req.location || req.contractorName || "",
-                            fullData: req // Store full data for editing
+                            fullData: req
                         };
                     }) as (Ensaio & { fullData: any })[];
 
                     setEnsaios(formatted);
-                    // Salvar no cache local para recarregamentos futuros sem delay
                     try {
                         const cachedKey = `mmc_client_ensaios_cache_${session?.user?.email || 'user'}`;
                         localStorage.setItem(cachedKey, JSON.stringify(formatted));
@@ -298,11 +368,17 @@ export default function PortalClientePage() {
                         console.error("Erro ao salvar cache de ensaios:", e);
                     }
                 }
+                setIsLoadingData(false);
             })
-            .catch(console.error)
-            .finally(() => setIsLoadingData(false));
-    }, [session, status]);
+            .catch(err => {
+                console.error("Erro ao carregar dados", err);
+                setIsLoadingData(false);
+            });
+    }, [status, session?.user?.name, session?.user?.email]);
 
+    useEffect(() => {
+        fetchClientRequests();
+    }, [fetchClientRequests]);
 
     // Carregar foto do perfil do usuário e logo da construtora
     useEffect(() => {
@@ -1003,91 +1079,139 @@ export default function PortalClientePage() {
                                             )}
                                         </div>
 
-                                         {/* Actions Grid */}
-                                         <div className="flex flex-col gap-1.5 w-full mt-2">
-                                             {/* Documents Row (Relatório, Proposta, Nota Fiscal) */}
-                                             {(!!ensaio.reportPdfUrl || !!ensaio.proposalPdfUrl || !!ensaio.invoicePdfUrl) && (
-                                                 <div className="flex flex-row gap-1.5 relative z-10 w-full">
-                                                     {!!ensaio.reportPdfUrl && (
-                                                         <button
-                                                             onClick={(e) => { e.stopPropagation(); openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view'); }}
-                                                             className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 active:scale-[0.98] truncate"
-                                                         >
-                                                             <span className="material-symbols-outlined text-[14px] shrink-0">description</span>
-                                                             <span className="truncate">Relatório</span>
-                                                         </button>
-                                                     )}
+                                        {/* Actions Grid */}
+                                        <div className="flex flex-col gap-2 w-full mt-2 relative z-10">
+                                            {/* Botão de Agendamento por Saldo */}
+                                            {((ensaio.qtdContratada || 1) - (ensaio.qtdEntregue || 0)) > 0 && ensaio.isOwner && (
+                                                <button
+                                                    onClick={(e) => handleOpenScheduleModal(ensaio, e)}
+                                                    className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md shadow-indigo-500/20 hover:scale-[1.01] active:scale-[0.98] transition-all"
+                                                >
+                                                    <span className="material-symbols-outlined text-[16px]">calendar_month</span>
+                                                    <span>Agendar Próximo Ensaio (Saldo: {((ensaio.qtdContratada || 1) - (ensaio.qtdEntregue || 0))} {((ensaio.qtdContratada || 1) - (ensaio.qtdEntregue || 0)) === 1 ? 'restante' : 'restantes'})</span>
+                                                </button>
+                                            )}
 
-                                                     {!!ensaio.proposalPdfUrl && (
-                                                         <button
-                                                             onClick={(e) => { e.stopPropagation(); openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'view'); }}
-                                                             className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 active:scale-[0.98] truncate"
-                                                         >
-                                                             <span className="material-symbols-outlined text-[14px] shrink-0">assignment</span>
-                                                             <span className="truncate">Proposta</span>
-                                                         </button>
-                                                     )}
+                                            {/* Toggle de Documentos Dentro do Card */}
+                                            <button
+                                                onClick={(e) => toggleExpandCard(ensaio.rawId, e)}
+                                                className="w-full flex items-center justify-between p-2 px-3 rounded-xl text-[11px] font-bold bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                                            >
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">folder_open</span>
+                                                    <span>Ver Documentos (Proposta, Relatórios, NFs)</span>
+                                                </div>
+                                                <span className="material-symbols-outlined text-[18px] transition-transform duration-200" style={{ transform: expandedCardIds[ensaio.rawId] ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                                                    expand_more
+                                                </span>
+                                            </button>
 
-                                                     {!!ensaio.invoicePdfUrl && (
-                                                         <button
-                                                             onClick={(e) => { e.stopPropagation(); openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view'); }}
-                                                             className="flex-1 flex items-center justify-center gap-1 p-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 hover:bg-purple-100 active:scale-[0.98] truncate"
-                                                         >
-                                                             <span className="material-symbols-outlined text-[14px] shrink-0">receipt</span>
-                                                             <span className="truncate">Nota Fiscal</span>
-                                                         </button>
-                                                     )}
-                                                 </div>
-                                             )}
+                                            {/* Conteúdo Expandido de Documentos */}
+                                            {expandedCardIds[ensaio.rawId] && (
+                                                <div className="w-full p-3 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
+                                                    {/* Proposta Comercial */}
+                                                    <div className="flex items-center justify-between text-[11px]">
+                                                        <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                            <span className="material-symbols-outlined text-[14px] text-blue-500">assignment</span>
+                                                            Proposta Comercial:
+                                                        </span>
+                                                        {ensaio.proposalPdfUrl ? (
+                                                            <button
+                                                                onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.id}.pdf`, 'view')}
+                                                                className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center gap-1 shadow-sm"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[12px]">download</span>
+                                                                Visualizar PDF
+                                                            </button>
+                                                        ) : (
+                                                            <span className="text-slate-400 italic">Pendente</span>
+                                                        )}
+                                                    </div>
 
-                                             {/* Primary Actions Row */}
-                                             {ensaio.isOwner ? (
-                                                 <div className="flex flex-row gap-1.5 relative z-10 w-full">
-                                                     {ensaio.status === "Aguardando Aceite" && (
-                                                         <button
-                                                             onClick={(e) => { e.stopPropagation(); handleAcceptProposal(ensaio); }}
-                                                             className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
-                                                         >
-                                                             <span className="material-symbols-outlined text-[14px] shrink-0">check_circle</span>
-                                                             <span className="truncate">Aceitar Proposta</span>
-                                                         </button>
-                                                     )}
-                                                     {(ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite") && (
-                                                         <button
-                                                             onClick={(e) => { e.stopPropagation(); handleEditRequest(ensaio); }}
-                                                             className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
-                                                         >
-                                                             <span className="material-symbols-outlined text-[14px] shrink-0">edit</span>
-                                                             <span className="truncate">Revisar</span>
-                                                         </button>
-                                                     )}
-                                                     <button
-                                                         onClick={(e) => { e.stopPropagation(); handleOpenShareModal(ensaio); }}
-                                                         className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-primary/10 hover:text-primary hover:border-primary/30 active:scale-[0.98] truncate"
-                                                         title="Compartilhar visualização do ensaio por e-mail"
-                                                     >
-                                                         <span className="material-symbols-outlined text-[14px] text-primary shrink-0">share</span>
-                                                         <span className="truncate">Compartilhar</span>
-                                                         {ensaio.sharedEmails && ensaio.sharedEmails.length > 0 && (
-                                                             <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] bg-primary/20 text-primary font-extrabold">
-                                                                 {ensaio.sharedEmails.length}
-                                                             </span>
-                                                         )}
-                                                     </button>
-                                                 </div>
-                                             ) : (
-                                                 <div className="w-full flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-                                                     <span className="material-symbols-outlined text-[13px]">visibility</span>
-                                                     Acesso apenas para visualização
-                                                 </div>
-                                             )}
-                                         </div>
+                                                    {/* Relatórios */}
+                                                    <div className="flex items-center justify-between text-[11px]">
+                                                        <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                            <span className="material-symbols-outlined text-[14px] text-emerald-500">description</span>
+                                                            Relatórios ({ensaio.qtdEntregue} de {ensaio.qtdContratada}):
+                                                        </span>
+                                                        {ensaio.reportPdfUrl ? (
+                                                            <button
+                                                                onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
+                                                                className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-sm"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[12px]">download</span>
+                                                                Visualizar PDF
+                                                            </button>
+                                                        ) : (
+                                                            <span className="text-slate-400 italic font-medium">
+                                                                {ensaio.qtdEntregue > 0 ? `${ensaio.qtdEntregue} entregue(s)` : "Aguardando postagem"}
+                                                            </span>
+                                                        )}
+                                                    </div>
 
+                                                    {/* Notas Fiscais */}
+                                                    <div className="flex items-center justify-between text-[11px]">
+                                                        <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                            <span className="material-symbols-outlined text-[14px] text-purple-500">receipt</span>
+                                                            Notas Fiscais:
+                                                        </span>
+                                                        {ensaio.invoicePdfUrl ? (
+                                                            <button
+                                                                onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
+                                                                className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center gap-1 shadow-sm"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[12px]">download</span>
+                                                                Visualizar NF
+                                                            </button>
+                                                        ) : (
+                                                            <span className="text-slate-400 italic font-medium">Aguardando faturamento</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                        {/* Decorative Background Icon */}
-                                        <span className="absolute -bottom-4 -right-4 material-symbols-outlined text-[120px] opacity-[0.03] dark:opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform duration-500">
-                                            {ensaio.icon}
-                                        </span>
+                                            {/* Primary Actions Row (Aceitar / Revisar / Compartilhar) */}
+                                            {ensaio.isOwner ? (
+                                                <div className="flex flex-row gap-1.5 relative z-10 w-full">
+                                                    {ensaio.status === "Aguardando Aceite" && (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleAcceptProposal(ensaio); }}
+                                                            className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/30 active:scale-[0.98] truncate"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[14px] shrink-0">check_circle</span>
+                                                            <span className="truncate">Aceitar Proposta</span>
+                                                        </button>
+                                                    )}
+                                                    {(ensaio.status === "Recebido" || ensaio.status === "Aguardando Aceite") && (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleEditRequest(ensaio); }}
+                                                            className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 active:scale-[0.98] truncate"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[14px] shrink-0">edit</span>
+                                                            <span className="truncate">Revisar</span>
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); handleOpenShareModal(ensaio); }}
+                                                        className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all border bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-primary/10 hover:text-primary hover:border-primary/30 active:scale-[0.98] truncate"
+                                                        title="Compartilhar visualização do ensaio por e-mail"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[14px] text-primary shrink-0">share</span>
+                                                        <span className="truncate">Compartilhar</span>
+                                                        {ensaio.sharedEmails && ensaio.sharedEmails.length > 0 && (
+                                                            <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] bg-primary/20 text-primary font-extrabold">
+                                                                {ensaio.sharedEmails.length}
+                                                            </span>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-full flex items-center justify-center gap-1 py-1.5 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                                                    <span className="material-symbols-outlined text-[13px]">visibility</span>
+                                                    Acesso apenas para visualização
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -1622,6 +1746,104 @@ export default function PortalClientePage() {
                                 onAcceptProposal={handleAcceptProposal}
                                 onConfirmPayment={handleConfirmPayment}
                             />
+
+                            {/* Modal de Agendamento do Próximo Ensaio */}
+                            {scheduleModal.isOpen && scheduleModal.ensaio && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setScheduleModal(prev => ({ ...prev, isOpen: false }))}>
+                                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <span className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 rounded-md border border-blue-200 dark:border-blue-500/30">
+                                                    OS: {scheduleModal.ensaio.osCode}
+                                                </span>
+                                                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mt-1">
+                                                    Agendar Ensaio {scheduleModal.itemNum} de {scheduleModal.ensaio.qtdContratada}
+                                                </h3>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                    {scheduleModal.ensaio.titulo}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setScheduleModal(prev => ({ ...prev, isOpen: false }))}
+                                                className="p-1 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                            >
+                                                <span className="material-symbols-outlined text-[20px]">close</span>
+                                            </button>
+                                        </div>
+
+                                        <form onSubmit={handleSubmitSchedule} className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                                                    Data Desejada para a Execução *
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    required
+                                                    min={getTodayString()}
+                                                    value={scheduleModal.desiredDate}
+                                                    onChange={(e) => setScheduleModal(prev => ({ ...prev, desiredDate: e.target.value }))}
+                                                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                                                    Turno Preferencial
+                                                </label>
+                                                <select
+                                                    value={scheduleModal.timeSlot}
+                                                    onChange={(e) => setScheduleModal(prev => ({ ...prev, timeSlot: e.target.value }))}
+                                                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                                >
+                                                    <option value="Manhã (08:00 - 12:00)">Manhã (08:00 - 12:00)</option>
+                                                    <option value="Tarde (13:00 - 17:00)">Tarde (13:00 - 17:00)</option>
+                                                    <option value="Horário Comercial (Flexível)">Horário Comercial (Flexível)</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                                                    Observações da Obra / Local Exato
+                                                </label>
+                                                <textarea
+                                                    rows={3}
+                                                    placeholder="Ex: Ponto de contato na obra, pavimento/bloco específico, instruções de acesso..."
+                                                    value={scheduleModal.notes}
+                                                    onChange={(e) => setScheduleModal(prev => ({ ...prev, notes: e.target.value }))}
+                                                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                                />
+                                            </div>
+
+                                            <div className="flex gap-2 pt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setScheduleModal(prev => ({ ...prev, isOpen: false }))}
+                                                    className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    disabled={scheduleModal.isSubmitting}
+                                                    className="flex-1 py-2.5 px-4 rounded-xl text-xs font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-indigo-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                                >
+                                                    {scheduleModal.isSubmitting ? (
+                                                        <>
+                                                            <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                            <span>Agendando...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                                            <span>Confirmar Agendamento</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            )}
 
                             <ModalPasswordChange
                                 isOpen={isPasswordModalOpen}
