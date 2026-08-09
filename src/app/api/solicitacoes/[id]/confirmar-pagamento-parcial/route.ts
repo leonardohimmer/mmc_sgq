@@ -119,8 +119,8 @@ export async function POST(
     // Calcular novo saldo atualizado da OS
     const balance = await calculateOsBalance(id);
 
-    // Se todos os ensaios foram pagos e finalizados automaticamente
-    if (balance.podeFinalizarPagamento && action === "AUTO_CHECK_FINALIZAR") {
+    // Se a OS atendeu a todas as condições (todos os ensaios entregues E pesquisa respondida)
+    if (balance.isOsFinalizada) {
       await prisma.testRequest.update({
         where: { id },
         data: {
@@ -130,16 +130,6 @@ export async function POST(
           paymentConfirmedBy: existingRequest.paymentConfirmedBy || changedBy,
         },
       });
-
-      await prisma.satisfactionSurvey.upsert({
-        where: { requestId: id },
-        update: {},
-        create: {
-          requestId: id,
-          status: "REVIEWED",
-        },
-      });
-
       isFinalized = true;
     }
 

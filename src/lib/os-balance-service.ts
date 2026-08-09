@@ -154,6 +154,7 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
     include: {
       executionItems: { orderBy: { numeroSequencial: 'asc' } },
       partialInvoices: { orderBy: { createdAt: 'desc' } },
+      satisfactionSurvey: true,
     },
   });
 
@@ -208,10 +209,10 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
   const qtdPagosCalc = items.filter(
     (item) => item.statusPagamento === 'PAGO'
   ).length;
-  const legacyPaid = (request.clientPaymentConfirmed || Boolean(request.paymentConfirmedAt))
-    ? (qtdFaturada > 0 ? qtdFaturada : qtdContratada)
-    : 0;
-  const qtdPagos = Math.min(qtdContratada, Math.max(qtdPagosCalc, legacyPaid));
+
+  // Removida auto-quitação legado genérica para depender da baixa por item pelo colaborador
+  const legacyPaid = 0;
+  const qtdPagos = Math.min(qtdContratada, qtdPagosCalc);
 
   const qtdPendenteExecucao = Math.max(0, qtdContratada - qtdExecutada);
   const qtdPendenteEntrega = Math.max(0, qtdContratada - qtdEntregue);
@@ -222,7 +223,11 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
   const podeExecutarNovos = qtdExecutada < qtdContratada;
   const podeEmitirNfParcial = qtdPendenteFaturamento > 0;
   const podeFinalizarPagamento = qtdPagos >= qtdContratada;
-  const isOsFinalizada = qtdEntregue >= qtdContratada;
+  
+  // O processo só é finalizado se TODOS os ensaios forem concluídos/entregues E a pesquisa de satisfação for respondida pelo cliente
+  const isSurveyCompleted = request.satisfactionSurvey?.status === 'COMPLETED' || request.satisfactionSurvey?.status === 'REVIEWED';
+  const isTodosEnsaiosEntregues = qtdEntregue >= qtdContratada && qtdExecutada >= qtdContratada;
+  const isOsFinalizada = isTodosEnsaiosEntregues && isSurveyCompleted;
 
   return {
     requestId,
@@ -245,12 +250,12 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
 
 /**
  * Atualiza automaticamente o status da OS Mãe de acordo com a conclusão e entrega de laudos.
- * Só encerra (status = FINALIZADO) quando todos os laudos foram entregues ao cliente.
+ * Só encerra (status = FINALIZADO) quando todos os laudos foram entregues ao cliente E a pesquisa de satisfação respondida.
  */
 export async function updateOsStatusBasedOnBalance(requestId: string): Promise<string> {
   const request = await prisma.testRequest.findUnique({
     where: { id: requestId },
-    include: { executionItems: true, partialInvoices: true },
+    include: { executionItems: true, partialInvoices: true, satisfactionSurvey: true },
   });
 
   if (!request) return 'RECEBIDO';
@@ -261,9 +266,14 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
     (item) => item.dataPlanejada !== null || item.statusExecucao === 'EM_EXECUCAO' || item.statusExecucao === 'AGENDADO'
   );
 
+  const isSurveyCompleted = request.satisfactionSurvey?.status === 'COMPLETED' || request.satisfactionSurvey?.status === 'REVIEWED';
+  const isTodosEnsaiosEntregues = balance.qtdEntregue >= balance.qtdContratada && balance.qtdExecutada >= balance.qtdContratada;
+
   let newStatus: string;
-  if (balance.isOsFinalizada) {
+  if (balance.isOsFinalizada || request.status === 'FINALIZADO') {
     newStatus = 'FINALIZADO';
+  } else if (isTodosEnsaiosEntregues && !isSurveyCompleted) {
+    newStatus = 'PESQUISA_PENDENTE';
   } else if (
     request.status === 'ELABORANDO_RELATORIO' ||
     request.status === 'AGUARDANDO_APROVACAO' ||

@@ -74,6 +74,7 @@ export async function PATCH(
       numeroSequencial,
       qtdAgendar,
       statusExecucao,
+      statusPagamento,
       dataPlanejada,
       dataExecucao,
       reportNumber,
@@ -133,6 +134,8 @@ export async function PATCH(
       },
       data: {
         ...(statusExecucao && { statusExecucao }),
+        ...(statusPagamento && { statusPagamento }),
+        ...(statusPagamento === 'PAGO' ? { dataPagamento: new Date() } : {}),
         ...(dataPlanejada && { dataPlanejada: new Date(dataPlanejada) }),
         ...(dataExecucao && { dataExecucao: new Date(dataExecucao) }),
         ...(reportNumber && { reportNumber }),

@@ -50,6 +50,7 @@ interface RequestWithBalance {
   valorUnitario?: number | null;
   valorTotal?: number | null;
   status: string;
+  clientPaymentConfirmed?: boolean;
   executionItems: TestExecutionItem[];
   partialInvoices: PartialInvoice[];
   createdAt: string;
@@ -228,6 +229,42 @@ export default function FaturamentoParcialPage() {
     }
   };
 
+  const handleConfirmItemPayment = async (item: TestExecutionItem) => {
+    if (!selectedRequest) return;
+    setProcessingPayment(true);
+    try {
+      const res = await fetch(`/api/solicitacoes/${selectedRequest.id}/itens`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemId: item.id,
+          statusPagamento: "PAGO",
+        }),
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setNotification({
+          isOpen: true,
+          title: "Pagamento de Ensaio Confirmado!",
+          message: `Pagamento do Ensaio #${item.numeroSequencial} confirmado pelo colaborador com sucesso.`,
+          type: "success",
+        });
+        await fetchRequests();
+      } else {
+        setNotification({
+          isOpen: true,
+          title: "Erro ao confirmar pagamento",
+          message: json.error || "Não foi possível registrar o pagamento do ensaio.",
+          type: "error",
+        });
+      }
+    } catch (error: any) {
+      console.error("Erro ao confirmar pagamento do item:", error);
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
   const handleConfirmarPagamentoNf = async (invoiceId: string) => {
     if (!selectedRequest) return;
     setProcessingPayment(true);
@@ -308,50 +345,29 @@ export default function FaturamentoParcialPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 sm:p-6">
-      {/* Header */}
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Top Banner & Header */}
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-          <span className="material-symbols-outlined text-3xl text-purple-600">payments</span>
-          Gestão de Faturamento Parcial & Notas Fiscais
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-2">
-          Controle de ensaios liberados para faturamento, emissão em lote de Notas Fiscais Parciais e históricos contratuais.
-        </p>
-      </div>
-
-      {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-            Total de Pedidos Abertos
-          </span>
-          <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
-            {requests.length}
-          </span>
-        </div>
-
-        <div className="bg-amber-50 dark:bg-amber-950/30 p-5 rounded-2xl border border-amber-200/80 dark:border-amber-800/50 shadow-sm">
-          <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider block mb-1">
-            Ensaios Concluídos Pendentes de NF
-          </span>
-          <span className="text-2xl font-extrabold text-amber-900 dark:text-amber-300">
-            {totalPendentesFaturamento} ensaio(s)
-          </span>
-        </div>
-
-        <div className="bg-purple-50 dark:bg-purple-950/30 p-5 rounded-2xl border border-purple-200/80 dark:border-purple-800/50 shadow-sm">
-          <span className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider block mb-1">
-            Status Faturamento Parcial
-          </span>
-          <span className="text-2xl font-extrabold text-purple-900 dark:text-purple-300">
-            Habilitado (1 a N)
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
+              Gestão de Faturamento Parcial & Notas Fiscais
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+              Controle de ensaios liberados para faturamento, baixa de pagamentos confirmados pelos colaboradores e histórico contratual.
+            </p>
+          </div>
+          <div className="shrink-0 flex gap-2">
+            <span className="px-4 py-2 bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 rounded-2xl font-extrabold text-xs border border-purple-200 dark:border-purple-800 shadow-xs flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[18px]">payments</span>
+              {totalPendentesFaturamento} ensaio(s) pendente(s) de NF
+            </span>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Coluna 1: Lista de Solicitações / OSs */}
+        {/* Coluna 1: Lista de OSs Mães */}
         <div className="lg:col-span-1 space-y-4">
           <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
             <span>Selecione a OS Mãe</span>
@@ -427,7 +443,7 @@ export default function FaturamentoParcialPage() {
                   <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl border border-slate-200 dark:border-slate-700">
                     Contratados: {selectedRequest.qtdContratada}
                   </span>
-                  <span className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 font-bold text-xs rounded-xl border border-indigo-200/80 dark:border-indigo-800/50">
+                  <span className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:indigo-300 font-bold text-xs rounded-xl border border-indigo-200/80 dark:border-indigo-800/50">
                     Executados: {selectedRequest.qtdExecutada}
                   </span>
                   <span className="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 font-bold text-xs rounded-xl border border-purple-200/80 dark:border-purple-800/50">
@@ -440,46 +456,47 @@ export default function FaturamentoParcialPage() {
                 </div>
               </div>
 
-              {/* Banner de Pagamento Total Concluído & Envio ao Histórico */}
-              {(selectedRequest.qtdPagos !== undefined && selectedRequest.qtdPagos >= selectedRequest.qtdContratada) || selectedRequest.status === "FINALIZADO" ? (
+              {/* Notificação se o Cliente Informou Pagamento no Portal */}
+              {selectedRequest.clientPaymentConfirmed && (
+                <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-4 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">notifications_active</span>
+                    <div>
+                      <h4 className="font-extrabold text-blue-900 dark:text-blue-200 text-sm flex items-center gap-2">
+                        Cliente Informou Pagamento no Portal
+                        <span className="px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 text-[10px] uppercase tracking-wider font-extrabold">Aviso</span>
+                      </h4>
+                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
+                        O cliente sinalizou no Portal que realizou o pagamento desta OS. Verifique e confirme o pagamento nos botões dos ensaios faturados abaixo.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Banner de Processo Concluído no Histórico (Apenas se o status for FINALIZADO) */}
+              {selectedRequest.status === "FINALIZADO" ? (
                 <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-emerald-600 text-3xl">verified</span>
                     <div>
                       <h4 className="font-extrabold text-emerald-900 dark:text-emerald-300 text-sm">
-                        Pagamento Total Concluído ({selectedRequest.qtdPagos ?? selectedRequest.qtdContratada} de {selectedRequest.qtdContratada} ensaios pagos)
+                        Processo Concluído e Enviado ao Histórico ({selectedRequest.qtdPagos ?? selectedRequest.qtdContratada} de {selectedRequest.qtdContratada} ensaios pagos)
                       </h4>
                       <p className="text-xs text-emerald-700 dark:text-emerald-400">
-                        {selectedRequest.status === "FINALIZADO"
-                          ? "Este processo já foi finalizado e enviado ao Histórico de Processos."
-                          : "Todos os ensaios foram totalmente pagos. Clique ao lado para mover para o Histórico de Processos."}
+                        Todos os ensaios solicitados foram executados, os laudos entregues, o pagamento quitado e a Pesquisa de Satisfação respondida pelo cliente.
                       </p>
                     </div>
                   </div>
-                  {selectedRequest.status !== "FINALIZADO" && (
-                    <button
-                      type="button"
-                      onClick={handleFinalizarEEnviarParaHistorico}
-                      disabled={processingPayment}
-                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition-all shrink-0 flex items-center gap-1.5 disabled:opacity-50"
-                    >
-                      {processingPayment ? (
-                        <span className="material-symbols-outlined animate-spin text-[16px]">refresh</span>
-                      ) : (
-                        <span className="material-symbols-outlined text-[16px]">history_edu</span>
-                      )}
-                      Finalizar e Mover p/ Histórico
-                    </button>
-                  )}
                 </div>
               ) : null}
 
-              {/* Tabela de Selección dos Ensaios para NF Parcial */}
+              {/* Tabela de Selección dos Ensaios para NF Parcial e Baixa de Pagamento */}
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-2">
                     <span className="material-symbols-outlined text-[16px]">checklist</span>
-                    Selecione os Ensaios Concluídos para Emitir NF Parcial
+                    Selecione os Ensaios Concluídos para Emitir NF Parcial ou Dar Baixa no Pagamento
                   </h3>
 
                   <button
@@ -500,15 +517,16 @@ export default function FaturamentoParcialPage() {
                     selectedRequest.executionItems.map((item) => {
                       const isSelected = selectedItemIds.includes(item.id);
                       const isFaturado = item.statusFaturamento === "FATURADO";
+                      const isPago = item.statusPagamento === "PAGO";
                       const isConcluido = item.statusExecucao === "CONCLUIDO" || item.statusExecucao === "APROVADO";
 
                       return (
                         <div
                           key={item.id}
                           onClick={() => !isFaturado && toggleSelectItem(item.id)}
-                          className={`p-4 flex items-center justify-between gap-4 transition-colors ${
+                          className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${
                             isFaturado
-                              ? "bg-slate-50/50 dark:bg-slate-800/20 cursor-not-allowed opacity-75"
+                              ? "bg-slate-50/50 dark:bg-slate-800/20"
                               : isSelected
                               ? "bg-purple-50/60 dark:bg-purple-950/30 cursor-pointer"
                               : "hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer"
@@ -535,22 +553,38 @@ export default function FaturamentoParcialPage() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            {item.statusPagamento === "PAGO" ? (
-                              <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs rounded-full flex items-center gap-1">
+                          <div className="flex items-center gap-2 flex-wrap justify-end">
+                            {isPago ? (
+                              <span className="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs rounded-full flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[14px]">check_circle</span>
-                                Pago
+                                Pagamento Confirmado (Pago)
                               </span>
                             ) : isFaturado ? (
-                              <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 font-extrabold text-xs rounded-full">
-                                Faturado (Aguard. Pgto)
-                              </span>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="px-3 py-1.5 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 font-extrabold text-xs rounded-full">
+                                  Faturado (Aguard. Pgto)
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={processingPayment}
+                                  onClick={(e) => { e.stopPropagation(); handleConfirmItemPayment(item); }}
+                                  className={`px-3.5 py-1.5 rounded-xl font-extrabold text-xs shadow-xs flex items-center gap-1.5 transition-all disabled:opacity-50 ${
+                                    selectedRequest.clientPaymentConfirmed 
+                                      ? "bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-400 animate-pulse scale-[1.02]" 
+                                      : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  }`}
+                                  title="Clique para confirmar o recebimento do pagamento deste ensaio"
+                                >
+                                  <span className="material-symbols-outlined text-[15px]">payments</span>
+                                  Confirmar Pagamento
+                                </button>
+                              </div>
                             ) : isConcluido ? (
-                              <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-extrabold text-xs rounded-full">
+                              <span className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-extrabold text-xs rounded-full">
                                 Liberado p/ NF
                               </span>
                             ) : (
-                              <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs rounded-full">
+                              <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs rounded-full">
                                 Pendente Execução
                               </span>
                             )}
