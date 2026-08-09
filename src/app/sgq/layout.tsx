@@ -80,13 +80,11 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
             items: [
                 { label: "Painel de controle", href: "/sgq/tecnico-dashboard", icon: "dashboard", permissionId: "tecnico_dashboard" },
                 { label: "Envio da Proposta", href: "/sgq/envio-proposta", icon: "send_money", permissionId: "tecnico_envio_proposta" },
-                { label: "Aguardando agendamento", href: "/sgq/aguardando-agendamento", icon: "pending_actions", permissionId: "tecnico_aguardando_agendamento" },
+                { label: "Agendamento", href: "/sgq/aguardando-agendamento", icon: "pending_actions", permissionId: "tecnico_aguardando_agendamento" },
                 { label: "Execução de Ensaios", href: "/sgq/execucao-ensaios", icon: "assignment", permissionId: "tecnico_execucao_ensaios" },
                 { label: "Elaboração de Relatório", href: "/sgq/elaboracao-relatorio", icon: "edit_document", permissionId: "tecnico_elaboracao_relatorio" },
                 { label: "Aprovação", href: "/sgq/aprovacao", icon: "fact_check", permissionId: "tecnico_aprovacao" },
-                { label: "Emissão de cobranças", href: "/sgq/admin/receber/cobrancas", icon: "receipt", permissionId: "tecnico_cobrancas" },
-                { label: "Faturamento Parcial (1 de N)", href: "/sgq/faturamento", icon: "payments", permissionId: "tecnico_cobrancas" },
-                { label: "Recebimentos", href: "/sgq/admin/receber/recebimentos", icon: "payments", permissionId: "tecnico_recebimentos" },
+                { label: "Faturamento", href: "/sgq/faturamento", icon: "payments", permissionId: "tecnico_cobrancas" },
                 { label: "Pesquisa de Satisfação", href: "/sgq/pesquisa-satisfacao", icon: "sentiment_satisfied", permissionId: "tecnico_pesquisa_satisfacao" },
                 { label: "Histórico de processos", href: "/sgq/historico-processos", icon: "history", permissionId: "tecnico_pesquisa_satisfacao" },
             ]
