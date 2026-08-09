@@ -59,7 +59,7 @@ export async function GET() {
 
         const counts = {
             orcamentos: baseOrcamentosCount + (trStats['RECEBIDO'] || 0),
-            propostas: trStats['AGUARDANDO_ACEITE'] || 0,
+            propostas: (trStats['RECEBIDO'] || 0) + (trStats['AGUARDANDO_ACEITE'] || 0),
             agendamento: trStats['AGUARDANDO_AGENDAMENTO'] || 0,
             execucao: trStats['EM_EXECUCAO'] || 0,
             elaboracao: trStats['ELABORANDO_RELATORIO'] || 0,
