@@ -55,6 +55,8 @@ export async function GET() {
             ...(user.permissions || [])
         ]))
 
+        const faturamentoCount = (trStats['COBRANCA'] || 0) + (trStats['PAGAMENTO'] || 0);
+
         const counts = {
             orcamentos: baseOrcamentosCount + (trStats['RECEBIDO'] || 0),
             propostas: trStats['AGUARDANDO_ACEITE'] || 0,
@@ -62,6 +64,7 @@ export async function GET() {
             execucao: trStats['EM_EXECUCAO'] || 0,
             elaboracao: trStats['ELABORANDO_RELATORIO'] || 0,
             envioRelatorio: trStats['AGUARDANDO_APROVACAO'] || 0,
+            faturamento: faturamentoCount,
             cobranca: trStats['COBRANCA'] || 0,
             pagamento: trStats['PAGAMENTO'] || 0,
             pesquisa: trStats['PESQUISA_PENDENTE'] || 0,

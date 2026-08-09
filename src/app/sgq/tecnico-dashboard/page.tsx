@@ -41,10 +41,9 @@ export default function TecnicoDashboardPage() {
         '03': { label: 'Execução do Ensaio', statusDesc: 'Trabalho no laboratório', icon: 'science', href: '/sgq/execucao-ensaios', permission: 'tecnico_execucao_ensaios', statusKey: 'EM_EXECUCAO', color: 'purple', responsible: 'Equipe Técnica' },
         '04': { label: 'Elaboração do Relatório', statusDesc: 'Redigindo documento', icon: 'edit_note', href: '/sgq/elaboracao-relatorio', permission: 'tecnico_elaboracao_relatorio', statusKey: 'ELABORANDO_RELATORIO', color: 'orange', responsible: 'Equipe Técnica/Responsável' },
         '05': { label: 'Aprovação de Relatório', statusDesc: 'Aprovação pendente', icon: 'task', href: '/sgq/aprovacao', permission: 'tecnico_aprovacao', statusKey: 'AGUARDANDO_APROVACAO', color: 'red', responsible: 'Responsável Técnico' },
-        '06': { label: 'Cobrança', statusDesc: 'Envio de fatura', icon: 'payments', href: '/sgq/admin/receber/cobrancas', permission: 'tecnico_cobrancas', statusKey: 'COBRANCA', color: 'teal', responsible: 'Setor Técnico' },
-        '07': { label: 'Pagamento', statusDesc: 'Confirmação de recebimento', icon: 'account_balance_wallet', href: '/sgq/admin/receber/recebimentos', permission: 'tecnico_recebimentos', statusKey: 'PAGAMENTO', color: 'indigo', responsible: 'Setor Técnico' },
-        '08': { label: 'Pesquisa de Satisfação', statusDesc: 'Aguardando feedback', icon: 'sentiment_satisfied', href: '/sgq/pesquisa-satisfacao', permission: 'tecnico_pesquisa_satisfacao', statusKey: 'PESQUISA_PENDENTE', color: 'pink', responsible: 'Qualidade' },
-        '09': { label: 'Processo Finalizado', statusDesc: 'Concluído', icon: 'verified', href: '/sgq/historico-processos', permission: 'tecnico_dashboard', statusKey: 'FINALIZADO', color: 'emerald', responsible: 'Sistema' },
+        '06': { label: 'Faturamento', statusDesc: 'Emissão & Baixa de NF', icon: 'payments', href: '/sgq/faturamento', permission: 'tecnico_cobrancas', statusKey: 'FATURAMENTO', color: 'teal', responsible: 'Financeiro/Setor Técnico' },
+        '07': { label: 'Pesquisa de Satisfação', statusDesc: 'Aguardando feedback', icon: 'sentiment_satisfied', href: '/sgq/pesquisa-satisfacao', permission: 'tecnico_pesquisa_satisfacao', statusKey: 'PESQUISA_PENDENTE', color: 'pink', responsible: 'Qualidade' },
+        '08': { label: 'Processo Finalizado', statusDesc: 'Concluído', icon: 'verified', href: '/sgq/historico-processos', permission: 'tecnico_dashboard', statusKey: 'FINALIZADO', color: 'emerald', responsible: 'Sistema' },
     }
 
     const getCountByStep = (stepId: string) => {
@@ -55,10 +54,9 @@ export default function TecnicoDashboardPage() {
             case '03': return counts.execucao
             case '04': return counts.elaboracao
             case '05': return counts.envioRelatorio
-            case '06': return counts.cobranca
-            case '07': return counts.pagamento
-            case '08': return counts.pesquisa
-            case '09': return counts.finalizado
+            case '06': return counts.faturamento ?? ((counts.cobranca || 0) + (counts.pagamento || 0))
+            case '07': return counts.pesquisa
+            case '08': return counts.finalizado
             default: return 0
         }
     }
@@ -116,8 +114,8 @@ export default function TecnicoDashboardPage() {
                 </div>
             </div>
 
-            {/* Lista de Etapas (Layout Ampliado e Bem Distribuído) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+            {/* Lista de Etapas (Layout Ampliado e Bem Distribuído em 8 Passos) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
                 {Object.keys(STEP_CONFIG).sort((a, b) => Number(a) - Number(b)).map((id) => {
                     const config = STEP_CONFIG[id]
                     const count = getCountByStep(id)
