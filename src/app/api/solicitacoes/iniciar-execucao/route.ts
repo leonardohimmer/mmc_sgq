@@ -18,6 +18,17 @@ export async function POST(request: Request) {
             }
         });
 
+        // Atualizar itens de execução com status AGENDADO para EM_EXECUCAO
+        await prisma.testExecutionItem.updateMany({
+            where: {
+                requestId,
+                statusExecucao: 'AGENDADO',
+            },
+            data: {
+                statusExecucao: 'EM_EXECUCAO',
+            },
+        });
+
         await prisma.testRequestHistory.create({
             data: {
                 requestId: updatedRequest.id,

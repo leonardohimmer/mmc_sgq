@@ -12,6 +12,8 @@ interface TestExecutionItem {
   statusExecucao: string;
   statusFaturamento: string;
   statusEntrega: string;
+  statusPagamento?: string | null;
+  dataPagamento?: string | null;
   dataExecucao?: string | null;
   reportNumber?: string | null;
   reportPdfUrl?: string | null;
@@ -24,6 +26,8 @@ interface PartialInvoice {
   qtdFaturada: number;
   valorNota: number;
   dataEmissao: string;
+  statusPagamento?: string | null;
+  dataPagamento?: string | null;
   notaPdfUrl?: string | null;
   observacoes?: string | null;
 }
@@ -40,6 +44,9 @@ interface RequestWithBalance {
   qtdEntregue: number;
   qtdFaturada: number;
   qtdPendenteFaturamento: number;
+  qtdPagos?: number;
+  qtdPendentePagamento?: number;
+  podeFinalizarPagamento?: boolean;
   valorUnitario?: number | null;
   valorTotal?: number | null;
   status: string;
@@ -54,13 +61,28 @@ export default function FaturamentoParcialPage() {
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<RequestWithBalance | null>(null);
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const [processingPayment, setProcessingPayment] = useState(false);
   
   // Form emissão de NF
   const [numeroNf, setNumeroNf] = useState("");
   const [valorNota, setValorNota] = useState("");
   const [notaPdfUrl, setNotaPdfUrl] = useState("");
+  const [notaFileName, setNotaFileName] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [issuingNf, setIssuingNf] = useState(false);
+
+  const handleNotaFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setNotaPdfUrl(result);
+        setNotaFileName(file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const [notification, setNotification] = useState<{
     isOpen: boolean;
@@ -200,6 +222,72 @@ export default function FaturamentoParcialPage() {
     }
   };
 
+  const handleConfirmarPagamentoNf = async (invoiceId: string) => {
+    if (!selectedRequest) return;
+    setProcessingPayment(true);
+    try {
+      const res = await fetch(`/api/solicitacoes/${selectedRequest.id}/confirmar-pagamento-parcial`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ partialInvoiceId: invoiceId }),
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setNotification({
+          isOpen: true,
+          title: "Pagamento Confirmado!",
+          message: json.message || "Pagamento da Nota Fiscal Parcial confirmado com sucesso.",
+          type: "success",
+        });
+        await fetchRequests();
+      } else {
+        setNotification({
+          isOpen: true,
+          title: "Erro ao confirmar pagamento",
+          message: json.error || "Não foi possível confirmar o pagamento.",
+          type: "error",
+        });
+      }
+    } catch (error: any) {
+      console.error("Erro ao confirmar pagamento:", error);
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  const handleFinalizarEEnviarParaHistorico = async () => {
+    if (!selectedRequest) return;
+    setProcessingPayment(true);
+    try {
+      const res = await fetch(`/api/solicitacoes/${selectedRequest.id}/confirmar-pagamento-parcial`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "FINALIZAR_PROCESSO" }),
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setNotification({
+          isOpen: true,
+          title: "Processo Finalizado com Sucesso!",
+          message: "O processo foi totalmente pago, finalizado e enviado para o Histórico de Processos.",
+          type: "success",
+        });
+        await fetchRequests();
+      } else {
+        setNotification({
+          isOpen: true,
+          title: "Erro ao Finalizar Processo",
+          message: json.error || "Não foi possível finalizar o processo.",
+          type: "error",
+        });
+      }
+    } catch (error: any) {
+      console.error("Erro ao finalizar processo:", error);
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
   const totalPendentesFaturamento = requests.reduce(
     (acc, r) => acc + (r.qtdPendenteFaturamento || 0),
     0
@@ -299,10 +387,11 @@ export default function FaturamentoParcialPage() {
                     {req.clientName} {req.workName ? `• ${req.workName}` : ""}
                   </p>
 
-                  <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/60 flex justify-between text-[11px] text-slate-400">
+                  <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/60 flex justify-between text-[11px] text-slate-400 gap-1 flex-wrap">
                     <span>Contratados: <strong>{req.qtdContratada}</strong></span>
                     <span>Executados: <strong>{req.qtdExecutada}</strong></span>
                     <span>Faturados: <strong>{req.qtdFaturada}</strong></span>
+                    <span>Pagos: <strong className="text-emerald-600 dark:text-emerald-400 font-extrabold">{req.qtdPagos ?? 0}</strong></span>
                   </div>
                 </div>
               );
@@ -328,12 +417,56 @@ export default function FaturamentoParcialPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl border border-slate-200 dark:border-slate-700">
-                    Contratados: {selectedRequest.qtdContratada} ensaios
+                    Contratados: {selectedRequest.qtdContratada}
+                  </span>
+                  <span className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 font-bold text-xs rounded-xl border border-indigo-200/80 dark:border-indigo-800/50">
+                    Executados: {selectedRequest.qtdExecutada}
+                  </span>
+                  <span className="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 font-bold text-xs rounded-xl border border-purple-200/80 dark:border-purple-800/50">
+                    Faturados: {selectedRequest.qtdFaturada}
+                  </span>
+                  <span className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 font-bold text-xs rounded-xl border border-emerald-200/80 dark:border-emerald-800/50 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">payments</span>
+                    Pagos: {selectedRequest.qtdPagos ?? 0}
                   </span>
                 </div>
               </div>
+
+              {/* Banner de Pagamento Total Concluído & Envio ao Histórico */}
+              {(selectedRequest.qtdPagos !== undefined && selectedRequest.qtdPagos >= selectedRequest.qtdContratada) || selectedRequest.status === "FINALIZADO" ? (
+                <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-emerald-600 text-3xl">verified</span>
+                    <div>
+                      <h4 className="font-extrabold text-emerald-900 dark:text-emerald-300 text-sm">
+                        Pagamento Total Concluído ({selectedRequest.qtdPagos ?? selectedRequest.qtdContratada} de {selectedRequest.qtdContratada} ensaios pagos)
+                      </h4>
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                        {selectedRequest.status === "FINALIZADO"
+                          ? "Este processo já foi finalizado e enviado ao Histórico de Processos."
+                          : "Todos os ensaios foram totalmente pagos. Clique ao lado para mover para o Histórico de Processos."}
+                      </p>
+                    </div>
+                  </div>
+                  {selectedRequest.status !== "FINALIZADO" && (
+                    <button
+                      type="button"
+                      onClick={handleFinalizarEEnviarParaHistorico}
+                      disabled={processingPayment}
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition-all shrink-0 flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {processingPayment ? (
+                        <span className="material-symbols-outlined animate-spin text-[16px]">refresh</span>
+                      ) : (
+                        <span className="material-symbols-outlined text-[16px]">history_edu</span>
+                      )}
+                      Finalizar e Mover p/ Histórico
+                    </button>
+                  )}
+                </div>
+              ) : null}
 
               {/* Tabela de Selección dos Ensaios para NF Parcial */}
               <div>
@@ -397,12 +530,17 @@ export default function FaturamentoParcialPage() {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {isFaturado ? (
+                            {item.statusPagamento === "PAGO" ? (
+                              <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs rounded-full flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                                Pago
+                              </span>
+                            ) : isFaturado ? (
                               <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 font-extrabold text-xs rounded-full">
-                                Faturado
+                                Faturado (Aguard. Pgto)
                               </span>
                             ) : isConcluido ? (
-                              <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs rounded-full">
+                              <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-extrabold text-xs rounded-full">
                                 Liberado p/ NF
                               </span>
                             ) : (
@@ -455,16 +593,81 @@ export default function FaturamentoParcialPage() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    URL ou Caminho do PDF da Nota Fiscal (opcional)
+                <div className="space-y-1.5">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">
+                    Anexar Documento da Nota Fiscal (PDF) <span className="text-red-500">*</span>
                   </label>
+
+                  {notaPdfUrl ? (
+                    <div className="flex items-center justify-between p-3.5 bg-purple-50/90 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-700 rounded-xl">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
+                          <span className="material-symbols-outlined text-2xl">receipt_long</span>
+                        </div>
+                        <div className="truncate">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block truncate">
+                            {notaFileName || "Nota_Fiscal.pdf"}
+                          </span>
+                          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">
+                            ✓ PDF da Nota Fiscal Anexado com Sucesso
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {notaPdfUrl.startsWith("http") && (
+                          <a
+                            href={notaPdfUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2.5 py-1 text-[11px] font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50"
+                          >
+                            Visualizar
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNotaPdfUrl("");
+                            setNotaFileName("");
+                          }}
+                          className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-all"
+                          title="Remover arquivo"
+                        >
+                          <span className="material-symbols-outlined text-xl">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-4 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-center group cursor-pointer">
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleNotaFileUpload}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div className="flex flex-col items-center justify-center space-y-1.5 pointer-events-none">
+                        <span className="material-symbols-outlined text-3xl text-slate-400 group-hover:text-purple-600 transition-colors">
+                          upload_file
+                        </span>
+                        <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Clique para selecionar ou arraste o PDF da Nota Fiscal
+                        </div>
+                        <p className="text-[10px] text-slate-400">
+                          Selecione o arquivo da Nota Fiscal em formato PDF
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <input
                     type="text"
-                    placeholder="https://.../nf-1001.pdf"
-                    value={notaPdfUrl}
-                    onChange={(e) => setNotaPdfUrl(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    value={notaPdfUrl.startsWith("data:") ? "" : notaPdfUrl}
+                    onChange={(e) => {
+                      setNotaPdfUrl(e.target.value);
+                      setNotaFileName(e.target.value ? "Link Externo NF" : "");
+                    }}
+                    placeholder="Ou informe aqui a URL/link do PDF da Nota Fiscal..."
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[11px] font-medium focus:ring-2 focus:ring-purple-500 outline-none text-slate-500"
                   />
                 </div>
 
@@ -484,15 +687,15 @@ export default function FaturamentoParcialPage() {
                 <div className="flex justify-end pt-2">
                   <button
                     type="submit"
-                    disabled={issuingNf || selectedItemIds.length === 0}
+                    disabled={issuingNf || selectedItemIds.length === 0 || !notaPdfUrl || !notaPdfUrl.trim()}
                     className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-sm shadow-md transition-all disabled:opacity-50 flex items-center gap-2"
                   >
                     {issuingNf ? (
                       <span className="material-symbols-outlined animate-spin text-[18px]">refresh</span>
                     ) : (
-                      <span className="material-symbols-outlined text-[18px]">post_add</span>
+                      <span className="material-symbols-outlined text-[18px]">send</span>
                     )}
-                    Gerar Nota Fiscal Parcial ({selectedItemIds.length})
+                    Enviar Nota Fiscal ({selectedItemIds.length})
                   </button>
                 </div>
               </form>
@@ -520,17 +723,40 @@ export default function FaturamentoParcialPage() {
                           </div>
                         </div>
 
-                        {inv.notaPdfUrl && (
-                          <a
-                            href={inv.notaPdfUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 hover:bg-purple-100 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">visibility</span>
-                            Ver PDF
-                          </a>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {inv.statusPagamento === "PAGO" ? (
+                            <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs rounded-full flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                              NF Paga
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleConfirmarPagamentoNf(inv.id)}
+                              disabled={processingPayment}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl flex items-center gap-1 transition-colors disabled:opacity-50"
+                            >
+                              {processingPayment ? (
+                                <span className="material-symbols-outlined animate-spin text-[14px]">refresh</span>
+                              ) : (
+                                <span className="material-symbols-outlined text-[14px]">payments</span>
+                              )}
+                              Confirmar Pgto NF
+                            </button>
+                          )}
+
+                          {inv.notaPdfUrl && (
+                            <a
+                              href={inv.notaPdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 hover:bg-purple-100 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">visibility</span>
+                              Ver PDF
+                            </a>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

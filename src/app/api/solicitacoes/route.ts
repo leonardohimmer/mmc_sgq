@@ -26,6 +26,7 @@ export async function GET() {
                 partialInvoices: {
                     orderBy: { createdAt: 'desc' },
                 },
+                satisfactionSurvey: true,
             },
             orderBy: { createdAt: 'desc' }
         })
@@ -70,6 +71,9 @@ export async function GET() {
             const qtdExecutada = req.executionItems.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO').length;
             const qtdEntregue = req.executionItems.filter(i => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
             const qtdFaturada = req.partialInvoices.reduce((acc, inv) => acc + inv.qtdFaturada, 0);
+            const qtdPagosCalc = req.executionItems.filter(i => i.statusPagamento === 'PAGO').length;
+            const legacyPaid = (req.clientPaymentConfirmed || Boolean(req.paymentConfirmedAt)) ? (qtdFaturada > 0 ? qtdFaturada : qtdContratada) : 0;
+            const qtdPagos = Math.min(qtdContratada, Math.max(qtdPagosCalc, legacyPaid));
 
             return {
                 ...req,
@@ -80,6 +84,9 @@ export async function GET() {
                 qtdPendenteEntrega: Math.max(0, qtdContratada - qtdEntregue),
                 qtdFaturada,
                 qtdPendenteFaturamento: Math.max(0, qtdExecutada - qtdFaturada),
+                qtdPagos,
+                qtdPendentePagamento: Math.max(0, qtdContratada - qtdPagos),
+                podeFinalizarPagamento: qtdPagos >= qtdContratada,
                 porcentagemConcluida: Math.min(100, Math.round((qtdEntregue / qtdContratada) * 100)),
                 reportPdfUrl: reportSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
                 proposalPdfUrl: proposalSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,

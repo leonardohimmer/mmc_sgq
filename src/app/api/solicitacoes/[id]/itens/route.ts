@@ -72,6 +72,7 @@ export async function PATCH(
     const {
       itemId,
       numeroSequencial,
+      qtdAgendar,
       statusExecucao,
       dataPlanejada,
       dataExecucao,
@@ -117,8 +118,19 @@ export async function PATCH(
       }
     }
 
-    const updatedItem = await prisma.testExecutionItem.update({
-      where: { id: targetItem.id },
+    const countAgendar = Math.max(1, Number(qtdAgendar || 1));
+    const startSeq = targetItem.numeroSequencial;
+    const endSeq = startSeq + countAgendar - 1;
+
+    // Atualiza os itens da faixa solicitada (de startSeq até endSeq)
+    await prisma.testExecutionItem.updateMany({
+      where: {
+        requestId,
+        numeroSequencial: {
+          gte: startSeq,
+          lte: endSeq,
+        },
+      },
       data: {
         ...(statusExecucao && { statusExecucao }),
         ...(dataPlanejada && { dataPlanejada: new Date(dataPlanejada) }),
@@ -127,22 +139,26 @@ export async function PATCH(
         ...(reportPdfUrl && { reportPdfUrl }),
         ...(observacoes && { observacoes }),
         ...(tecnicoId && { tecnicoId }),
-        // Se concluiu ou aprovou o ensaio, libera para faturamento se ainda estivesse pendente
         ...(statusExecucao === 'CONCLUIDO' || statusExecucao === 'APROVADO'
-          ? { statusFaturamento: targetItem.statusFaturamento === 'FATURADO' ? 'FATURADO' : 'LIBERADO' }
+          ? { statusFaturamento: 'LIBERADO' }
           : {}),
       },
     });
 
+    const updatedItem = await prisma.testExecutionItem.findUnique({
+      where: { id: targetItem.id },
+    });
+
     // Se foi agendada uma data planejada ou solicitado agendamento
-    if (dataPlanejada || statusExecucao === 'EM_EXECUCAO' || statusExecucao === 'AGENDADO') {
+    if (dataPlanejada || statusExecucao === 'AGENDADO' || statusExecucao === 'EM_EXECUCAO') {
       const currentReq = await prisma.testRequest.findUnique({ where: { id: requestId }, select: { status: true } });
-      if (currentReq && currentReq.status !== 'EM_EXECUCAO' && currentReq.status !== 'FINALIZADO') {
+      if (currentReq && currentReq.status !== 'FINALIZADO') {
         await prisma.testRequest.update({
           where: { id: requestId },
           data: {
             status: 'AGUARDANDO_AGENDAMENTO',
-            ...(dataPlanejada ? { desiredDate: new Date(dataPlanejada) } : {})
+            ...(dataPlanejada ? { desiredDate: new Date(dataPlanejada) } : {}),
+            ...(observacoes ? { observations: observacoes } : {})
           }
         });
       }

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import SuccessModal from "@/components/SuccessModal"
+import { formatOsCode } from "@/lib/os-balance-service"
 
 type TestRequest = {
     id: string
@@ -70,8 +71,11 @@ export default function AguardandoAgendamentoPage() {
         const entregues = (req.executionItems || []).filter(
             (i: any) => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO'
         ).length
+        const agendadosPeloCliente = (req.executionItems || []).filter(
+            (i: any) => i.statusExecucao === 'AGENDADO'
+        ).length
         const disp = Math.max(0, total - entregues)
-        setQtdAgendar(disp > 0 ? disp : 1)
+        setQtdAgendar(agendadosPeloCliente > 0 ? agendadosPeloCliente : (disp > 0 ? disp : 1))
     }
 
     const handleSave = async () => {
@@ -138,9 +142,9 @@ export default function AguardandoAgendamentoPage() {
                                     onClick={() => handleSelectRequest(req)}
                                     className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedRequest?.id === req.id ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'}`}
                                 >
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-                                            Proposta Aceita
+                                    <div className="flex justify-between items-start mb-2 gap-2">
+                                        <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                            OS {formatOsCode(req)}
                                         </span>
                                         <span className="text-xs text-slate-400">
                                             {format(new Date(req.createdAt), 'dd/MM/yyyy')}
@@ -163,7 +167,9 @@ export default function AguardandoAgendamentoPage() {
                             <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
                                 <h2 className="text-xl font-bold justify-between flex items-center text-slate-800 dark:text-slate-200">
                                     Resumo do Contato
-                                    <span className="text-sm font-normal text-slate-500">ID: {selectedRequest.id.substring(0, 8)}...</span>
+                                    <span className="text-sm font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-3 py-1 rounded-lg border border-blue-200 dark:border-blue-500/30">
+                                        OS {formatOsCode(selectedRequest)}
+                                    </span>
                                 </h2>
                             </div>
 

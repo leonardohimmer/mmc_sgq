@@ -6,6 +6,7 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import SuccessModal from "@/components/SuccessModal"
 import ConfirmModal from "@/components/ConfirmModal"
+import { formatOsCode } from "@/lib/os-balance-service"
 
 type TestRequest = {
     id: string
@@ -211,7 +212,9 @@ export default function EnvioPropostaPage() {
                             <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
                                 <h2 className="text-xl font-bold justify-between flex items-center text-slate-800 dark:text-slate-200">
                                     Preenchimento da Proposta
-                                    <span className="text-sm font-normal text-slate-500">ID: {selectedRequest.id.substring(0, 8)}...</span>
+                                    <span className="text-sm font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-3 py-1 rounded-lg border border-blue-200 dark:border-blue-500/30">
+                                        OS {formatOsCode(selectedRequest)}
+                                    </span>
                                 </h2>
                             </div>
 

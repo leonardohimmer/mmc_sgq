@@ -273,15 +273,15 @@ export default function EnsaioDetailsModal({
                                 </div>
                                 <div className="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Laudos Entregues</span>
-                                    <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">{data.qtdEntregue || 0}</span>
+                                    <span className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">{data.qtdEntregue || 0}</span>
                                 </div>
                                 <div className="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Saldo Pendente</span>
-                                    <span className="text-base font-extrabold text-amber-600 dark:text-amber-400">{data.qtdPendenteEntrega !== undefined ? data.qtdPendenteEntrega : ((data.qtdContratada || data.executionItems.length) - (data.qtdEntregue || 0))}</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Ensaios Pagos</span>
+                                    <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">{data.qtdPagos ?? (data.clientPaymentConfirmed ? (data.qtdContratada || data.executionItems.length) : 0)}</span>
                                 </div>
                                 <div className="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase block">NFs Parciais</span>
-                                    <span className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">{data.partialInvoices ? data.partialInvoices.length : 0}</span>
+                                    <span className="text-base font-extrabold text-purple-600 dark:text-purple-400">{data.partialInvoices ? data.partialInvoices.length : 0}</span>
                                 </div>
                             </div>
                         </div>

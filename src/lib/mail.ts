@@ -122,6 +122,74 @@ export async function sendFinalizedEmail(to: string, name: string, requestId: st
     }
 }
 
+export async function sendReportWithSurveyEmail(params: {
+    to: string;
+    name: string;
+    requestId: string;
+    type: string;
+    itemNumber: number;
+    totalItems: number;
+    osCode?: string;
+    reportPdfUrl?: string | null;
+}) {
+    const { to, name, requestId, type, itemNumber, totalItems, osCode, reportPdfUrl } = params;
+    const portalUrl = `${process.env.NEXTAUTH_URL}/login-cliente`;
+    const surveyUrl = `${process.env.NEXTAUTH_URL}/portal-cliente/pesquisa/${requestId}`;
+    const pdfUrl = reportPdfUrl && !reportPdfUrl.startsWith('/api/') ? reportPdfUrl : portalUrl;
+
+    const transporter = createTransporter();
+
+    const mailOptions = {
+        from: `"MMC Lab" <${process.env.EMAIL_USER}>`,
+        to,
+        subject: `Relatório de Ensaio (${itemNumber} de ${totalItems}) & Pesquisa de Satisfação - ${osCode || 'MMC Lab'}`,
+        html: `
+            <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                <div style="background-color: #0f172a; color: white; padding: 30px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 22px;">Olá, ${name}!</h1>
+                    <p style="margin: 10px 0 0; opacity: 0.9; font-size: 14px;">Seu relatório de ensaio já está disponível e aguarda seu feedback.</p>
+                </div>
+                <div style="padding: 35px; line-height: 1.6;">
+                    <p style="font-size: 15px;">Informamos que o relatório referente ao <strong>${type}</strong> (Ensaio <strong>${itemNumber} de ${totalItems}</strong> contratados) foi concluído e disponibilizado com sucesso.</p>
+                    
+                    <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
+                        <h2 style="margin-top: 0; font-size: 16px; color: #0f172a;">Detalhes da Entrega:</h2>
+                        <p style="margin: 5px 0; font-size: 14px;"><strong>OS:</strong> ${osCode || requestId.substring(0, 8)}</p>
+                        <p style="margin: 5px 0; font-size: 14px;"><strong>Ensaio Entregue:</strong> ${itemNumber} de ${totalItems}</p>
+                    </div>
+
+                    <div style="text-align: center; margin: 25px 0;">
+                        <a href="${pdfUrl}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 14px;">📄 Baixar Relatório Técnico</a>
+                    </div>
+
+                    <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981;">
+                        <h3 style="margin-top: 0; font-size: 16px; color: #065f46;">⭐ Pesquisa de Satisfação (${itemNumber} de ${totalItems} ensaios realizados)</h3>
+                        <p style="font-size: 13px; color: #334155; margin-bottom: 15px;">Como você contratou ${totalItems} ensaios e já realizamos ${itemNumber}, sua avaliação sobre a execução e qualidade desses ensaios é fundamental para mantermos a melhoria contínua dos nossos serviços.</p>
+                        <div style="text-align: center;">
+                            <a href="${surveyUrl}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 14px;">Responder Pesquisa de Satisfação</a>
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 30px; font-size: 13px; color: #64748b;">Você também pode acompanhar todos os seus relatórios e propostas acessando seu portal: <a href="${portalUrl}" style="color: #2563eb;">Acessar Portal do Cliente</a>.</p>
+                </div>
+                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px;">
+                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Sistema de Gestão de Qualidade</p>
+                </div>
+            </div>
+        `,
+    };
+
+    try {
+        await transporter.verify();
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`E-mail de relatório + pesquisa enviado com sucesso para ${to}. MessageId: ${info.messageId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("ERRO AO ENVIAR E-MAIL DE RELATÓRIO E PESQUISA:", error);
+        return { success: false, error };
+    }
+}
+
 export async function sendResetPasswordEmail(to: string, name: string, token: string) {
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
     const transporter = createTransporter()

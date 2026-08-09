@@ -209,6 +209,7 @@ export default function PortalClientePage() {
         isOpen: boolean;
         ensaio: Ensaio | null;
         itemNum: number;
+        qtdAgendar: number;
         desiredDate: string;
         timeSlot: string;
         notes: string;
@@ -217,6 +218,7 @@ export default function PortalClientePage() {
         isOpen: false,
         ensaio: null,
         itemNum: 1,
+        qtdAgendar: 1,
         desiredDate: "",
         timeSlot: "Manhã (08:00 - 12:00)",
         notes: "",
@@ -237,6 +239,7 @@ export default function PortalClientePage() {
             isOpen: true,
             ensaio,
             itemNum: nextItemNum,
+            qtdAgendar: 1,
             desiredDate: getTodayString(),
             timeSlot: "Manhã (08:00 - 12:00)",
             notes: "",
@@ -250,20 +253,27 @@ export default function PortalClientePage() {
 
         setScheduleModal(prev => ({ ...prev, isSubmitting: true }));
         try {
+            const endItemNum = scheduleModal.itemNum + scheduleModal.qtdAgendar - 1;
+            const itemText = scheduleModal.qtdAgendar === 1
+                ? `Ensaio ${scheduleModal.itemNum}`
+                : `Ensaios ${scheduleModal.itemNum} a ${endItemNum}`;
+            const fullNotes = `Solicitado pelo Cliente: ${scheduleModal.qtdAgendar} ensaio(s) (${itemText}) | Horário: ${scheduleModal.timeSlot}${scheduleModal.notes ? ` | ${scheduleModal.notes}` : ''}`;
+
             const res = await fetch(`/api/solicitacoes/${scheduleModal.ensaio.rawId}/itens`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     numeroSequencial: scheduleModal.itemNum,
+                    qtdAgendar: scheduleModal.qtdAgendar,
                     dataPlanejada: scheduleModal.desiredDate,
-                    observacoes: scheduleModal.notes ? `Horário: ${scheduleModal.timeSlot} | ${scheduleModal.notes}` : `Horário: ${scheduleModal.timeSlot}`,
-                    statusExecucao: 'EM_EXECUCAO'
+                    observacoes: fullNotes,
+                    statusExecucao: 'AGENDADO'
                 })
             });
 
             const json = await res.json();
             if (res.ok) {
-                toast.success(`Ensaio ${scheduleModal.itemNum} de ${scheduleModal.ensaio.qtdContratada} agendado para ${new Date(scheduleModal.desiredDate + 'T12:00:00').toLocaleDateString('pt-BR')}!`);
+                toast.success(`Solicitação de agendamento de ${scheduleModal.qtdAgendar} ensaio(s) (${itemText}) para ${new Date(scheduleModal.desiredDate + 'T12:00:00').toLocaleDateString('pt-BR')} enviada! Aguardando confirmação do colaborador.`);
                 setScheduleModal(prev => ({ ...prev, isOpen: false }));
                 fetchClientRequests();
             } else {
@@ -704,9 +714,10 @@ export default function PortalClientePage() {
     };
 
     const handleAcceptProposal = (ensaio: Ensaio) => {
+        const ensaioText = (ensaio.qtdContratada || 1) > 1 ? `para os ensaios OS ${ensaio.osCode}` : `para o ensaio OS ${ensaio.osCode}`;
         setConfirmConfig({
             title: "Confirmar Aceite da Proposta",
-            message: `Deseja realmente aceitar a proposta técnica comercial para o ensaio #${ensaio.id}?\n\nAo confirmar, o status será atualizado e daremos andamento ao agendamento.`,
+            message: `Deseja realmente aceitar a proposta técnica comercial ${ensaioText}?\n\nAo confirmar, o status será atualizado e daremos andamento ao agendamento.`,
             type: 'primary',
             confirmText: "Sim, Aceitar",
             cancelText: "Voltar",
@@ -761,9 +772,10 @@ export default function PortalClientePage() {
     };
 
     const handleConfirmPayment = (ensaio: Ensaio) => {
+        const ensaioText = (ensaio.qtdContratada || 1) > 1 ? `para os ensaios OS ${ensaio.osCode}` : `para o ensaio OS ${ensaio.osCode}`;
         setConfirmConfig({
             title: "Confirmar Pagamento",
-            message: `Você confirma que já realizou o pagamento para o ensaio #${ensaio.id}?\n\nEsta confirmação será enviada para nosso departamento financeiro para agilizar a baixa.`,
+            message: `Você confirma que já realizou o pagamento ${ensaioText}?\n\nEsta confirmação será enviada para nosso departamento financeiro para agilizar a baixa.`,
             type: 'primary',
             confirmText: "Sim, Confirmar",
             cancelText: "Voltar",
@@ -1053,32 +1065,46 @@ export default function PortalClientePage() {
                                             
                                             {/* Survey Indicator (Apenas para o criador do ensaio) */}
                                             {ensaio.hasPendingSurvey && ensaio.isOwner && (
-                                                <Link 
-                                                    href={`/portal-cliente/pesquisa/${ensaio.rawId}`}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="inline-flex items-center gap-1.5 w-full p-2 my-1 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-lg text-amber-700 dark:text-amber-400 text-[11px] font-bold animate-pulse"
-                                                >
-                                                    <span className="material-symbols-outlined text-[16px] shrink-0">rate_review</span>
-                                                    <span>Pendente: Pesquisa de Satisfação</span>
-                                                </Link>
+                                                 <Link 
+                                                     href={`/portal-cliente/pesquisa/${ensaio.rawId}`}
+                                                     onClick={(e) => e.stopPropagation()}
+                                                     className="inline-flex items-center justify-between gap-1.5 w-full p-2.5 my-1.5 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-blue-500/10 border border-emerald-500/40 rounded-xl text-emerald-800 dark:text-emerald-300 text-[11px] font-extrabold shadow-sm hover:scale-[1.01] transition-all"
+                                                 >
+                                                     <div className="flex items-center gap-1.5">
+                                                         <span className="material-symbols-outlined text-[18px] text-emerald-600 dark:text-emerald-400 shrink-0">rate_review</span>
+                                                         <span>Pesquisa de Satisfação Disponível ({ensaio.qtdEntregue} de {ensaio.qtdContratada} ensaios realizados)</span>
+                                                     </div>
+                                                     <span className="material-symbols-outlined text-[16px] shrink-0">chevron_right</span>
+                                                 </Link>
                                             )}
 
-                                            {/* Banner de Confirmação de Pagamento (Apenas quando ainda NÃO confirmado e para o criador) */}
-                                            {ensaio.status === "Aguardando Pagamento" && !ensaio.clientPaymentConfirmed && ensaio.isOwner && (
-                                                <div className="mt-2 p-2.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-1.5 relative z-10">
-                                                    <div className="flex items-center gap-1.5 text-blue-800 dark:text-blue-300 text-[11px] font-bold">
-                                                        <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">payments</span>
-                                                        Aguardando Confirmação de Pagamento
+                                            {/* Banner de Confirmação de Pagamento da Nota Fiscal */}
+                                            {!ensaio.clientPaymentConfirmed && (ensaio.isOwner ?? true) && (
+                                                ensaio.status === "Aguardando Pagamento" ||
+                                                ensaio.status === "Faturamento em Processamento" ||
+                                                ensaio.status === "Finalizado" ||
+                                                Boolean(ensaio.invoicePdfUrl) ||
+                                                Boolean(ensaio.fullData?.partialInvoices && ensaio.fullData.partialInvoices.length > 0)
+                                            ) && (
+                                                <div className="mt-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10 shadow-xs">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div className="flex items-center gap-1.5 text-blue-800 dark:text-blue-300 text-xs font-extrabold">
+                                                            <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">payments</span>
+                                                            Aguardando Confirmação de Pagamento
+                                                        </div>
+                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                                                            Pendente
+                                                        </span>
                                                     </div>
-                                                    <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 leading-tight font-semibold">
-                                                        Identificamos que o faturamento foi processado. Se você já efetuou o pagamento, confirme no botão abaixo.
+                                                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug font-medium">
+                                                        O faturamento/Nota Fiscal deste ensaio foi processado. Se você já efetuou o pagamento, confirme no botão abaixo para agilizar a baixa.
                                                     </p>
                                                     <div className="flex mt-0.5">
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); handleConfirmPayment(ensaio); }}
-                                                            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-md text-[10px] sm:text-[11px] font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
+                                                            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
                                                         >
-                                                            <span className="material-symbols-outlined text-[14px]">payments</span>
+                                                            <span className="material-symbols-outlined text-[16px]">payments</span>
                                                             Confirmar que já paguei
                                                         </button>
                                                     </div>
@@ -1089,7 +1115,10 @@ export default function PortalClientePage() {
                                         {/* Actions Grid */}
                                         <div className="flex flex-col gap-2 w-full mt-2 relative z-10">
                                             {/* Botão de Agendamento por Saldo */}
-                                            {((ensaio.qtdContratada || 1) - (ensaio.qtdEntregue || 0)) > 0 && ensaio.isOwner && (
+                                            {((ensaio.qtdContratada || 1) - (ensaio.qtdEntregue || 0)) > 0 && 
+                                              ensaio.isOwner && 
+                                              ensaio.status !== "Recebido" && 
+                                              ensaio.status !== "Aguardando Aceite" && (
                                                 <button
                                                     onClick={(e) => handleOpenScheduleModal(ensaio, e)}
                                                     className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md shadow-indigo-500/20 hover:scale-[1.01] active:scale-[0.98] transition-all"
@@ -1851,7 +1880,10 @@ export default function PortalClientePage() {
                                                     OS: {scheduleModal.ensaio.osCode}
                                                 </span>
                                                 <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mt-1">
-                                                    Agendar Ensaio {scheduleModal.itemNum} de {scheduleModal.ensaio.qtdContratada}
+                                                    {scheduleModal.qtdAgendar === 1
+                                                        ? `Agendar Ensaio ${scheduleModal.itemNum} de ${scheduleModal.ensaio.qtdContratada}`
+                                                        : `Agendar ${scheduleModal.qtdAgendar} Ensaios (Ensaios ${scheduleModal.itemNum} a ${scheduleModal.itemNum + scheduleModal.qtdAgendar - 1} de ${scheduleModal.ensaio.qtdContratada})`
+                                                    }
                                                 </h3>
                                                 <p className="text-xs text-slate-500 dark:text-slate-400">
                                                     {scheduleModal.ensaio.titulo}
@@ -1864,8 +1896,28 @@ export default function PortalClientePage() {
                                                 <span className="material-symbols-outlined text-[20px]">close</span>
                                             </button>
                                         </div>
-
                                         <form onSubmit={handleSubmitSchedule} className="space-y-4">
+                                            {/* Seleção da Quantidade do Saldo a Agendar */}
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1 flex items-center justify-between">
+                                                    <span>Quantidade de Ensaios a Agendar *</span>
+                                                    <span className="text-[11px] text-blue-600 dark:text-blue-400 font-bold lowercase">
+                                                        (saldo restante: {Math.max(1, (scheduleModal.ensaio?.qtdContratada || 1) - (scheduleModal.ensaio?.qtdEntregue || 0))})
+                                                    </span>
+                                                </label>
+                                                <select
+                                                    value={scheduleModal.qtdAgendar}
+                                                    onChange={(e) => setScheduleModal(prev => ({ ...prev, qtdAgendar: Number(e.target.value) }))}
+                                                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                                >
+                                                    {Array.from({ length: Math.max(1, (scheduleModal.ensaio?.qtdContratada || 1) - (scheduleModal.ensaio?.qtdEntregue || 0)) }, (_, i) => i + 1).map(num => (
+                                                        <option key={num} value={num}>
+                                                            {num} {num === 1 ? 'ensaio' : 'ensaios'} {num === ((scheduleModal.ensaio?.qtdContratada || 1) - (scheduleModal.ensaio?.qtdEntregue || 0)) ? '(saldo total)' : ''}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
                                             <div>
                                                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                                                     Data Desejada para a Execução *

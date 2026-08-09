@@ -9,20 +9,27 @@ export interface OsBalanceSummary {
   qtdPendenteEntrega: number;
   qtdFaturada: number;
   qtdPendenteFaturamento: number;
+  qtdPagos: number;
+  qtdPendentePagamento: number;
   porcentagemConcluida: number;
   podeExecutarNovos: boolean;
   podeEmitirNfParcial: boolean;
+  podeFinalizarPagamento: boolean;
   isOsFinalizada: boolean;
 }
 
 /**
- * Formata o código da Ordem de Serviço estritamente no padrão YYYYMMDD-HHmm (sem # e sem a palavra proposta).
+ * Formata o código da Ordem de Serviço estritamente no padrão YYYYMMDD_HHmm (ou YYYYMMDD_HHmm_N se informado o item).
  */
-export function formatOsCode(request: {
-  createdAt?: Date | string | null;
-  paymentConfirmedAt?: Date | string | null;
-  clientPaymentConfirmedAt?: Date | string | null;
-}): string {
+export function formatOsCode(
+  request?: {
+    createdAt?: Date | string | null;
+    paymentConfirmedAt?: Date | string | null;
+    clientPaymentConfirmedAt?: Date | string | null;
+  } | null,
+  itemNum?: number | string | null
+): string {
+  if (!request) return '';
   const refDateStr = request.clientPaymentConfirmedAt || request.paymentConfirmedAt || request.createdAt;
   const refDate = refDateStr ? new Date(refDateStr) : new Date();
 
@@ -32,7 +39,11 @@ export function formatOsCode(request: {
   const HH = String(refDate.getHours()).padStart(2, '0');
   const mm = String(refDate.getMinutes()).padStart(2, '0');
 
-  return `${YYYY}${MM}${DD}-${HH}${mm}`;
+  const baseCode = `${YYYY}${MM}${DD}_${HH}${mm}`;
+  if (itemNum !== undefined && itemNum !== null && itemNum !== '') {
+    return `${baseCode}_${itemNum}`;
+  }
+  return baseCode;
 }
 
 /**
@@ -194,13 +205,23 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
   );
   const qtdFaturada = qtdFaturadaCalc > 0 ? qtdFaturadaCalc : (request.invoicePdfUrl ? 1 : 0);
 
+  const qtdPagosCalc = items.filter(
+    (item) => item.statusPagamento === 'PAGO'
+  ).length;
+  const legacyPaid = (request.clientPaymentConfirmed || Boolean(request.paymentConfirmedAt))
+    ? (qtdFaturada > 0 ? qtdFaturada : qtdContratada)
+    : 0;
+  const qtdPagos = Math.min(qtdContratada, Math.max(qtdPagosCalc, legacyPaid));
+
   const qtdPendenteExecucao = Math.max(0, qtdContratada - qtdExecutada);
   const qtdPendenteEntrega = Math.max(0, qtdContratada - qtdEntregue);
   const qtdPendenteFaturamento = Math.max(0, qtdExecutada - qtdFaturada);
+  const qtdPendentePagamento = Math.max(0, qtdContratada - qtdPagos);
 
   const porcentagemConcluida = Math.min(100, Math.round((qtdEntregue / qtdContratada) * 100));
   const podeExecutarNovos = qtdExecutada < qtdContratada;
   const podeEmitirNfParcial = qtdPendenteFaturamento > 0;
+  const podeFinalizarPagamento = qtdPagos >= qtdContratada;
   const isOsFinalizada = qtdEntregue >= qtdContratada;
 
   return {
@@ -212,9 +233,12 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
     qtdPendenteEntrega,
     qtdFaturada,
     qtdPendenteFaturamento,
+    qtdPagos,
+    qtdPendentePagamento,
     porcentagemConcluida,
     podeExecutarNovos,
     podeEmitirNfParcial,
+    podeFinalizarPagamento,
     isOsFinalizada,
   };
 }
@@ -240,12 +264,20 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
   let newStatus: string;
   if (balance.isOsFinalizada) {
     newStatus = 'FINALIZADO';
+  } else if (
+    request.status === 'ELABORANDO_RELATORIO' ||
+    request.status === 'AGUARDANDO_APROVACAO' ||
+    request.status === 'COBRANCA' ||
+    request.status === 'PAGAMENTO' ||
+    request.status === 'AGUARDANDO_AGENDAMENTO' ||
+    request.status === 'AGUARDANDO_ACEITE'
+  ) {
+    // Preserva o status da etapa ativa do fluxo processual até que o laudo seja entregue ou a OS finalizada
+    newStatus = request.status;
   } else if (balance.qtdExecutada > 0 || balance.qtdEntregue > 0) {
     newStatus = 'EM_EXECUCAO';
-  } else if (hasScheduledItem || request.status === 'AGUARDANDO_AGENDAMENTO') {
+  } else if (hasScheduledItem) {
     newStatus = 'AGUARDANDO_AGENDAMENTO';
-  } else if (request.status === 'AGUARDANDO_ACEITE') {
-    newStatus = 'AGUARDANDO_ACEITE';
   } else {
     newStatus = 'RECEBIDO';
   }

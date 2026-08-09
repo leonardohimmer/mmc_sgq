@@ -33,8 +33,8 @@ function HistoricoTab() {
             const res = await fetch('/api/pesquisa-satisfacao?includePending=false')
             if (res.ok) {
                 const data = await res.json()
-                // Apenas as revisadas entram no histórico
-                setSurveys(data.surveys?.filter((s: any) => s.status === 'REVIEWED') || [])
+                // Processos finalizados e pesquisas revisadas entram no histórico
+                setSurveys(data.surveys?.filter((s: any) => s.status === 'REVIEWED' || s.status === 'COMPLETED' || s.request?.status === 'FINALIZADO') || [])
             }
         } catch (error) {
             console.error("Erro ao buscar histórico:", error)

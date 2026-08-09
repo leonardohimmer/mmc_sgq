@@ -155,6 +155,8 @@ model TestExecutionItem {
   statusExecucao       String          @default("PENDENTE") // PENDENTE, AGENDADO, EM_EXECUCAO, CONCLUIDO, APROVADO
   statusFaturamento    String          @default("PENDENTE") // PENDENTE, LIBERADO, FATURADO
   statusEntrega        String          @default("PENDENTE") // PENDENTE, ENVIADO_AO_CLIENTE
+  statusPagamento      String          @default("PENDENTE") // PENDENTE, PAGO
+  dataPagamento        DateTime?       @db.Timestamptz(6)
   reportNumber         String?
   reportPdfUrl         String?
   dataEnvioRelatorio   DateTime?       @db.Timestamptz(6)
@@ -170,6 +172,7 @@ model TestExecutionItem {
   @@index([requestId])
   @@index([statusExecucao])
   @@index([statusFaturamento])
+  @@index([statusPagamento])
 }
 
 model PartialInvoice {
@@ -179,6 +182,8 @@ model PartialInvoice {
   qtdFaturada    Int                 @default(1)
   valorNota      Float
   dataEmissao    DateTime            @default(now()) @db.Timestamptz(6)
+  statusPagamento String             @default("PENDENTE") // PENDENTE, PAGO
+  dataPagamento  DateTime?           @db.Timestamptz(6)
   notaPdfUrl     String?
   observacoes    String?             @db.Text
   createdAt      DateTime            @default(now()) @db.Timestamptz(6)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { calculateOsBalance, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service';
+import { calculateOsBalance, formatOsCode, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service';
+import { sendReportWithSurveyEmail } from '@/lib/mail';
 
 // POST /api/solicitacoes/[id]/enviar-relatorio-parcial
 export async function POST(
@@ -57,6 +58,16 @@ export async function POST(
       });
     }
 
+    // Garantir que a Pesquisa de Satisfação exista para esta solicitação e esteja ativa para o feedback do cliente
+    await prisma.satisfactionSurvey.upsert({
+      where: { requestId },
+      update: { status: 'PENDING' },
+      create: {
+        requestId,
+        status: 'PENDING',
+      },
+    });
+
     // Registra histórico de alteração
     await prisma.testRequestHistory.create({
       data: {
@@ -71,9 +82,37 @@ export async function POST(
     const newOsStatus = await updateOsStatusBasedOnBalance(requestId);
     const balance = await calculateOsBalance(requestId);
 
+    // Enviar e-mail ao cliente com o relatório e o link para a pesquisa de satisfação dos ensaios já realizados
+    const requestData = await prisma.testRequest.findUnique({
+      where: { id: requestId },
+      select: {
+        clientEmail: true,
+        clientName: true,
+        type: true,
+        qtdContratada: true,
+        createdAt: true,
+        clientPaymentConfirmedAt: true,
+        paymentConfirmedAt: true,
+      },
+    });
+
+    if (requestData && requestData.clientEmail) {
+      const osCode = formatOsCode(requestData, updatedItem.numeroSequencial);
+      sendReportWithSurveyEmail({
+        to: requestData.clientEmail,
+        name: requestData.clientName || 'Cliente',
+        requestId,
+        type: requestData.type,
+        itemNumber: updatedItem.numeroSequencial,
+        totalItems: Math.max(requestData.qtdContratada || 1, balance.qtdContratada),
+        osCode,
+        reportPdfUrl: updatedItem.reportPdfUrl || reportPdfUrl,
+      }).catch((err) => console.error('Erro assíncrono ao enviar e-mail com relatório e pesquisa:', err));
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Relatório do Ensaio ${updatedItem.numeroSequencial} de ${balance.qtdContratada} registrado e enviado ao cliente.`,
+      message: `Relatório do Ensaio ${updatedItem.numeroSequencial} de ${balance.qtdContratada} registrado e enviado ao cliente junto com a Pesquisa de Satisfação.`,
       item: updatedItem,
       balance,
       osStatus: newOsStatus,
