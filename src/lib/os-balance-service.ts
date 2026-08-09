@@ -195,10 +195,10 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
   ).length;
 
   const qtdEntregueCalc = items.filter(
-    (item) => item.statusEntrega === 'ENVIADO_AO_CLIENTE' || item.statusExecucao === 'CONCLUIDO' || item.statusExecucao === 'APROVADO' || Boolean(item.reportPdfUrl)
+    (item) => item.statusEntrega === 'ENVIADO_AO_CLIENTE'
   ).length;
 
-  const qtdEntregue = qtdEntregueCalc > 0 ? qtdEntregueCalc : (request.reportPdfUrl ? 1 : 0);
+  const qtdEntregue = qtdEntregueCalc;
 
   const qtdFaturadaCalc = request.partialInvoices.reduce(
     (acc, inv) => acc + (inv.qtdFaturada || 1),
@@ -260,12 +260,23 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
 
   if (!request) return 'RECEBIDO';
 
+  // 1. Se a OS está ativamente em uma etapa do fluxo procedural (Elaboração, Aprovação, Cobrança, Pagamento, Aceite), PRESERVA este status sem sobrescrever!
+  if (
+    request.status === 'ELABORANDO_RELATORIO' ||
+    request.status === 'AGUARDANDO_APROVACAO' ||
+    request.status === 'COBRANCA' ||
+    request.status === 'PAGAMENTO' ||
+    request.status === 'AGUARDANDO_ACEITE'
+  ) {
+    return request.status;
+  }
+
   const balance = await calculateOsBalance(requestId);
 
   const isSurveyCompleted = request.satisfactionSurvey?.status === 'COMPLETED' || request.satisfactionSurvey?.status === 'REVIEWED';
   const isTodosEnsaiosEntregues = balance.qtdEntregue >= balance.qtdContratada && balance.qtdExecutada >= balance.qtdContratada;
 
-  // 1. Se a OS cumpriu todos os critérios (todos ensaios entregues E pesquisa respondida), a OS é FINALIZADA
+  // 2. Se a OS cumpriu todos os critérios (todos ensaios entregues E pesquisa respondida), a OS é FINALIZADA
   if (balance.isOsFinalizada) {
     if (request.status !== 'FINALIZADO') {
       await prisma.testRequest.update({
@@ -276,7 +287,7 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
     return 'FINALIZADO';
   }
 
-  // 2. Se todos os ensaios foram entregues mas a pesquisa de satisfação está pendente
+  // 3. Se todos os ensaios foram entregues mas a pesquisa de satisfação está pendente
   if (isTodosEnsaiosEntregues && !isSurveyCompleted) {
     if (request.status !== 'PESQUISA_PENDENTE') {
       await prisma.testRequest.update({
@@ -285,17 +296,6 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
       });
     }
     return 'PESQUISA_PENDENTE';
-  }
-
-  // 3. Se a OS está ativamente em uma etapa avançada do fluxo (Elaborando Relatório, Aprovando, Cobrança, Pagamento, Aceite), PRESERVA este status!
-  if (
-    request.status === 'ELABORANDO_RELATORIO' ||
-    request.status === 'AGUARDANDO_APROVACAO' ||
-    request.status === 'COBRANCA' ||
-    request.status === 'PAGAMENTO' ||
-    request.status === 'AGUARDANDO_ACEITE'
-  ) {
-    return request.status;
   }
 
   // 4. Caso contrário, define o status de acordo com itens em execução ou agendados
