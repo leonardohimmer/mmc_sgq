@@ -154,17 +154,14 @@ export async function PATCH(
 
     // Se foi agendada uma data planejada ou solicitado agendamento
     if (dataPlanejada || statusExecucao === 'AGENDADO' || statusExecucao === 'EM_EXECUCAO') {
-      const currentReq = await prisma.testRequest.findUnique({ where: { id: requestId }, select: { status: true } });
-      if (currentReq && currentReq.status !== 'FINALIZADO') {
-        await prisma.testRequest.update({
-          where: { id: requestId },
-          data: {
-            status: 'AGUARDANDO_AGENDAMENTO',
-            ...(dataPlanejada ? { desiredDate: new Date(dataPlanejada) } : {}),
-            ...(observacoes ? { observations: observacoes } : {})
-          }
-        });
-      }
+      await prisma.testRequest.update({
+        where: { id: requestId },
+        data: {
+          status: 'AGUARDANDO_AGENDAMENTO',
+          ...(dataPlanejada ? { desiredDate: new Date(dataPlanejada) } : {}),
+          ...(observacoes ? { observations: observacoes } : {})
+        }
+      });
     }
 
     // Atualiza status global da OS Mãe com base nos saldos

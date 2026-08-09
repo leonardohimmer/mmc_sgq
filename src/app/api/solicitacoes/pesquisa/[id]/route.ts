@@ -82,24 +82,37 @@ export async function POST(
                 }
             })
 
-            // Atualizar o status da solicitação para "FINALIZADO" (modelo antigo)
-            await tx.testRequest.update({
+            // Verificar se todos os ensaios contratados já foram concluídos/entregues antes de mover a OS para FINALIZADO
+            const reqData = await tx.testRequest.findUnique({
                 where: { id },
-                data: {
-                    status: 'FINALIZADO',
-                    step: 10
-                }
+                include: { executionItems: true }
             })
 
-            // Adicionar ao histórico
-            await tx.testRequestHistory.create({
-                data: {
-                    requestId: id,
-                    changedBy: 'Cliente (Pesquisa Respondida)',
-                    oldStatus: 'PESQUISA_PENDENTE',
-                    newStatus: 'FINALIZADO',
-                }
-            })
+            const qtdContratada = Math.max(reqData?.qtdContratada || 1, reqData?.executionItems.length || 1);
+            const qtdEntregue = (reqData?.executionItems || []).filter(
+                i => i.statusEntrega === 'ENVIADO_AO_CLIENTE' || i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO'
+            ).length;
+
+            const todosEnsaiosEntregues = qtdEntregue >= qtdContratada;
+
+            if (todosEnsaiosEntregues) {
+                await tx.testRequest.update({
+                    where: { id },
+                    data: {
+                        status: 'FINALIZADO',
+                        step: 10
+                    }
+                })
+
+                await tx.testRequestHistory.create({
+                    data: {
+                        requestId: id,
+                        changedBy: 'Cliente (Pesquisa Respondida)',
+                        oldStatus: reqData?.status || 'PESQUISA_PENDENTE',
+                        newStatus: 'FINALIZADO',
+                    }
+                })
+            }
 
             return updatedSurvey
         })

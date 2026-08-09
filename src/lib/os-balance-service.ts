@@ -270,8 +270,10 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
   const isTodosEnsaiosEntregues = balance.qtdEntregue >= balance.qtdContratada && balance.qtdExecutada >= balance.qtdContratada;
 
   let newStatus: string;
-  if (balance.isOsFinalizada || request.status === 'FINALIZADO') {
+  if (balance.isOsFinalizada) {
     newStatus = 'FINALIZADO';
+  } else if (hasScheduledItem || request.status === 'AGUARDANDO_AGENDAMENTO') {
+    newStatus = 'AGUARDANDO_AGENDAMENTO';
   } else if (isTodosEnsaiosEntregues && !isSurveyCompleted) {
     newStatus = 'PESQUISA_PENDENTE';
   } else if (
@@ -279,7 +281,6 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
     request.status === 'AGUARDANDO_APROVACAO' ||
     request.status === 'COBRANCA' ||
     request.status === 'PAGAMENTO' ||
-    request.status === 'AGUARDANDO_AGENDAMENTO' ||
     request.status === 'AGUARDANDO_ACEITE'
   ) {
     // Preserva o status da etapa ativa do fluxo processual até que o laudo seja entregue ou a OS finalizada

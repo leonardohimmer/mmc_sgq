@@ -51,7 +51,10 @@ export default function AguardandoAgendamentoPage() {
             const res = await fetch('/api/solicitacoes')
             if (res.ok) {
                 const data = await res.json()
-                const execRequests = data.filter((req: TestRequest) => req.status === 'AGUARDANDO_AGENDAMENTO')
+                const execRequests = data.filter((req: TestRequest) => 
+                    req.status === 'AGUARDANDO_AGENDAMENTO' || 
+                    req.executionItems?.some((i: any) => i.statusExecucao === 'AGENDADO')
+                )
                 setRequests(execRequests)
             }
         } catch (error) {
