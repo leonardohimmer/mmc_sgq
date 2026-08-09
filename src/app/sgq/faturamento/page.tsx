@@ -388,18 +388,28 @@ export default function FaturamentoParcialPage() {
                   className={`p-4 rounded-2xl border cursor-pointer transition-all ${
                     isSelected
                       ? "border-purple-600 bg-purple-50/50 dark:bg-purple-950/20 shadow-md ring-2 ring-purple-500/20"
+                      : req.clientPaymentConfirmed
+                      ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50/20 dark:bg-emerald-950/10 hover:border-emerald-400"
                       : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700"
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex justify-between items-start mb-2 gap-2 flex-wrap">
                     <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 font-mono">
                       OS: {formatOsCode(req)}
                     </span>
-                    {hasPendenteNf && (
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
-                        {req.qtdPendenteFaturamento} a faturar
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {req.clientPaymentConfirmed && (
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1 animate-pulse">
+                          <span className="material-symbols-outlined text-[12px]">notifications_active</span>
+                          Pgto Sinalizado
+                        </span>
+                      )}
+                      {hasPendenteNf && (
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
+                          {req.qtdPendenteFaturamento} a faturar
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <h3 className="font-bold text-slate-900 dark:text-white text-sm">
@@ -408,6 +418,13 @@ export default function FaturamentoParcialPage() {
                   <p className="text-xs text-slate-500 mt-1 truncate">
                     {req.clientName} {req.workName ? `• ${req.workName}` : ""}
                   </p>
+
+                  {req.clientPaymentConfirmed && (
+                    <div className="mt-2.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 shadow-2xs">
+                      <span className="material-symbols-outlined text-[15px] text-emerald-600 dark:text-emerald-400 shrink-0">payments</span>
+                      <span className="truncate">Cliente informou pagamento! Confira e dê a baixa.</span>
+                    </div>
+                  )}
 
                   <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/60 flex justify-between text-[11px] text-slate-400 gap-1 flex-wrap">
                     <span>Contratados: <strong>{req.qtdContratada}</strong></span>
