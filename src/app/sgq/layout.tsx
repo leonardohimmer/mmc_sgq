@@ -8,6 +8,7 @@ import { useEffect, useState, useRef } from "react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { BackButton } from "@/components/BackButton"
 import { ModalPasswordChange } from "@/components/ModalPasswordChange"
+import { format } from "date-fns"
 import packageJson from "../../../package.json"
 
 export default function SGQLayout({ children }: { children: React.ReactNode }) {
