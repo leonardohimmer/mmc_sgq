@@ -1079,38 +1079,40 @@ export default function PortalClientePage() {
                                                  </Link>
                                             )}
 
-                                            {/* Banner de Confirmação de Pagamento da Nota Fiscal */}
-                                            {!ensaio.clientPaymentConfirmed && (ensaio.isOwner ?? true) && (
-                                                ensaio.status === "Aguardando Pagamento" ||
-                                                ensaio.status === "Faturamento em Processamento" ||
-                                                ensaio.status === "Finalizado" ||
-                                                Boolean(ensaio.invoicePdfUrl) ||
-                                                Boolean(ensaio.fullData?.partialInvoices && ensaio.fullData.partialInvoices.length > 0)
-                                            ) && (
-                                                <div className="mt-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10 shadow-xs">
-                                                    <div className="flex items-center justify-between gap-2">
-                                                        <div className="flex items-center gap-1.5 text-blue-800 dark:text-blue-300 text-xs font-extrabold">
-                                                            <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">payments</span>
-                                                            Aguardando Confirmação de Pagamento
+                                            {/* Banner de Confirmação de Pagamento da Nota Fiscal (Exibido SOMENTE se a Nota Fiscal foi enviada) */}
+                                            {(() => {
+                                                const hasNfEnviada = Boolean(ensaio.invoicePdfUrl) || 
+                                                    Boolean(ensaio.fullData?.partialInvoices && ensaio.fullData.partialInvoices.some((inv: any) => Boolean(inv.notaPdfUrl) || Boolean(inv.numeroNf)));
+                                                
+                                                if (!ensaio.clientPaymentConfirmed && (ensaio.isOwner ?? true) && hasNfEnviada) {
+                                                    return (
+                                                        <div className="mt-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10 shadow-xs">
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <div className="flex items-center gap-1.5 text-blue-800 dark:text-blue-300 text-xs font-extrabold">
+                                                                    <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">payments</span>
+                                                                    Aguardando Confirmação de Pagamento
+                                                                </div>
+                                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                                                                    Pendente
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug font-medium">
+                                                                O faturamento/Nota Fiscal deste ensaio foi processado. Se você já efetuou o pagamento, confirme no botão abaixo para agilizar a baixa.
+                                                            </p>
+                                                            <div className="flex mt-0.5">
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); handleConfirmPayment(ensaio); }}
+                                                                    className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[16px]">payments</span>
+                                                                    Confirmar que já paguei
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-                                                            Pendente
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug font-medium">
-                                                        O faturamento/Nota Fiscal deste ensaio foi processado. Se você já efetuou o pagamento, confirme no botão abaixo para agilizar a baixa.
-                                                    </p>
-                                                    <div className="flex mt-0.5">
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); handleConfirmPayment(ensaio); }}
-                                                            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:scale-[1.01] active:scale-[0.98]"
-                                                        >
-                                                            <span className="material-symbols-outlined text-[16px]">payments</span>
-                                                            Confirmar que já paguei
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
                                         </div>
 
                                         {/* Actions Grid */}

@@ -601,7 +601,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
                     {!isCollapsed && (
                         <div className="flex justify-center mt-2.5">
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v{packageJson.version} • Atualizado: 31/05/2026</span>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v{packageJson.version} • Atualizado: {format(new Date(), 'dd/MM/yyyy')}</span>
                         </div>
                     )}
                 </div>

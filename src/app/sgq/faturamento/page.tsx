@@ -106,11 +106,17 @@ export default function FaturamentoParcialPage() {
       const res = await fetch("/api/solicitacoes");
       if (res.ok) {
         const data: RequestWithBalance[] = await res.json();
-        setRequests(data);
-        if (data.length > 0) {
+        // Filtra apenas OSs onde ao menos um relatório foi entregue ao cliente (ou que já possuem faturamento emitido)
+        const eligibleRequests = data.filter((req) => 
+          (req.qtdEntregue > 0 || (req.partialInvoices && req.partialInvoices.length > 0) || req.qtdFaturada > 0)
+        );
+        setRequests(eligibleRequests);
+        if (eligibleRequests.length > 0) {
           // Manter ou atualizar solicitação selecionada
-          const current = selectedRequest ? data.find((r) => r.id === selectedRequest.id) : null;
-          setSelectedRequest(current || data[0]);
+          const current = selectedRequest ? eligibleRequests.find((r) => r.id === selectedRequest.id) : null;
+          setSelectedRequest(current || eligibleRequests[0]);
+        } else {
+          setSelectedRequest(null);
         }
       }
     } catch (error) {
