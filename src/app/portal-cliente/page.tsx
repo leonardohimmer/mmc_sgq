@@ -532,6 +532,7 @@ export default function PortalClientePage() {
                     ? `[SOLICITAÇÃO REVISADA PELO CLIENTE em ${new Date().toLocaleString('pt-BR')}]\n${formData.observacoes}`
                     : formData.observacoes,
                 clientName: session?.user?.name || "Cliente",
+                clientEmail: session?.user?.email || null,
                 clientPhone: formData.telefone,
                 quantidadeEnsaios: formData.tipoEnsaio.filter(t => t.tipo.trim() !== "").map(t => t.quantidade).join(" + "),
                 status: 'RECEBIDO', // Mandar de volta para o início como revisado

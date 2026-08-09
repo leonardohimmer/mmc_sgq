@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { ensureExecutionItemsCreated } from '@/lib/os-balance-service'
 
 export async function GET(request: Request) {
@@ -110,9 +112,36 @@ export async function GET(request: Request) {
     }
 }
 
+function safeParseDate(input?: any): Date {
+    if (!input) return new Date();
+    if (input instanceof Date && !isNaN(input.getTime())) return input;
+    
+    if (typeof input === 'string') {
+        const trimmed = input.trim();
+        if (!trimmed) return new Date();
+
+        const firstPart = trimmed.split(',')[0].trim();
+
+        const directDate = new Date(firstPart);
+        if (!isNaN(directDate.getTime())) return directDate;
+
+        const brMatch = firstPart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (brMatch) {
+            const day = parseInt(brMatch[1], 10);
+            const month = parseInt(brMatch[2], 10) - 1;
+            const year = parseInt(brMatch[3], 10);
+            const brDate = new Date(year, month, day);
+            if (!isNaN(brDate.getTime())) return brDate;
+        }
+    }
+
+    return new Date();
+}
+
 export async function POST(request: Request) {
     try {
-        const body = await request.json()
+        const session = await getServerSession(authOptions);
+        const body = await request.json();
         const { 
             type, 
             location, 
@@ -134,72 +163,74 @@ export async function POST(request: Request) {
             quantidadeEnsaios,
             email,
             telefone 
-        } = body
+        } = body;
 
-        if (!type || !location || !desiredDate || !quantidadeEnsaios) {
-            return NextResponse.json({ error: "Campos obrigatórios ausentes" }, { status: 400 });
-        }
+        const finalType = type || "Ensaio de Engenharia";
+        const finalLocation = location || workName || address || "Localização a definir";
+        const finalQtdEnsaios = quantidadeEnsaios || "1 ensaio";
+        const finalDesiredDateStr = desiredDate || new Date().toISOString();
+        const dateObj = safeParseDate(finalDesiredDateStr);
 
-        let parsedDate = desiredDate;
         let finalObservations = observations || "";
-        if (desiredDate && desiredDate.includes(",")) {
-            const dateParts = desiredDate.split(",").map((d: string) => d.trim());
-            parsedDate = dateParts[0];
+        if (desiredDate && typeof desiredDate === 'string' && desiredDate.includes(",")) {
             finalObservations += `\n\nDatas desejadas: ${desiredDate}`;
         }
 
         const processEmails = (val: any) => {
-            if (Array.isArray(val)) return val.filter(e => e && e.trim() !== "")
-            if (typeof val === 'string') return val.split(',').map(e => e.trim()).filter(e => e !== "")
-            return []
-        }
+            if (Array.isArray(val)) return val.filter(e => e && typeof e === 'string' && e.trim() !== "");
+            if (typeof val === 'string') return val.split(',').map(e => e.trim()).filter(e => e !== "");
+            return [];
+        };
+
+        const finalClientName = clientName || session?.user?.name || contractorName || 'Cliente';
+        const finalClientEmail = email || session?.user?.email || null;
 
         const newRequest = await prisma.testRequest.create({
             data: {
-                type,
-                location,
-                contractorName,
-                constructionCompany,
-                workName,
-                address,
+                type: finalType,
+                location: finalLocation,
+                contractorName: contractorName || null,
+                constructionCompany: constructionCompany || null,
+                workName: workName || null,
+                address: address || null,
                 rua: rua || null,
                 numero: numero || null,
                 bairro: bairro || null,
                 cidade: cidade || null,
                 estado: estado || null,
                 cep: cep || null,
-                proposalEmail,
-                reportEmail,
+                proposalEmail: proposalEmail || null,
+                reportEmail: reportEmail || null,
                 emailsProposta: processEmails(proposalEmail),
                 emailsRelatorio: processEmails(reportEmail),
-                desiredDate: new Date(parsedDate),
-                datasDesejadas: desiredDate,
+                desiredDate: dateObj,
+                datasDesejadas: typeof desiredDate === 'string' ? desiredDate : dateObj.toISOString(),
                 observations: finalObservations.trim(),
-                clientName: clientName || 'CLAUDIO SCHERER',
+                clientName: finalClientName,
                 clientPhone: telefone || null,
-                clientEmail: email || null,
-                quantidadeEnsaios: quantidadeEnsaios || null,
+                clientEmail: finalClientEmail,
+                quantidadeEnsaios: finalQtdEnsaios,
                 status: 'RECEBIDO',
-                step: 2
+                step: 1
             }
-        })
+        });
 
         // Gerar automaticamente os N itens de execução para a OS
-        await ensureExecutionItemsCreated(newRequest.id, quantidadeEnsaios);
+        await ensureExecutionItemsCreated(newRequest.id, finalQtdEnsaios);
 
         // Registrar histórico inicial
         await prisma.testRequestHistory.create({
             data: {
                 requestId: newRequest.id,
-                changedBy: clientName || 'Cliente',
+                changedBy: finalClientName,
                 oldStatus: 'CRIADO',
                 newStatus: 'RECEBIDO'
             }
-        })
+        });
 
-        return NextResponse.json({ success: true, request: newRequest })
-    } catch (error) {
-        console.error('Erro ao criar solicitação de cliente:', error)
-        return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
+        return NextResponse.json({ success: true, request: newRequest });
+    } catch (error: any) {
+        console.error('Erro ao criar solicitação de cliente:', error);
+        return NextResponse.json({ error: error.message || 'Erro interno do servidor' }, { status: 500 });
     }
 }
