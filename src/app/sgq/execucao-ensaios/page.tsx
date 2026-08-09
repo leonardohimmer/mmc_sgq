@@ -193,6 +193,7 @@ export default function ExecucaoEnsaiosPage() {
                 })
 
                 if (res.ok) {
+                    try { localStorage.removeItem("sgq_cache_execucao_ensaios") } catch (e) {}
                     setRequests(prev => prev.filter(r => r.id !== selectedRequest.id))
                     setSelectedRequest(null)
                     setIsSuccessModalOpen(true)

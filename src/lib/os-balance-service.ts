@@ -262,33 +262,53 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
 
   const balance = await calculateOsBalance(requestId);
 
-  const hasScheduledItem = request.executionItems.some(
-    (item) => item.dataPlanejada !== null || item.statusExecucao === 'EM_EXECUCAO' || item.statusExecucao === 'AGENDADO'
-  );
-
   const isSurveyCompleted = request.satisfactionSurvey?.status === 'COMPLETED' || request.satisfactionSurvey?.status === 'REVIEWED';
   const isTodosEnsaiosEntregues = balance.qtdEntregue >= balance.qtdContratada && balance.qtdExecutada >= balance.qtdContratada;
 
-  let newStatus: string;
+  // 1. Se a OS cumpriu todos os critérios (todos ensaios entregues E pesquisa respondida), a OS é FINALIZADA
   if (balance.isOsFinalizada) {
-    newStatus = 'FINALIZADO';
-  } else if (hasScheduledItem || request.status === 'AGUARDANDO_AGENDAMENTO') {
-    newStatus = 'AGUARDANDO_AGENDAMENTO';
-  } else if (isTodosEnsaiosEntregues && !isSurveyCompleted) {
-    newStatus = 'PESQUISA_PENDENTE';
-  } else if (
+    if (request.status !== 'FINALIZADO') {
+      await prisma.testRequest.update({
+        where: { id: requestId },
+        data: { status: 'FINALIZADO' },
+      });
+    }
+    return 'FINALIZADO';
+  }
+
+  // 2. Se todos os ensaios foram entregues mas a pesquisa de satisfação está pendente
+  if (isTodosEnsaiosEntregues && !isSurveyCompleted) {
+    if (request.status !== 'PESQUISA_PENDENTE') {
+      await prisma.testRequest.update({
+        where: { id: requestId },
+        data: { status: 'PESQUISA_PENDENTE' },
+      });
+    }
+    return 'PESQUISA_PENDENTE';
+  }
+
+  // 3. Se a OS está ativamente em uma etapa avançada do fluxo (Elaborando Relatório, Aprovando, Cobrança, Pagamento, Aceite), PRESERVA este status!
+  if (
     request.status === 'ELABORANDO_RELATORIO' ||
     request.status === 'AGUARDANDO_APROVACAO' ||
     request.status === 'COBRANCA' ||
     request.status === 'PAGAMENTO' ||
     request.status === 'AGUARDANDO_ACEITE'
   ) {
-    // Preserva o status da etapa ativa do fluxo processual até que o laudo seja entregue ou a OS finalizada
-    newStatus = request.status;
+    return request.status;
+  }
+
+  // 4. Caso contrário, define o status de acordo com itens em execução ou agendados
+  const hasItemsInExecution = request.executionItems.some((item) => item.statusExecucao === 'EM_EXECUCAO');
+  const hasScheduledItem = request.executionItems.some((item) => item.statusExecucao === 'AGENDADO');
+
+  let newStatus: string;
+  if (hasItemsInExecution || request.status === 'EM_EXECUCAO') {
+    newStatus = 'EM_EXECUCAO';
+  } else if (hasScheduledItem || request.status === 'AGUARDANDO_AGENDAMENTO') {
+    newStatus = 'AGUARDANDO_AGENDAMENTO';
   } else if (balance.qtdExecutada > 0 || balance.qtdEntregue > 0) {
     newStatus = 'EM_EXECUCAO';
-  } else if (hasScheduledItem) {
-    newStatus = 'AGUARDANDO_AGENDAMENTO';
   } else {
     newStatus = 'RECEBIDO';
   }
