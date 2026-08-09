@@ -153,7 +153,7 @@ function AprovacaoContent() {
 
     const getItemsToApprove = (req: TestRequest): { numeroSequencial: number; id?: string }[] => {
         const items = req.executionItems || []
-        const pendentes = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        const pendentes = items.filter(i => (i.statusExecucao === 'EM_EXECUCAO' || i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
         if (pendentes.length > 0) {
             return pendentes.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
         }

@@ -1,13 +1,56 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { ensureExecutionItemsCreated } from "@/lib/os-balance-service";
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { requestId, user } = body;
+        const { requestId, user, qtdAExecutar } = body;
 
         if (!requestId) {
             return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
+        }
+
+        const requestData = await prisma.testRequest.findUnique({
+            where: { id: requestId },
+            include: { executionItems: { orderBy: { numeroSequencial: 'asc' } } }
+        });
+
+        if (!requestData) {
+            return NextResponse.json({ error: "Solicitação não encontrada" }, { status: 404 });
+        }
+
+        // Garante que os itens de execução existam
+        const items = await ensureExecutionItemsCreated(requestId, requestData.quantidadeEnsaios);
+
+        // Filtra os itens pendentes que ainda não foram concluídos/entregues
+        const pendingItems = items.filter(i => 
+            i.statusExecucao !== 'CONCLUIDO' && 
+            i.statusExecucao !== 'APROVADO' && 
+            i.statusEntrega !== 'ENVIADO_AO_CLIENTE'
+        );
+
+        // Quantidade a colocar em execução nesta visita
+        const targetQtd = qtdAExecutar ? Math.min(Math.max(1, parseInt(String(qtdAExecutar))), pendingItems.length) : pendingItems.length;
+
+        // Os primeiros targetQtd itens pendentes ficam com statusExecucao = 'EM_EXECUCAO'
+        const itemsToSetInExecution = pendingItems.slice(0, targetQtd);
+        const itemIdsToSet = itemsToSetInExecution.map(i => i.id);
+
+        if (itemIdsToSet.length > 0) {
+            await prisma.testExecutionItem.updateMany({
+                where: { id: { in: itemIdsToSet } },
+                data: { statusExecucao: 'EM_EXECUCAO' }
+            });
+        }
+
+        // Os demais itens pendentes (se houver) mantêm statusExecucao = 'PENDENTE'
+        const itemIdsToKeepPending = pendingItems.filter(i => !itemIdsToSet.includes(i.id)).map(i => i.id);
+        if (itemIdsToKeepPending.length > 0) {
+            await prisma.testExecutionItem.updateMany({
+                where: { id: { in: itemIdsToKeepPending } },
+                data: { statusExecucao: 'PENDENTE' }
+            });
         }
 
         const updatedRequest = await prisma.testRequest.update({
@@ -16,17 +59,6 @@ export async function POST(request: Request) {
                 status: "EM_EXECUCAO",
                 step: 4,
             }
-        });
-
-        // Atualizar itens de execução com status AGENDADO para EM_EXECUCAO
-        await prisma.testExecutionItem.updateMany({
-            where: {
-                requestId,
-                statusExecucao: 'AGENDADO',
-            },
-            data: {
-                statusExecucao: 'EM_EXECUCAO',
-            },
         });
 
         await prisma.testRequestHistory.create({
@@ -44,3 +76,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
     }
 }
+

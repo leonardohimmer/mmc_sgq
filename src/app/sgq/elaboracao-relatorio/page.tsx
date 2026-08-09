@@ -101,7 +101,7 @@ export default function ElaboracaoRelatorioPage() {
     const getItemsToReport = (req: TestRequest): { numeroSequencial: number; id?: string; reportNumber?: string | null; reportPdfUrl?: string | null }[] => {
         const items = req.executionItems || []
         // Seleciona os itens recém concluídos/em elaboração que ainda não foram aprovados/enviados
-        const ativos = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        const ativos = items.filter(i => (i.statusExecucao === 'EM_EXECUCAO' || i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
         if (ativos.length > 0) {
             return ativos.map(i => ({
                 numeroSequencial: i.numeroSequencial,
