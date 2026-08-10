@@ -184,6 +184,7 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
     const [activeTab, setActiveTab] = useState<"survey" | "timeline" | "organograma">("survey")
     const [timeline, setTimeline] = useState<any[]>([])
     const [loadingTimeline, setLoadingTimeline] = useState(false)
+    const [fullRequest, setFullRequest] = useState<any>(survey.request || null)
 
     const statusConfig: Record<string, { label: string, color: string, icon: string }> = {
         'RECEBIDO': { label: 'Solicitação Criada / Recebida', color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20 border-blue-100', icon: 'description' },
@@ -197,6 +198,20 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
         'PESQUISA_PENDENTE': { label: 'Pesquisa de Satisfação Enviada', color: 'text-violet-500 bg-violet-50 dark:bg-violet-900/20 border-violet-100', icon: 'send' },
         'FINALIZADO': { label: 'Processo Finalizado', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100', icon: 'verified' }
     };
+
+    useEffect(() => {
+        if (survey.requestId) {
+            fetch("/api/solicitacoes")
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        const req = data.find((r: any) => r.id === survey.requestId);
+                        if (req) setFullRequest(req);
+                    }
+                })
+                .catch(err => console.error("Erro ao buscar solicitacoes completas:", err));
+        }
+    }, [survey.requestId]);
 
     useEffect(() => {
         if (activeTab === "timeline" && timeline.length === 0) {
@@ -268,8 +283,8 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
     ]
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-slate-200 dark:border-slate-800">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/20">
                     <div className="flex flex-col">
                         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -490,7 +505,7 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
                         </div>
                     ) : (
                         <div className="animate-in fade-in duration-300">
-                            <OrganogramaContratual request={survey.request} />
+                            <OrganogramaContratual request={fullRequest || survey.request} />
                         </div>
                     )}
 

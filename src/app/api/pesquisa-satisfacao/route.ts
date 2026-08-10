@@ -12,13 +12,21 @@ export async function GET(req: Request) {
             where: whereClause,
             include: {
                 request: {
-                    select: {
-                        reportNumber: true,
-                        clientName: true,
-                        clientPhone: true,
-                        clientEmail: true,
-                        workName: true,
-                        performedAt: true,
+                    include: {
+                        executionItems: {
+                            include: {
+                                partialInvoice: true
+                            },
+                            orderBy: {
+                                numeroSequencial: 'asc'
+                            }
+                        },
+                        partialInvoices: {
+                            orderBy: {
+                                dataEmissao: 'asc'
+                            }
+                        },
+                        satisfactionSurvey: true,
                     }
                 }
             },

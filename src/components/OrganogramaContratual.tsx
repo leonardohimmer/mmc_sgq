@@ -217,10 +217,11 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
       </div>
 
       {/* GRID HORIZONTAL: ESQUERDA (Proposta) | MEIO (Ensaios) | DIREITA (Notas Fiscais) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch pt-6 relative z-10">
+      <div className="overflow-x-auto pb-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch pt-6 relative z-10 min-w-[720px]">
 
         {/* COLUNA 1: PROPOSTA COMERCIAL (ESQUERDA) */}
-        <div className="lg:col-span-4 flex flex-col justify-between relative group">
+        <div className="flex flex-col justify-between relative group">
           <div className="bg-gradient-to-br from-blue-950/80 via-slate-900 to-indigo-950 p-5 rounded-2xl border-2 border-blue-500/50 shadow-xl relative h-full flex flex-col justify-between hover:border-blue-400 transition-all duration-300">
             {/* Tag do Topo */}
             <div className="flex items-center justify-between mb-3">
@@ -290,7 +291,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
         </div>
 
         {/* COLUNA 2: ENSAIOS SOLICITADOS (MEIO) */}
-        <div className="lg:col-span-4 flex flex-col gap-3 justify-center">
+        <div className="flex flex-col gap-3 justify-center">
           <div className="text-center mb-1">
             <span className="px-3 py-1 bg-indigo-950 border border-indigo-500/40 text-indigo-300 text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
               2 • Ensaios Solicitados ({totalEnsaios})
@@ -391,7 +392,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
         </div>
 
         {/* COLUNA 3: NOTAS FISCAIS PARCIAIS / EMITIDAS (DIREITA) */}
-        <div className="lg:col-span-4 flex flex-col gap-3 justify-center">
+        <div className="flex flex-col gap-3 justify-center">
           <div className="text-center mb-1">
             <span className="px-3 py-1 bg-purple-950 border border-purple-500/40 text-purple-300 text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
               3 • Notas Fiscais Parciais ({processedInvoices.length})
@@ -495,6 +496,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
           </div>
         </div>
 
+        </div>
       </div>
     </div>
   );
