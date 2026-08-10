@@ -49,8 +49,11 @@ export async function GET(request: Request) {
                 items = await ensureExecutionItemsCreated(req.id, req.quantidadeEnsaios);
             }
 
+            const isElaborandoOuPosterior = ['ELABORANDO_RELATORIO', 'AGUARDANDO_APROVACAO', 'COBRANCA', 'PAGAMENTO', 'PESQUISA_PENDENTE', 'FINALIZADO'].includes(req.status);
             const qtdContratada = Math.max(req.qtdContratada || 1, items.length);
-            const qtdExecutada = items.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO').length;
+            const qtdExecutadaCalc = items.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO' || Boolean(i.reportPdfUrl)).length;
+            const batchCount = req.quantidadeEnsaios ? (parseInt(String(req.quantidadeEnsaios)) || 1) : 1;
+            const qtdExecutada = Math.max(qtdExecutadaCalc, isElaborandoOuPosterior ? Math.min(qtdContratada, Math.max(1, batchCount)) : 0);
             const qtdEntregue = items.filter(i => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
             const qtdFaturada = req.partialInvoices.reduce((acc, inv) => acc + inv.qtdFaturada, 0);
 

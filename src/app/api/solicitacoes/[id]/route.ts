@@ -86,6 +86,19 @@ export async function PATCH(
                 }, { status: 400 });
             }
             updateData.status = status
+
+            if (status === 'ELABORANDO_RELATORIO') {
+                await prisma.testExecutionItem.updateMany({
+                    where: {
+                        requestId: id,
+                        statusExecucao: 'PENDENTE'
+                    },
+                    data: {
+                        statusExecucao: 'CONCLUIDO',
+                        dataExecucao: new Date()
+                    }
+                })
+            }
         }
         if (assignedToId !== undefined) updateData.assignedToId = assignedToId === "" ? null : assignedToId
         if (appliedStandard !== undefined) updateData.appliedStandard = appliedStandard

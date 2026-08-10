@@ -188,11 +188,15 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
     }
   }
 
+  const isElaborandoOuPosterior = ['ELABORANDO_RELATORIO', 'AGUARDANDO_APROVACAO', 'COBRANCA', 'PAGAMENTO', 'PESQUISA_PENDENTE', 'FINALIZADO'].includes(request.status);
   const qtdContratada = Math.max(request.qtdContratada || 1, items.length);
 
-  const qtdExecutada = items.filter(
+  const qtdExecutadaCalc = items.filter(
     (item) => item.statusExecucao === 'CONCLUIDO' || item.statusExecucao === 'APROVADO' || Boolean(item.reportPdfUrl)
   ).length;
+
+  const batchCount = request.quantidadeEnsaios ? (parseInt(String(request.quantidadeEnsaios)) || 1) : 1;
+  const qtdExecutada = Math.max(qtdExecutadaCalc, isElaborandoOuPosterior ? Math.min(qtdContratada, Math.max(1, batchCount)) : 0);
 
   const qtdEntregueCalc = items.filter(
     (item) => item.statusEntrega === 'ENVIADO_AO_CLIENTE'

@@ -36,8 +36,11 @@ export async function GET() {
             const hasProposalPdf = Boolean(req.proposalPdfUrl && req.proposalPdfUrl.trim() !== "");
             const hasInvoicePdf = Boolean(req.invoicePdfUrl && req.invoicePdfUrl.trim() !== "");
 
+            const isElaborandoOuPosterior = ['ELABORANDO_RELATORIO', 'AGUARDANDO_APROVACAO', 'COBRANCA', 'PAGAMENTO', 'PESQUISA_PENDENTE', 'FINALIZADO'].includes(req.status);
             const qtdContratada = Math.max(req.qtdContratada || 1, req.executionItems.length || 1);
-            const qtdExecutada = req.executionItems.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO').length;
+            const qtdExecutadaCalc = req.executionItems.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO' || Boolean(i.reportPdfUrl)).length;
+            const batchCount = req.quantidadeEnsaios ? (parseInt(String(req.quantidadeEnsaios)) || 1) : 1;
+            const qtdExecutada = Math.max(qtdExecutadaCalc, isElaborandoOuPosterior ? Math.min(qtdContratada, Math.max(1, batchCount)) : 0);
             const qtdEntregue = req.executionItems.filter(i => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
             const qtdFaturada = req.partialInvoices.reduce((acc, inv) => acc + inv.qtdFaturada, 0);
             const qtdPagosCalc = req.executionItems.filter(i => i.statusPagamento === 'PAGO').length;
