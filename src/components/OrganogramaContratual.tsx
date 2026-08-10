@@ -222,62 +222,62 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
 
         {/* COLUNA 1: PROPOSTA COMERCIAL (ESQUERDA) */}
         <div className="flex flex-col justify-between relative group">
-          <div className="bg-gradient-to-br from-blue-950/80 via-slate-900 to-indigo-950 p-5 rounded-2xl border-2 border-blue-500/50 shadow-xl relative h-full flex flex-col justify-between hover:border-blue-400 transition-all duration-300">
+          <div className="bg-gradient-to-br from-blue-950/80 via-slate-900 to-indigo-950 p-3.5 rounded-xl border-2 border-blue-500/50 shadow-xl relative h-full flex flex-col justify-between hover:border-blue-400 transition-all duration-300">
             {/* Tag do Topo */}
-            <div className="flex items-center justify-between mb-3">
-              <span className="px-3 py-1 bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest rounded-full shadow-md">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2.5 py-0.5 bg-blue-600 text-white font-black text-[9px] uppercase tracking-widest rounded-full shadow-md">
                 1 • Proposta Comercial
               </span>
-              <span className="text-[11px] font-mono font-extrabold text-blue-400">
+              <span className="text-[10px] font-mono font-extrabold text-blue-400">
                 OS: #{osFormattedCode}
               </span>
             </div>
 
             {/* Conteúdo Principal da Proposta */}
-            <div className="space-y-3 my-2">
-              <div className="flex items-start gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-400/30 shrink-0 shadow-inner">
-                  <span className="material-symbols-outlined text-[24px]">assignment</span>
+            <div className="space-y-2 my-1">
+              <div className="flex items-start gap-2">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-400/30 shrink-0 shadow-inner">
+                  <span className="material-symbols-outlined text-[18px]">assignment</span>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white leading-snug">
+                  <h4 className="text-xs font-bold text-white leading-snug">
                     {request.type || request.titulo || "Contrato de Ensaios Tecnológicos"}
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-slate-400 mt-0.5">
                     Solicitado por: <strong className="text-slate-200">{request.type || "Cliente MMC"}</strong>
                   </p>
                 </div>
               </div>
 
               {/* Quadro de Métricas Contratuais */}
-              <div className="grid grid-cols-3 gap-2 text-center pt-2">
-                <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-400 uppercase font-bold block">Contratados</span>
-                  <span className="text-sm font-black text-blue-300">{totalEnsaios} Ensaio(s)</span>
+              <div className="grid grid-cols-3 gap-1.5 text-center pt-1">
+                <div className="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800">
+                  <span className="text-[8px] text-slate-400 uppercase font-bold block">Contratados</span>
+                  <span className="text-xs font-black text-blue-300">{totalEnsaios} Ensaio(s)</span>
                 </div>
-                <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-400 uppercase font-bold block">Entregues</span>
-                  <span className="text-sm font-black text-emerald-400">{laudosEntregues}/{totalEnsaios}</span>
+                <div className="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800">
+                  <span className="text-[8px] text-slate-400 uppercase font-bold block">Entregues</span>
+                  <span className="text-xs font-black text-emerald-400">{laudosEntregues}/{totalEnsaios}</span>
                 </div>
-                <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-400 uppercase font-bold block">Quitação</span>
-                  <span className="text-sm font-black text-purple-300">{ensaiosPagos}/{totalEnsaios}</span>
+                <div className="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800">
+                  <span className="text-[8px] text-slate-400 uppercase font-bold block">Quitação</span>
+                  <span className="text-xs font-black text-purple-300">{ensaiosPagos}/{totalEnsaios}</span>
                 </div>
               </div>
             </div>
 
             {/* Botão Baixar Proposta PDF */}
-            <div className="pt-3 border-t border-slate-800/80 mt-auto">
+            <div className="pt-2 border-t border-slate-800/80 mt-auto">
               {request.proposalPdfUrl ? (
                 <button
                   onClick={() => openPdf(request.proposalPdfUrl)}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition-all"
+                  className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] rounded-lg shadow-md transition-all"
                 >
-                  <span className="material-symbols-outlined text-[16px]">download</span>
-                  <span>Visualizar Proposta Comercial PDF</span>
+                  <span className="material-symbols-outlined text-[14px]">download</span>
+                  <span>Visualizar Proposta PDF</span>
                 </button>
               ) : (
-                <div className="w-full text-center py-2 bg-slate-900/60 rounded-xl border border-slate-800 text-[11px] text-slate-400 italic">
+                <div className="w-full text-center py-1.5 bg-slate-900/60 rounded-lg border border-slate-800 text-[10px] text-slate-400 italic">
                   Proposta Registrada no Sistema
                 </div>
               )}
@@ -291,14 +291,14 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
         </div>
 
         {/* COLUNA 2: ENSAIOS SOLICITADOS (MEIO) */}
-        <div className="flex flex-col gap-3 justify-center">
-          <div className="text-center mb-1">
-            <span className="px-3 py-1 bg-indigo-950 border border-indigo-500/40 text-indigo-300 text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+        <div className="flex flex-col gap-2 justify-start">
+          <div className="text-center mb-0.5">
+            <span className="px-2.5 py-0.5 bg-indigo-950 border border-indigo-500/40 text-indigo-300 text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm">
               2 • Ensaios Solicitados ({totalEnsaios})
             </span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {ensaiosList.map((ensaio) => {
               const isExecConcluida = ensaio.statusExecucao === "CONCLUIDO" || ensaio.statusExecucao === "APROVADO";
               const isLaudoEntregue = ensaio.statusEntrega === "ENVIADO_AO_CLIENTE" || Boolean(ensaio.reportPdfUrl);
@@ -314,9 +314,9 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                   key={ensaio.numeroSequencial}
                   onMouseEnter={() => setHoveredSeq(ensaio.numeroSequencial)}
                   onMouseLeave={() => setHoveredSeq(null)}
-                  className={`p-3.5 rounded-2xl border transition-all duration-300 relative bg-slate-900/90 ${
+                  className={`p-2.5 rounded-xl border transition-all duration-300 relative bg-slate-900/90 ${
                     isHighlighted
-                      ? 'border-purple-400 bg-purple-950/30 shadow-lg shadow-purple-950/40 scale-[1.02]'
+                      ? 'border-purple-400 bg-purple-950/30 shadow-lg shadow-purple-950/40 scale-[1.01]'
                       : isLaudoEntregue && isPago
                       ? 'border-emerald-500/50 hover:border-emerald-400'
                       : isLaudoEntregue
@@ -325,21 +325,21 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                   }`}
                 >
                   {/* Topo do Ensaio Card */}
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-[11px] ${
+                  <div className="flex items-center justify-between gap-1.5 mb-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[10px] ${
                         isLaudoEntregue
                           ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
                           : 'bg-slate-800 text-slate-400 border border-slate-700'
                       }`}>
                         #{ensaio.numeroSequencial}
                       </span>
-                      <span className="font-bold text-white text-xs">
+                      <span className="font-bold text-white text-[11px]">
                         Ensaio {ensaio.numeroSequencial} de {totalEnsaios}
                       </span>
                     </div>
 
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider border ${
+                    <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-wider border ${
                       isLaudoEntregue 
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                         : isExecConcluida
@@ -351,10 +351,10 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                   </div>
 
                   {/* Laudo Técnico + Botão Download */}
-                  <div className="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+                  <div className="bg-slate-950/70 p-1.5 px-2 rounded-lg border border-slate-800/80 flex items-center justify-between gap-1.5 text-[11px]">
                     <div className="truncate">
-                      <span className="text-[10px] text-slate-400 block">Laudo Técnico:</span>
-                      <span className="font-mono font-bold text-slate-200 text-[11px] truncate block">
+                      <span className="text-[9px] text-slate-400 block leading-none">Laudo Técnico:</span>
+                      <span className="font-mono font-bold text-slate-200 text-[10px] truncate block">
                         {ensaio.reportNumber || (ensaio.reportPdfUrl ? `REL-${ensaio.numeroSequencial}` : 'Pendente')}
                       </span>
                     </div>
@@ -362,20 +362,20 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                     {ensaio.reportPdfUrl ? (
                       <button
                         onClick={() => openPdf(ensaio.reportPdfUrl)}
-                        className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0"
+                        className="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-md transition-all flex items-center gap-1 shadow-sm shrink-0"
                       >
-                        <span className="material-symbols-outlined text-[14px]">download</span>
+                        <span className="material-symbols-outlined text-[13px]">download</span>
                         <span>Laudo #{ensaio.numeroSequencial}</span>
                       </button>
                     ) : (
-                      <span className="text-[10px] text-slate-500 italic">Em elaboração</span>
+                      <span className="text-[9px] text-slate-500 italic">Em elaboração</span>
                     )}
                   </div>
 
                   {/* Status de Faturamento do Ensaio */}
-                  <div className="mt-2.5 flex items-center justify-between text-[11px]">
+                  <div className="mt-1.5 flex items-center justify-between text-[10px]">
                     <span className="text-slate-400 font-medium">Faturamento:</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
                       isPago 
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' 
                         : isFaturado 
@@ -392,14 +392,14 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
         </div>
 
         {/* COLUNA 3: NOTAS FISCAIS PARCIAIS / EMITIDAS (DIREITA) */}
-        <div className="flex flex-col gap-3 justify-center">
-          <div className="text-center mb-1">
-            <span className="px-3 py-1 bg-purple-950 border border-purple-500/40 text-purple-300 text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+        <div className="flex flex-col gap-2 justify-start">
+          <div className="text-center mb-0.5">
+            <span className="px-2.5 py-0.5 bg-purple-950 border border-purple-500/40 text-purple-300 text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm">
               3 • Notas Fiscais Parciais ({processedInvoices.length})
             </span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {processedInvoices.length > 0 ? (
               processedInvoices.map((nf) => {
                 const isMultiEnsaio = nf.coveredSequenciais.length > 1;
@@ -410,24 +410,24 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                     key={nf.id}
                     onMouseEnter={() => setHoveredNfId(nf.id)}
                     onMouseLeave={() => setHoveredNfId(null)}
-                    className={`p-4 rounded-2xl border transition-all duration-300 relative bg-purple-950/30 shadow-md ${
+                    className={`p-2.5 rounded-xl border transition-all duration-300 relative bg-purple-950/30 shadow-md ${
                       isHighlighted
-                        ? 'border-purple-400 bg-purple-950/60 shadow-lg shadow-purple-950/60 scale-[1.02]'
+                        ? 'border-purple-400 bg-purple-950/60 shadow-lg shadow-purple-950/60 scale-[1.01]'
                         : 'border-purple-500/40 hover:border-purple-400'
                     }`}
                   >
                     {/* Header da NF */}
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="p-1 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                    <div className="flex items-center justify-between gap-1.5 mb-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="p-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
+                          <span className="material-symbols-outlined text-[15px]">receipt_long</span>
                         </span>
-                        <span className="font-extrabold text-white text-xs">
+                        <span className="font-extrabold text-white text-[11px]">
                           Nota Fiscal nº {nf.numeroNf}
                         </span>
                       </div>
 
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase border ${
                         nf.statusPagamento === 'PAGO'
                           ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                           : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
@@ -437,23 +437,23 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                     </div>
 
                     {/* DESTAQUE VISUAL DE MULTI-ENSAIO (Conexão com os ensaios referentes) */}
-                    <div className="my-2 bg-slate-950/80 p-2.5 rounded-xl border border-purple-500/30 space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-400 text-[11px]">Abrangência de Ensaios:</span>
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold flex items-center gap-1 ${
+                    <div className="my-1 bg-slate-950/80 p-1.5 rounded-lg border border-purple-500/30 space-y-1">
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-slate-400">Abrangência:</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold flex items-center gap-1 ${
                           isMultiEnsaio 
                             ? 'bg-purple-600 text-white shadow-sm' 
                             : 'bg-slate-800 text-purple-300 border border-purple-500/30'
                         }`}>
-                          <span className="material-symbols-outlined text-[13px]">link</span>
+                          <span className="material-symbols-outlined text-[11px]">link</span>
                           {isMultiEnsaio 
-                            ? `Cobre ${nf.coveredSequenciais.length} Ensaios (Ensaios #${nf.coveredSequenciais.join(" e #")})` 
+                            ? `Cobre ${nf.coveredSequenciais.length} Ensaios (#${nf.coveredSequenciais.join(", #")})` 
                             : `Cobre Ensaio #${nf.coveredSequenciais[0]}`}
                         </span>
                       </div>
 
                       {nf.valorNota && (
-                        <div className="flex justify-between text-xs pt-1 border-t border-slate-800/80">
+                        <div className="flex justify-between text-[10px] pt-0.5 border-t border-slate-800/80">
                           <span className="text-slate-400">Valor Faturado:</span>
                           <span className="font-bold text-purple-200">
                             R$ {nf.valorNota.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -466,13 +466,13 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                     {nf.notaPdfUrl ? (
                       <button
                         onClick={() => openPdf(nf.notaPdfUrl)}
-                        className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                        className="w-full flex items-center justify-center gap-1 py-1 bg-purple-600 hover:bg-purple-500 text-white font-bold text-[10px] rounded-md shadow-sm transition-all"
                       >
-                        <span className="material-symbols-outlined text-[15px]">download</span>
+                        <span className="material-symbols-outlined text-[13px]">download</span>
                         <span>Baixar NF nº {nf.numeroNf} (PDF)</span>
                       </button>
                     ) : (
-                      <div className="w-full text-center py-1.5 bg-slate-950/60 rounded-xl border border-slate-800 text-[10px] text-slate-400 italic">
+                      <div className="w-full text-center py-1 bg-slate-950/60 rounded-md border border-slate-800 text-[9px] text-slate-400 italic">
                         Aguardando postagem do PDF da NF
                       </div>
                     )}

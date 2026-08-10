@@ -421,12 +421,7 @@ export default function FaturamentoParcialPage() {
                     {req.clientName} {req.workName ? `• ${req.workName}` : ""}
                   </p>
 
-                  {req.clientPaymentConfirmed && (
-                    <div className="mt-2.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 shadow-2xs">
-                      <span className="material-symbols-outlined text-[15px] text-emerald-600 dark:text-emerald-400 shrink-0">payments</span>
-                      <span className="truncate">Cliente informou pagamento! Confira e dê a baixa.</span>
-                    </div>
-                  )}
+
 
                   <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/60 flex justify-between text-[11px] text-slate-400 gap-1 flex-wrap">
                     <span>Contratados: <strong>{req.qtdContratada}</strong></span>
@@ -475,23 +470,7 @@ export default function FaturamentoParcialPage() {
                 </div>
               </div>
 
-              {/* Notificação se o Cliente Informou Pagamento no Portal */}
-              {selectedRequest.clientPaymentConfirmed && (
-                <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-4 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">notifications_active</span>
-                    <div>
-                      <h4 className="font-extrabold text-blue-900 dark:text-blue-200 text-sm flex items-center gap-2">
-                        Cliente Informou Pagamento no Portal
-                        <span className="px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 text-[10px] uppercase tracking-wider font-extrabold">Aviso</span>
-                      </h4>
-                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
-                        O cliente sinalizou no Portal que realizou o pagamento desta OS. Verifique e confirme o pagamento nos botões dos ensaios faturados abaixo.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+
 
               {/* Banner de Processo Concluído no Histórico (Apenas se o status for FINALIZADO) */}
               {selectedRequest.status === "FINALIZADO" ? (
