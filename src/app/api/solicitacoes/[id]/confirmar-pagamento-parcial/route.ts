@@ -61,6 +61,23 @@ export async function POST(
           dataPagamento: now,
         },
       });
+
+      const itemsUpdated = await prisma.testExecutionItem.findMany({
+        where: { id: { in: itemIds } },
+        select: { partialInvoiceId: true }
+      });
+      const invoiceIds = Array.from(new Set(itemsUpdated.map(i => i.partialInvoiceId).filter(Boolean)));
+      for (const invId of invoiceIds) {
+        if (invId) {
+          await prisma.partialInvoice.update({
+            where: { id: invId },
+            data: {
+              statusPagamento: "PAGO",
+              dataPagamento: now,
+            }
+          });
+        }
+      }
     }
 
     // Ação: Finalizar Processo e Mover para Histórico

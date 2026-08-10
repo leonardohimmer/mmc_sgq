@@ -1254,6 +1254,16 @@ export default function PortalClientePage() {
                                                                                         </span>
                                                                                         <span className="truncate">Nota Fiscal nº {inv.numeroNf || inv.nfeNumber || (idx + 1)}</span>
                                                                                         {inv.qtdFaturada && <span className="text-[10px] text-slate-400 hidden sm:inline">({inv.qtdFaturada} ensaio{inv.qtdFaturada > 1 ? 's' : ''})</span>}
+                                                                                        {(inv.statusPagamento === 'PAGO' || Boolean(inv.dataPagamento) || Boolean(ensaio.fullData?.paymentConfirmedAt)) ? (
+                                                                                             <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0 ml-1">
+                                                                                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                                                                 Paga
+                                                                                             </span>
+                                                                                         ) : (
+                                                                                             <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 ml-1">
+                                                                                                 Aguardando Pgt
+                                                                                             </span>
+                                                                                         )}
                                                                                     </span>
                                                                                     <button
                                                                                         onClick={() => openPdfLink(pdfUrl, `NF-${inv.numeroNf || (idx + 1)}.pdf`, 'view')}
