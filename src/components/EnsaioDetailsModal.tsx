@@ -283,7 +283,7 @@ export default function EnsaioDetailsModal({
                                 </div>
                                 <div className="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Ensaios Pagos</span>
-                                    <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">{data.qtdPagos ?? (data.clientPaymentConfirmed ? (data.qtdContratada || data.executionItems.length) : 0)}</span>
+                                    <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">{data.qtdPagos ?? 0}</span>
                                 </div>
                                 <div className="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase block">NFs Parciais</span>

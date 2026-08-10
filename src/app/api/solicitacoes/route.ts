@@ -41,7 +41,7 @@ export async function GET() {
             const qtdEntregue = req.executionItems.filter(i => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
             const qtdFaturada = req.partialInvoices.reduce((acc, inv) => acc + inv.qtdFaturada, 0);
             const qtdPagosCalc = req.executionItems.filter(i => i.statusPagamento === 'PAGO').length;
-            const legacyPaid = (req.clientPaymentConfirmed || Boolean(req.paymentConfirmedAt)) ? (qtdFaturada > 0 ? qtdFaturada : qtdContratada) : 0;
+            const legacyPaid = Boolean(req.paymentConfirmedAt) ? (qtdFaturada > 0 ? qtdFaturada : qtdContratada) : 0;
             const qtdPagos = Math.min(qtdContratada, Math.max(qtdPagosCalc, legacyPaid));
 
             return {

@@ -86,7 +86,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
       statusExecucao: item?.statusExecucao || "PENDENTE",
       statusEntrega: item?.statusEntrega || "PENDENTE",
       statusFaturamento: item?.statusFaturamento || "PENDENTE",
-      statusPagamento: item?.statusPagamento || (request.clientPaymentConfirmed ? "PAGO" : "PENDENTE"),
+      statusPagamento: item?.statusPagamento || (request.paymentConfirmedAt ? "PAGO" : "PENDENTE"),
       reportNumber: item?.reportNumber || (seq === 1 && request.reportNumber ? request.reportNumber : null),
       reportPdfUrl: item?.reportPdfUrl || (seq === 1 && request.reportPdfUrl ? request.reportPdfUrl : null),
       partialInvoiceId: item?.partialInvoiceId || item?.partialInvoice?.id || null,
@@ -97,7 +97,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
   const totalEnsaios = ensaiosList.length;
   const laudosEntregues = ensaiosList.filter((e) => e.statusEntrega === "ENVIADO_AO_CLIENTE" || Boolean(e.reportPdfUrl)).length;
   const ensaiosFaturados = ensaiosList.filter((e) => e.statusFaturamento === "FATURADO" || Boolean(e.partialInvoiceId)).length;
-  const ensaiosPagos = ensaiosList.filter((e) => e.statusPagamento === "PAGO" || request.clientPaymentConfirmed).length;
+  const ensaiosPagos = ensaiosList.filter((e) => e.statusPagamento === "PAGO" || Boolean(request.paymentConfirmedAt)).length;
 
   const pendentesFaturamento = Math.max(0, laudosEntregues - ensaiosFaturados);
   const pendentesPagamento = Math.max(0, totalEnsaios - ensaiosPagos);
@@ -140,7 +140,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
         valorNota: nf.valorNota,
         dataEmissao: nf.dataEmissao,
         notaPdfUrl: nf.notaPdfUrl,
-        statusPagamento: nf.statusPagamento || (request.clientPaymentConfirmed ? 'PAGO' : 'PENDENTE'),
+        statusPagamento: nf.statusPagamento || (request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE'),
         coveredSequenciais: coveredSequenciais.length > 0 ? coveredSequenciais : [1],
       };
     });
@@ -152,7 +152,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
         numeroNf: 'Global / Única',
         qtdFaturada: coveredSeqs.length || totalEnsaios,
         notaPdfUrl: request.invoicePdfUrl,
-        statusPagamento: request.clientPaymentConfirmed ? 'PAGO' : 'PENDENTE',
+        statusPagamento: request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE',
         coveredSequenciais: coveredSeqs.length > 0 ? coveredSeqs : ensaiosList.map((e) => e.numeroSequencial),
       },
     ];
@@ -303,7 +303,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
               const isExecConcluida = ensaio.statusExecucao === "CONCLUIDO" || ensaio.statusExecucao === "APROVADO";
               const isLaudoEntregue = ensaio.statusEntrega === "ENVIADO_AO_CLIENTE" || Boolean(ensaio.reportPdfUrl);
               const isFaturado = ensaio.statusFaturamento === "FATURADO" || Boolean(ensaio.partialInvoiceId);
-              const isPago = ensaio.statusPagamento === "PAGO" || request.clientPaymentConfirmed;
+              const isPago = ensaio.statusPagamento === "PAGO" || Boolean(request.paymentConfirmedAt);
 
               // Verificar se este ensaio está destacado no hover
               const nfQueCobreEste = processedInvoices.find((nf) => nf.coveredSequenciais.includes(ensaio.numeroSequencial));
