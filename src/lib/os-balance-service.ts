@@ -281,6 +281,15 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
     return 'FINALIZADO';
   }
 
+  // Se a OS está em FINALIZADO mas NÃO cumpriu todos os critérios de quitação, desfaz FINALIZADO e retorna para COBRANCA
+  if (request.status === 'FINALIZADO' && !balance.isOsFinalizada) {
+    await prisma.testRequest.update({
+      where: { id: requestId },
+      data: { status: 'COBRANCA', step: 7 },
+    });
+    return 'COBRANCA';
+  }
+
   // 2. Se a OS está ativamente em uma etapa do fluxo procedural (Elaboração, Aprovação, Cobrança, Pagamento, Aceite), PRESERVA este status sem sobrescrever!
   if (
     request.status === 'ELABORANDO_RELATORIO' ||

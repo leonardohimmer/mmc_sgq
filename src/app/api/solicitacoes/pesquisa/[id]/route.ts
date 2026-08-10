@@ -82,20 +82,24 @@ export async function POST(
                 }
             })
 
-            // Verificar se todos os ensaios contratados já foram concluídos/entregues antes de mover a OS para FINALIZADO
+            // Verificar se todos os ensaios contratados já foram concluídos/entregues E se todos os pagamentos foram confirmados
             const reqData = await tx.testRequest.findUnique({
                 where: { id },
-                include: { executionItems: true }
+                include: { executionItems: true, partialInvoices: true }
             })
 
-            const qtdContratada = Math.max(reqData?.qtdContratada || 1, reqData?.executionItems.length || 1);
+            const qtdContratada = Math.max(reqData?.qtdContratada || 1, reqData?.executionItems?.length || 1);
             const qtdEntregue = (reqData?.executionItems || []).filter(
                 i => i.statusEntrega === 'ENVIADO_AO_CLIENTE' || i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO'
             ).length;
+            const qtdPagos = (reqData?.executionItems || []).filter(
+                i => i.statusPagamento === 'PAGO'
+            ).length;
 
             const todosEnsaiosEntregues = qtdEntregue >= qtdContratada;
+            const todosEnsaiosPagos = Boolean(reqData?.paymentConfirmedAt) || (qtdPagos >= qtdContratada);
 
-            if (todosEnsaiosEntregues) {
+            if (todosEnsaiosEntregues && todosEnsaiosPagos) {
                 await tx.testRequest.update({
                     where: { id },
                     data: {
@@ -107,9 +111,27 @@ export async function POST(
                 await tx.testRequestHistory.create({
                     data: {
                         requestId: id,
-                        changedBy: 'Cliente (Pesquisa Respondida)',
+                        changedBy: 'Cliente (Pesquisa Respondida & Quitado)',
                         oldStatus: reqData?.status || 'PESQUISA_PENDENTE',
                         newStatus: 'FINALIZADO',
+                    }
+                })
+            } else {
+                // Se ainda há pagamentos pendentes de confirmação pelo colaborador, permanece em Faturamento (COBRANCA)
+                await tx.testRequest.update({
+                    where: { id },
+                    data: {
+                        status: 'COBRANCA',
+                        step: 7
+                    }
+                })
+
+                await tx.testRequestHistory.create({
+                    data: {
+                        requestId: id,
+                        changedBy: 'Cliente (Pesquisa Respondida - Aguardando Baixa Financeira)',
+                        oldStatus: reqData?.status || 'PESQUISA_PENDENTE',
+                        newStatus: 'COBRANCA',
                     }
                 })
             }
