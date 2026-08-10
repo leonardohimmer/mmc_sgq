@@ -181,7 +181,7 @@ function HistoricoTab() {
 function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) {
     const [isSaving, setIsSaving] = useState(false)
     const [internalNotes, setInternalNotes] = useState(survey.internalNotes || "")
-    const [activeTab, setActiveTab] = useState<"survey" | "timeline">("survey")
+    const [activeTab, setActiveTab] = useState<"survey" | "timeline" | "organograma">("survey")
     const [timeline, setTimeline] = useState<any[]>([])
     const [loadingTimeline, setLoadingTimeline] = useState(false)
 
