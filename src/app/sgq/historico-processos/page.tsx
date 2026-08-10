@@ -425,7 +425,7 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
                                 </div>
                             </div>
                         </>
-                    ) : (
+                    ) : activeTab === "timeline" ? (
                         <div className="space-y-6 py-2">
                             <h3 className="font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary text-[22px]">route</span>

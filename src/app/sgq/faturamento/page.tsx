@@ -508,6 +508,8 @@ export default function FaturamentoParcialPage() {
                     </div>
                   </div>
                 </div>
+              ) : null}
+
               {/* Organograma Contratual Visual (Árvore de Proposta, Ensaios e NFs) */}
               <OrganogramaContratual request={selectedRequest} />
 
