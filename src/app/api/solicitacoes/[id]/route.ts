@@ -119,6 +119,12 @@ export async function PATCH(
         if (paymentConfirmedAt !== undefined) updateData.paymentConfirmedAt = paymentConfirmedAt ? new Date(paymentConfirmedAt) : null
         if (paymentConfirmedBy !== undefined) updateData.paymentConfirmedBy = paymentConfirmedBy
 
+        // Se uma nova Nota Fiscal foi enviada/atualizada e não foi informada confirmação direta no body, reseta a confirmação do cliente para nova notificação
+        if ((invoiceNumber !== undefined || (invoicePdfUrl !== undefined && !invoicePdfUrl.startsWith('/api/'))) && body.clientPaymentConfirmed === undefined) {
+            updateData.clientPaymentConfirmed = false
+            updateData.clientPaymentConfirmedAt = null
+        }
+
         // Campos básicos da solicitação
         if (type !== undefined) updateData.type = type
         if (location !== undefined) updateData.location = location

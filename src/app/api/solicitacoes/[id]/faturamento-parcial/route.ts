@@ -76,13 +76,15 @@ export async function POST(
       },
     });
 
-    // Atualizar também na OS Mãe a última NF
+    // Atualizar também na OS Mãe a última NF e resetar a confirmação de pagamento do cliente para alertar a nova NF
     await prisma.testRequest.update({
       where: { id: requestId },
       data: {
         invoiceNumber: numeroNf,
         ...(notaPdfUrl && { invoicePdfUrl: notaPdfUrl }),
         invoiceDate: new Date(),
+        clientPaymentConfirmed: false,
+        clientPaymentConfirmedAt: null,
       },
     });
 

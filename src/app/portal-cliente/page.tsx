@@ -1085,7 +1085,12 @@ export default function PortalClientePage() {
                                                 const hasNfEnviada = Boolean(ensaio.invoicePdfUrl) || 
                                                     Boolean(ensaio.fullData?.partialInvoices && ensaio.fullData.partialInvoices.some((inv: any) => Boolean(inv.notaPdfUrl) || Boolean(inv.numeroNf)));
                                                 
-                                                if (!ensaio.clientPaymentConfirmed && (ensaio.isOwner ?? true) && hasNfEnviada) {
+                                                const invoices = ensaio.fullData?.partialInvoices || [];
+                                                const hasPartialInvoices = invoices.length > 0;
+                                                const allPartialPaid = hasPartialInvoices && invoices.every((inv: any) => inv.statusPagamento === 'PAGO' || Boolean(inv.dataPagamento));
+                                                const isFullyPaidByFinanceiro = Boolean(ensaio.fullData?.paymentConfirmedAt) && (!hasPartialInvoices || allPartialPaid);
+
+                                                if (!isFullyPaidByFinanceiro && !ensaio.clientPaymentConfirmed && (ensaio.isOwner ?? true) && hasNfEnviada) {
                                                     return (
                                                         <div className="mt-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10 shadow-xs">
                                                             <div className="flex items-center justify-between gap-2">
