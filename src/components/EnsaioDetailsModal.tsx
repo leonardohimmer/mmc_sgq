@@ -34,6 +34,7 @@ interface EnsaioDetailsModalProps {
     onShare?: (ensaio: any) => void;
     onAcceptProposal?: (ensaio: any) => void;
     onConfirmPayment?: (ensaio: any) => void;
+    showOrganograma?: boolean;
 }
 
 export default function EnsaioDetailsModal({
@@ -43,7 +44,8 @@ export default function EnsaioDetailsModal({
     onEdit,
     onShare,
     onAcceptProposal,
-    onConfirmPayment
+    onConfirmPayment,
+    showOrganograma = false
 }: EnsaioDetailsModalProps) {
     if (!isOpen || !ensaio) return null;
 
@@ -245,8 +247,10 @@ export default function EnsaioDetailsModal({
                         </div>
                     )}
 
-                    {/* Organograma Contratual Visual (Árvore de Documentos & Saldos) */}
-                    <OrganogramaContratual request={data.id ? data : (ensaio.fullData || ensaio)} />
+                    {/* Organograma Contratual Visual (Árvore de Documentos & Saldos - Exibido apenas para colaboradores) */}
+                    {showOrganograma && (
+                        <OrganogramaContratual request={data.id ? data : (ensaio.fullData || ensaio)} />
+                    )}
                     {data.executionItems && data.executionItems.length > 0 && (
                         <div className="bg-gradient-to-r from-blue-900/10 via-indigo-900/10 to-purple-900/10 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 p-5 rounded-2xl border border-indigo-200/80 dark:border-indigo-800/60 space-y-4">
                             <div className="flex items-center justify-between flex-wrap gap-2">

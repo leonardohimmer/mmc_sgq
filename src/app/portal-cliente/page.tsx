@@ -1149,9 +1149,6 @@ export default function PortalClientePage() {
                                             {/* Conteúdo Expandido de Documentos */}
                                             {expandedCardIds[ensaio.rawId] && (
                                                 <div className="w-full p-3.5 rounded-2xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
-                                                    {/* Organograma Contratual Interativo */}
-                                                    <OrganogramaContratual request={ensaio.fullData || ensaio} />
-                                                    
                                                     {/* Proposta Comercial */}
                                                     <div className="flex items-center justify-between text-[11px] pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
                                                         <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">

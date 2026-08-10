@@ -6,6 +6,7 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 import { SkeletonTable } from "@/components/SkeletonCard"
+import OrganogramaContratual from "@/components/OrganogramaContratual"
 
 type TestRequest = {
     id: string
@@ -287,6 +288,11 @@ export default function MeusEnsaiosPage() {
                                             {req.observations}
                                         </div>
                                     )}
+
+                                    {/* Organograma Contratual (Apenas para Colaboradores) */}
+                                    <div className="mt-4">
+                                        <OrganogramaContratual request={req} />
+                                    </div>
                                 </div>
 
                                 {/* Ações / Controles */}
