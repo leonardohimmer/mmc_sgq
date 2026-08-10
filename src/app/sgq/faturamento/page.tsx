@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 import SuccessModal from "@/components/SuccessModal";
 import { formatOsCode } from "@/lib/os-balance-service";
+import OrganogramaContratual from "@/components/OrganogramaContratual";
 
 interface TestExecutionItem {
   id: string;
@@ -507,7 +508,8 @@ export default function FaturamentoParcialPage() {
                     </div>
                   </div>
                 </div>
-              ) : null}
+              {/* Organograma Contratual Visual (Árvore de Proposta, Ensaios e NFs) */}
+              <OrganogramaContratual request={selectedRequest} />
 
               {/* Tabela de Selección dos Ensaios para NF Parcial e Baixa de Pagamento */}
               <div>

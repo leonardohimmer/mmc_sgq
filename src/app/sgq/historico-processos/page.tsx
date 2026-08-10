@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import { format, differenceInDays, differenceInBusinessDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import OrganogramaContratual from "@/components/OrganogramaContratual"
 
 export default function HistoricoProcessosPage() {
     return (
@@ -298,6 +299,13 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
                         <span className="material-symbols-outlined text-[18px]">history</span>
                         Fluxo do Processo (Timeline)
                     </button>
+                    <button 
+                        onClick={() => setActiveTab("organograma")}
+                        className={`py-3 px-4 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === "organograma" ? "border-emerald-500 text-emerald-600 dark:text-emerald-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+                    >
+                        <span className="material-symbols-outlined text-[18px]">account_tree</span>
+                        Organograma Contratual
+                    </button>
                 </div>
                 
                 <div className="p-6 overflow-y-auto space-y-6 flex-1">
@@ -479,6 +487,10 @@ function SurveyModal({ survey, onClose }: { survey: any, onClose: () => void }) 
                                     })}
                                 </div>
                             )}
+                        </div>
+                    ) : (
+                        <div className="animate-in fade-in duration-300">
+                            <OrganogramaContratual request={survey.request} />
                         </div>
                     )}
 
