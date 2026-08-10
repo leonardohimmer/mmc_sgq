@@ -39,45 +39,11 @@ export async function GET(request: Request) {
             orderBy: { createdAt: 'desc' }
         })
 
-        // Checagem rápida de presença dos PDFs sem carregar as strings inteiras em memória
-        const requestsWithReportPdf = await prisma.testRequest.findMany({
-            where: {
-                ...whereCondition,
-                AND: [
-                    { reportPdfUrl: { not: null } },
-                    { reportPdfUrl: { not: "" } }
-                ]
-            },
-            select: { id: true }
-        })
-
-        const requestsWithProposalPdf = await prisma.testRequest.findMany({
-            where: {
-                ...whereCondition,
-                AND: [
-                    { proposalPdfUrl: { not: null } },
-                    { proposalPdfUrl: { not: "" } }
-                ]
-            },
-            select: { id: true }
-        })
-
-        const requestsWithInvoicePdf = await prisma.testRequest.findMany({
-            where: {
-                ...whereCondition,
-                AND: [
-                    { invoicePdfUrl: { not: null } },
-                    { invoicePdfUrl: { not: "" } }
-                ]
-            },
-            select: { id: true }
-        })
-
-        const reportSet = new Set(requestsWithReportPdf.map(r => r.id))
-        const proposalSet = new Set(requestsWithProposalPdf.map(r => r.id))
-        const invoiceSet = new Set(requestsWithInvoicePdf.map(r => r.id))
-
         const formattedRequests = await Promise.all(requests.map(async req => {
+            const hasReportPdf = Boolean(req.reportPdfUrl && req.reportPdfUrl.trim() !== "");
+            const hasProposalPdf = Boolean(req.proposalPdfUrl && req.proposalPdfUrl.trim() !== "");
+            const hasInvoicePdf = Boolean(req.invoicePdfUrl && req.invoicePdfUrl.trim() !== "");
+
             let items = req.executionItems;
             if (items.length === 0) {
                 items = await ensureExecutionItemsCreated(req.id, req.quantidadeEnsaios);
@@ -99,9 +65,9 @@ export async function GET(request: Request) {
                 qtdFaturada,
                 qtdPendenteFaturamento: Math.max(0, qtdExecutada - qtdFaturada),
                 porcentagemConcluida: Math.min(100, Math.round((qtdEntregue / qtdContratada) * 100)),
-                reportPdfUrl: reportSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
-                proposalPdfUrl: proposalSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
-                invoicePdfUrl: invoiceSet.has(req.id) ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
+                reportPdfUrl: hasReportPdf ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
+                proposalPdfUrl: hasProposalPdf ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
+                invoicePdfUrl: hasInvoicePdf ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
             };
         }))
 

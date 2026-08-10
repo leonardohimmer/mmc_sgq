@@ -1,11 +1,11 @@
 import MMCLoadingScreen from "@/components/MMCLoadingScreen";
 
-export default function Loading() {
-    return (
-        <MMCLoadingScreen
-            message="Carregando Sistema SGQ..."
-            submessage="Acessando fluxo produtivo e painel técnico MMC LAB"
-            fullScreen={true}
-        />
-    );
+export default function SGQLoading() {
+  return (
+    <MMCLoadingScreen
+      message="Carregando módulo SGQ..."
+      submessage="Sincronizando processos, solicitações e indicadores"
+      fullScreen={true}
+    />
+  );
 }
