@@ -1,3 +1,4 @@
+import { EnsaioHeroBanner } from "@/components/EnsaioHeroBanner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { EnsaioCarousel } from "@/components/EnsaioCarousel";
@@ -14,37 +15,13 @@ export default function EnsaioPercussaoPage() {
             <SiteHeader />
 
             <main className="flex-1 flex flex-col">
-                {/* Banner de Cabeçalho estilo Imagem */}
-                <section className="relative py-12 px-6 sm:px-8 text-white overflow-hidden bg-slate-950">
-                    {/* Imagem de Fundo Premium */}
-                    <div className="absolute inset-0 w-full h-full">
-                        <img 
-                            src="/images/ensaios/percussao.jpeg" 
-                            alt="Fundo Ensaio de Percussão" 
-                            className="w-full h-full object-cover opacity-35 dark:opacity-25"
-                        />
-                        {/* Overlay Degradê Escuro Sofisticado */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-teal-950/95 via-slate-900/90 to-slate-950/95"></div>
-                        {/* Fade Inferior para o fundo da página */}
-                        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-slate-950/40 to-transparent"></div>
-                    </div>
-                    
-                    <div className="max-w-[1280px] mx-auto flex flex-col items-start gap-3 relative z-10">
-                        <span className="text-xs font-bold bg-[#00bfa5]/20 text-[#00bfa5] border border-[#00bfa5]/30 px-3 py-1 rounded-full uppercase tracking-wider">
-                            Ensaios e Engenharia Diagnóstica
-                        </span>
-                        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-                            Ensaio de Percussão
-                        </h1>
-                        <div className="flex items-center gap-2 text-sm sm:text-base font-medium text-slate-300 mt-2">
-                            <Link href="/" className="hover:text-white hover:underline transition-all">Home</Link>
-                            <span className="opacity-50">&gt;</span>
-                            <Link href="/ensaios" className="hover:text-white hover:underline transition-all">Ensaios</Link>
-                            <span className="opacity-50">&gt;</span>
-                            <span className="text-[#00bfa5] font-bold">Ensaio de Percussão</span>
-                        </div>
-                    </div>
-                </section>
+                <EnsaioHeroBanner 
+                    badge="Ensaios e Engenharia Diagnóstica"
+                    title="Ensaio de Percussão"
+                    breadcrumbCurrent="Ensaio de Percussão"
+                    imageSrc="/images/ensaios/percussao.jpeg"
+                    imageAlt="Fundo Ensaio de Percussão"
+                />
 
                 {/* Seção Principal de Conteúdo */}
                 <section className="py-20 bg-background-light dark:bg-slate-950 relative flex-1">

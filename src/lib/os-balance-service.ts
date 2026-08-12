@@ -228,8 +228,8 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
   const podeEmitirNfParcial = qtdPendenteFaturamento > 0;
   const podeFinalizarPagamento = qtdPagos >= qtdContratada;
   
-  // O processo só é finalizado se TODOS os ensaios forem entregues, TODOS pagos E a pesquisa de satisfação respondida pelo cliente
-  const isSurveyCompleted = request.satisfactionSurvey?.status === 'COMPLETED' || request.satisfactionSurvey?.status === 'REVIEWED';
+  // O processo só é finalizado se TODOS os ensaios forem entregues, TODOS pagos E a pesquisa de satisfação revisada (REVIEWED) pela Qualidade
+  const isSurveyCompleted = request.satisfactionSurvey?.status === 'REVIEWED';
   const isTodosEnsaiosEntregues = qtdEntregue >= qtdContratada && qtdExecutada >= qtdContratada;
   const isTodosEnsaiosPagos = qtdPagos >= qtdContratada;
   const isOsFinalizada = isTodosEnsaiosEntregues && isTodosEnsaiosPagos && isSurveyCompleted;
@@ -255,7 +255,7 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
 
 /**
  * Atualiza automaticamente o status da OS Mãe de acordo com a conclusão e entrega de laudos.
- * Só encerra (status = FINALIZADO) quando todos os laudos foram entregues ao cliente E a pesquisa de satisfação respondida.
+ * Só encerra (status = FINALIZADO) quando todos os laudos foram entregues ao cliente E a pesquisa de satisfação registrada pela Qualidade.
  */
 export async function updateOsStatusBasedOnBalance(requestId: string): Promise<string> {
   const request = await prisma.testRequest.findUnique({
@@ -267,10 +267,10 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
 
   const balance = await calculateOsBalance(requestId);
 
-  const isSurveyCompleted = request.satisfactionSurvey?.status === 'COMPLETED' || request.satisfactionSurvey?.status === 'REVIEWED';
+  const isSurveyCompleted = request.satisfactionSurvey?.status === 'REVIEWED';
   const isTodosEnsaiosEntregues = balance.qtdEntregue >= balance.qtdContratada && balance.qtdExecutada >= balance.qtdContratada;
 
-  // 1. Se a OS cumpriu TODOS os critérios (todos ensaios entregues, todos pagos E pesquisa respondida), a OS é FINALIZADA
+  // 1. Se a OS cumpriu TODOS os critérios (todos ensaios entregues, todos pagos E pesquisa registrada), a OS é FINALIZADA
   if (balance.isOsFinalizada) {
     if (request.status !== 'FINALIZADO') {
       await prisma.testRequest.update({
@@ -281,13 +281,16 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
     return 'FINALIZADO';
   }
 
-  // Se a OS está em FINALIZADO mas NÃO cumpriu todos os critérios de quitação, desfaz FINALIZADO e retorna para COBRANCA
+  // Se a OS está em FINALIZADO mas NÃO cumpriu todos os critérios de quitação ou de registro da pesquisa
   if (request.status === 'FINALIZADO' && !balance.isOsFinalizada) {
+    const isSurveyPendingReview = request.satisfactionSurvey?.status === 'COMPLETED' || request.satisfactionSurvey?.status === 'PENDING';
+    const fallbackStatus = isSurveyPendingReview ? 'PESQUISA_PENDENTE' : 'COBRANCA';
+    const fallbackStep = isSurveyPendingReview ? 9 : 7;
     await prisma.testRequest.update({
       where: { id: requestId },
-      data: { status: 'COBRANCA', step: 7 },
+      data: { status: fallbackStatus, step: fallbackStep },
     });
-    return 'COBRANCA';
+    return fallbackStatus;
   }
 
   // 2. Se a OS está ativamente em uma etapa do fluxo procedural (Elaboração, Aprovação, Cobrança, Pagamento, Aceite), PRESERVA este status sem sobrescrever!

@@ -49,15 +49,14 @@ const PERMISSION_GROUPS = [
         title: "Técnico",
         items: [
             { id: "tecnico_dashboard", label: "Dashboard" },
-            { id: "tecnico_propostas", label: "Propostas" },
             { id: "tecnico_envio_proposta", label: "Envio da Proposta" },
-            { id: "tecnico_aguardando_agendamento", label: "Aguardando Agendamento" },
+            { id: "tecnico_aguardando_agendamento", label: "Agendamento" },
             { id: "tecnico_execucao_ensaios", label: "Execução de Ensaios" },
             { id: "tecnico_elaboracao_relatorio", label: "Elaboração de Relatório" },
             { id: "tecnico_aprovacao", label: "Aprovação" },
-            { id: "tecnico_cobrancas", label: "Emissão de Cobranças" },
-            { id: "tecnico_recebimentos", label: "Recebimentos" },
+            { id: "tecnico_cobrancas", label: "Faturamento" },
             { id: "tecnico_pesquisa_satisfacao", label: "Pesquisa de Satisfação" },
+            { id: "tecnico_historico_processos", label: "Histórico de Processos" },
         ]
     },
     {

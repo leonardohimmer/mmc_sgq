@@ -100,27 +100,23 @@ export default function ExecucaoEnsaiosPage() {
         }
     }
 
-    // Filtra EXCLUSIVAMENTE os ensaios agendados/solicitados para a execução atual (ocultando os já finalizados/entregues em visitas passadas)
+    // Filtra EXCLUSIVAMENTE os ensaios agendados/solicitados para a execução atual
     const getItemsToExecute = (req: TestRequest): { numeroSequencial: number; id?: string; observacoes?: string | null }[] => {
         const items = req.executionItems || []
         
-        // Ensaios marcados para a visita atual (EM_EXECUCAO ou AGENDADO)
+        // 1. Ensaios marcados especificamente para a visita atual (EM_EXECUCAO ou AGENDADO)
         const ativosNaVisita = items.filter(i => i.statusExecucao === 'EM_EXECUCAO' || i.statusExecucao === 'AGENDADO')
         if (ativosNaVisita.length > 0) {
             return ativosNaVisita.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id, observacoes: i.observacoes }))
         }
 
-        // Se não houver itens com EM_EXECUCAO ou AGENDADO, busca os que ainda NÃO foram entregues
-        const pendentesSemEntrega = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE' && i.statusExecucao !== 'CONCLUIDO')
+        // 2. Se não houver itens com EM_EXECUCAO ou AGENDADO, pega apenas o 1º item pendente de execução
+        const pendentesSemEntrega = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE' && i.statusExecucao !== 'CONCLUIDO' && i.statusExecucao !== 'APROVADO')
         if (pendentesSemEntrega.length > 0) {
-            return pendentesSemEntrega.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id, observacoes: i.observacoes }))
+            return [pendentesSemEntrega[0]].map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id, observacoes: i.observacoes }))
         }
 
-        const count = Math.max(1, typeof req.quantidadeEnsaios === 'number' ? req.quantidadeEnsaios : parseInt(String(req.quantidadeEnsaios || '1')) || 1)
-        return Array.from({ length: count }, (_, idx) => ({
-            numeroSequencial: idx + 1,
-            observacoes: null
-        }))
+        return [{ numeroSequencial: 1, observacoes: null }]
     }
 
     const handleSelectRequest = (req: TestRequest) => {

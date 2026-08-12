@@ -86,7 +86,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 { label: "Aprovação", href: "/sgq/aprovacao", icon: "fact_check", permissionId: "tecnico_aprovacao" },
                 { label: "Faturamento", href: "/sgq/faturamento", icon: "payments", permissionId: "tecnico_cobrancas" },
                 { label: "Pesquisa de Satisfação", href: "/sgq/pesquisa-satisfacao", icon: "sentiment_satisfied", permissionId: "tecnico_pesquisa_satisfacao" },
-                { label: "Histórico de processos", href: "/sgq/historico-processos", icon: "history", permissionId: "tecnico_pesquisa_satisfacao" },
+                { label: "Histórico de processos", href: "/sgq/historico-processos", icon: "history", permissionId: "tecnico_historico_processos" },
             ]
         },
         {

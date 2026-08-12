@@ -113,6 +113,9 @@ model TestRequest {
   reportPdfUrl          String?
   proposalCode          String?
   proposalPdfUrl        String?
+  acceptanceProofUrl    String?              @db.Text
+  acceptanceChannel     String?
+  acceptanceNotes       String?              @db.Text
   isSigned              Boolean              @default(false)
   invoiceNumber         String?
   invoicePdfUrl         String?

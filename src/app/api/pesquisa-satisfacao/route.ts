@@ -70,8 +70,11 @@ export async function PATCH(req: Request) {
             }
         });
 
-        // Fluxo antigo: Não atualizamos o TestRequest aqui, pois ele já é finalizado pelo cliente
-        // ou o fluxo segue de forma independente no administrativo.
+        // Quando a pesquisa é registrada pelo setor de Qualidade (status REVIEWED), atualiza o status do TestRequest
+        if (status === 'REVIEWED' && updatedSurvey.requestId) {
+            const { updateOsStatusBasedOnBalance } = await import('@/lib/os-balance-service');
+            await updateOsStatusBasedOnBalance(updatedSurvey.requestId);
+        }
 
         return NextResponse.json({ survey: updatedSurvey }, { status: 200 });
     } catch (error) {

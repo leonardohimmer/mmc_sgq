@@ -65,6 +65,13 @@ export default function EnvioPropostaPage() {
     const [proposalPdfUrl, setProposalPdfUrl] = useState("")
     const [emailConfirmed, setEmailConfirmed] = useState(false)
 
+    // Manual Acceptance Modal States
+    const [acceptanceModalRequest, setAcceptanceModalRequest] = useState<TestRequest | null>(null)
+    const [acceptanceChannel, setAcceptanceChannel] = useState<string>("WhatsApp")
+    const [acceptanceProofUrl, setAcceptanceProofUrl] = useState<string>("")
+    const [acceptanceNotes, setAcceptanceNotes] = useState<string>("")
+    const [submittingAcceptance, setSubmittingAcceptance] = useState<boolean>(false)
+
     useEffect(() => {
         fetchRequests()
         const interval = setInterval(fetchRequests, 60000)
@@ -150,6 +157,51 @@ export default function EnvioPropostaPage() {
             toast.error("Erro ao salvar os dados.")
         } finally {
             setSaving(false)
+        }
+    }
+
+    const handleOpenManualAcceptance = (req: TestRequest, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation()
+        setAcceptanceModalRequest(req)
+        setAcceptanceChannel("WhatsApp")
+        setAcceptanceProofUrl("")
+        setAcceptanceNotes("")
+    }
+
+    const handleSubmitManualAcceptance = async () => {
+        if (!acceptanceModalRequest) return
+        if (!acceptanceProofUrl) {
+            toast.error("O anexo do comprovante de aceite é obrigatório.")
+            return
+        }
+
+        setSubmittingAcceptance(true)
+        try {
+            const res = await fetch('/api/solicitacoes/aceite-proposta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    requestId: acceptanceModalRequest.id,
+                    user: session?.user?.name || "Colaborador",
+                    acceptanceProofUrl,
+                    acceptanceChannel,
+                    acceptanceNotes
+                })
+            })
+
+            if (res.ok) {
+                toast.success("Aceite registrado com sucesso! Solicitação avançada para o Agendamento.")
+                setAcceptanceModalRequest(null)
+                fetchRequests()
+            } else {
+                const data = await res.json()
+                toast.error(data.error || "Erro ao registrar o aceite.")
+            }
+        } catch (error) {
+            console.error("Erro ao registrar aceite manual", error)
+            toast.error("Erro de conexão ao registrar o aceite.")
+        } finally {
+            setSubmittingAcceptance(false)
         }
     }
 
@@ -386,22 +438,33 @@ export default function EnvioPropostaPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {awaitingAcceptance.map(req => (
-                            <div key={req.id} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all animate-in fade-in zoom-in-95 duration-300 relative group">
-                                <div className="flex justify-between items-start mb-3 pr-6">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                                        Aguardando Aceite
-                                    </span>
-                                    <span className="text-xs text-slate-400">
-                                        Enviada em {format(new Date(req.updatedAt || req.createdAt), 'dd/MM/yyyy')}
-                                    </span>
+                            <div key={req.id} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all animate-in fade-in zoom-in-95 duration-300 relative group flex flex-col justify-between">
+                                <div>
+                                    <div className="flex justify-between items-start mb-3 pr-2">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                            Aguardando Aceite
+                                        </span>
+                                        <span className="text-xs text-slate-400">
+                                            Enviada em {format(new Date(req.updatedAt || req.createdAt), 'dd/MM/yyyy')}
+                                        </span>
+                                    </div>
+                                    <h4 className="font-bold text-slate-800 dark:text-slate-200 truncate">{req.type}</h4>
+                                    <p className="text-sm text-slate-500 mt-1 truncate">{req.clientName}</p>
                                 </div>
-                                <h4 className="font-bold text-slate-800 dark:text-slate-200 truncate">{req.type}</h4>
-                                <p className="text-sm text-slate-500 mt-1 truncate">{req.clientName}</p>
-                                <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-                                    <div className="flex items-center gap-1.5 truncate">
+
+                                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-1.5 text-xs text-slate-400 truncate">
                                         <span className="material-symbols-outlined text-sm">location_on</span>
                                         <span className="truncate">{req.location}</span>
                                     </div>
+                                    <button
+                                        onClick={(e) => handleOpenManualAcceptance(req, e)}
+                                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        title="Registrar Aceite do Cliente (E-mail / WhatsApp)"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">task_alt</span>
+                                        Registrar Aceite
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -424,6 +487,158 @@ export default function EnvioPropostaPage() {
                 message={confirmModal.message}
                 type="danger"
             />
+
+            {/* Modal de Registro Manual de Aceite da Proposta */}
+            {acceptanceModalRequest && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/40">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center">
+                                    <span className="material-symbols-outlined">mark_email_read</span>
+                                </div>
+                                <div>
+                                    <h3 className="font-extrabold text-lg text-slate-800 dark:text-slate-100">Registrar Aceite do Cliente</h3>
+                                    <p className="text-xs text-slate-400">
+                                        OS {formatOsCode(acceptanceModalRequest)} • {acceptanceModalRequest.type}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setAcceptanceModalRequest(null)}
+                                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-5">
+                            {/* Canal de Aceite */}
+                            <div className="space-y-2">
+                                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                                    Canal de Recebimento do Aceite <span className="text-red-500">*</span>
+                                </label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {["WhatsApp", "E-mail", "Outro"].map((channel) => (
+                                        <button
+                                            key={channel}
+                                            type="button"
+                                            onClick={() => setAcceptanceChannel(channel)}
+                                            className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                                acceptanceChannel === channel
+                                                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-700 shadow-xs"
+                                                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-base">
+                                                {channel === "WhatsApp" ? "chat" : channel === "E-mail" ? "mail" : "article"}
+                                            </span>
+                                            {channel}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Upload do Comprovante (Obrigatório) */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                                        Comprovante do Aceite (Print / E-mail) <span className="text-red-500">* (Obrigatório)</span>
+                                    </label>
+                                </div>
+                                
+                                <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-xl p-4 transition-colors bg-slate-50/50 dark:bg-slate-950/40 text-center">
+                                    <input
+                                        type="file"
+                                        accept="image/*,application/pdf"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setAcceptanceProofUrl(reader.result as string);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            } else {
+                                                setAcceptanceProofUrl("");
+                                            }
+                                        }}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        required
+                                    />
+                                    <div className="space-y-1">
+                                        <span className="material-symbols-outlined text-3xl text-emerald-600 dark:text-emerald-400">
+                                            {acceptanceProofUrl ? "task_alt" : "cloud_upload"}
+                                        </span>
+                                        <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                            {acceptanceProofUrl ? "Comprovante carregado com sucesso!" : "Clique ou arraste o comprovante (imagem ou PDF)"}
+                                        </p>
+                                        <p className="text-[11px] text-slate-400">PNG, JPG, WEBP ou PDF</p>
+                                    </div>
+                                </div>
+
+                                {acceptanceProofUrl ? (
+                                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300 font-bold">
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-base">check_circle</span>
+                                            Arquivo pronto ({Math.round(acceptanceProofUrl.length / 1024)} KB)
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAcceptanceProofUrl("")}
+                                            className="text-red-500 hover:text-red-700 font-normal underline text-[11px]"
+                                        >
+                                            Remover
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                                        ⚠️ O comprovante (print do WhatsApp, foto ou PDF do e-mail) é obrigatório para prosseguir.
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Observações Opcionais */}
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                                    Observações do Aceite (Opcional)
+                                </label>
+                                <textarea
+                                    value={acceptanceNotes}
+                                    onChange={(e) => setAcceptanceNotes(e.target.value)}
+                                    placeholder="Ex: Cliente deu o aceite verbal no WhatsApp e confirmou a proposta enviada."
+                                    rows={2}
+                                    className="w-full p-3 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400 text-slate-700 dark:text-slate-200"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setAcceptanceModalRequest(null)}
+                                disabled={submittingAcceptance}
+                                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSubmitManualAcceptance}
+                                disabled={!acceptanceProofUrl || submittingAcceptance}
+                                className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {submittingAcceptance ? (
+                                    <span className="material-symbols-outlined animate-spin text-base">refresh</span>
+                                ) : (
+                                    <span className="material-symbols-outlined text-base">task_alt</span>
+                                )}
+                                Confirmar e Avançar para Agendamento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

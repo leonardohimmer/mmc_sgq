@@ -15,14 +15,21 @@ export async function GET(
 
         const { id } = await params
         const { searchParams } = new URL(request.url)
-        const type = searchParams.get('type') // 'report', 'proposal', 'invoice'
+        const type = searchParams.get('type') // 'report', 'proposal', 'invoice', 'acceptance_proof'
 
-        if (!type || !['report', 'proposal', 'invoice'].includes(type)) {
-            return new Response('Tipo de PDF inválido', { status: 400 })
+        if (!type || !['report', 'proposal', 'invoice', 'acceptance_proof', 'proof'].includes(type)) {
+            return new Response('Tipo de arquivo inválido', { status: 400 })
         }
 
-        // Busca apenas o campo específico do PDF do banco
-        const fieldName = type === 'report' ? 'reportPdfUrl' : type === 'proposal' ? 'proposalPdfUrl' : 'invoicePdfUrl'
+        // Busca apenas o campo específico do banco
+        const fieldName = (type === 'acceptance_proof' || type === 'proof') 
+            ? 'acceptanceProofUrl' 
+            : type === 'report' 
+                ? 'reportPdfUrl' 
+                : type === 'proposal' 
+                    ? 'proposalPdfUrl' 
+                    : 'invoicePdfUrl'
+
         const req = await prisma.testRequest.findUnique({
             where: { id },
             select: {
@@ -35,27 +42,34 @@ export async function GET(
             return new Response('Solicitação não encontrada', { status: 404 })
         }
 
-        const pdfUrl = (req as any)[fieldName]
-        if (!pdfUrl) {
-            return new Response('PDF não encontrado', { status: 404 })
+        const fileUrl = (req as any)[fieldName]
+        if (!fileUrl) {
+            return new Response('Arquivo não encontrado', { status: 404 })
         }
 
-        // Se for um DataURL Base64 (começa com data:application/pdf;base64,)
-        if (pdfUrl.startsWith('data:')) {
-            const commaIndex = pdfUrl.indexOf(',')
+        // Se for um DataURL Base64 (ex: data:application/pdf;base64,... ou data:image/png;base64,...)
+        if (fileUrl.startsWith('data:')) {
+            const commaIndex = fileUrl.indexOf(',')
             if (commaIndex !== -1) {
-                const base64Data = pdfUrl.substring(commaIndex + 1)
-                const pdfBuffer = Buffer.from(base64Data, 'base64')
-                
-                const filename = type === 'report' 
-                    ? `Relatorio-${req.reportNumber || id}.pdf`
-                    : type === 'proposal' 
-                        ? `Proposta-${id}.pdf`
-                        : `Fatura-${id}.pdf`
+                const header = fileUrl.substring(0, commaIndex)
+                const contentTypeMatch = header.match(/data:(.*?);base64/)
+                const contentType = contentTypeMatch ? contentTypeMatch[1] : 'application/pdf'
+                const ext = contentType.includes('png') ? 'png' : contentType.includes('jpeg') || contentType.includes('jpg') ? 'jpg' : 'pdf'
 
-                return new Response(pdfBuffer, {
+                const base64Data = fileUrl.substring(commaIndex + 1)
+                const fileBuffer = Buffer.from(base64Data, 'base64')
+                
+                const filename = (type === 'acceptance_proof' || type === 'proof')
+                    ? `Comprovante-Aceite-${id}.${ext}`
+                    : type === 'report' 
+                        ? `Relatorio-${req.reportNumber || id}.pdf`
+                        : type === 'proposal' 
+                            ? `Proposta-${id}.pdf`
+                            : `Fatura-${id}.pdf`
+
+                return new Response(fileBuffer, {
                     headers: {
-                        'Content-Type': 'application/pdf',
+                        'Content-Type': contentType,
                         'Content-Disposition': `inline; filename="${filename}"`,
                     }
                 })
@@ -63,7 +77,7 @@ export async function GET(
         }
 
         // Se for uma URL externa direta
-        return NextResponse.redirect(new URL(pdfUrl, request.url))
+        return NextResponse.redirect(new URL(fileUrl, request.url))
     } catch (error) {
         console.error('Erro ao buscar PDF:', error)
         return new Response('Erro interno do servidor', { status: 500 })

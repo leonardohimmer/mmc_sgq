@@ -226,9 +226,80 @@ export default function PortalClientePage() {
         isSubmitting: false
     });
 
-    const toggleExpandCard = (id: string, e: React.MouseEvent) => {
+    const [readDocKeys, setReadDocKeys] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem("sgq_portal_read_docs");
+            if (saved) {
+                setReadDocKeys(new Set(JSON.parse(saved)));
+            }
+        } catch (e) {
+            console.error("Erro ao carregar documentos lidos", e);
+        }
+    }, []);
+
+    const getEnsaioDocKeys = (ensaio: any): string[] => {
+        if (!ensaio) return [];
+        const keys: string[] = [];
+        const rawId = ensaio.rawId || ensaio.id;
+
+        // Proposta Comercial
+        if (ensaio.proposalPdfUrl && ensaio.proposalPdfUrl.trim() !== "") {
+            keys.push(`${rawId}_proposal_${ensaio.proposalPdfUrl.substring(0, 30)}`);
+        }
+
+        // Relatórios
+        const items = (ensaio.fullData?.executionItems || []).filter((item: any) => item.reportPdfUrl && item.reportPdfUrl.trim() !== "");
+        if (items.length > 0) {
+            items.forEach((item: any) => {
+                keys.push(`${rawId}_report_${item.id || item.numeroSequencial}_${item.reportPdfUrl.substring(0, 30)}`);
+            });
+        } else if (ensaio.reportPdfUrl && ensaio.reportPdfUrl.trim() !== "") {
+            keys.push(`${rawId}_report_main_${ensaio.reportPdfUrl.substring(0, 30)}`);
+        }
+
+        // Notas Fiscais
+        const invoices = (ensaio.fullData?.partialInvoices || []).filter((inv: any) => inv.notaPdfUrl || inv.invoicePdfUrl);
+        if (invoices.length > 0) {
+            invoices.forEach((inv: any, idx: number) => {
+                const url = inv.notaPdfUrl || inv.invoicePdfUrl;
+                keys.push(`${rawId}_invoice_${inv.id || idx}_${url.substring(0, 30)}`);
+            });
+        } else if (ensaio.invoicePdfUrl && ensaio.invoicePdfUrl.trim() !== "") {
+            keys.push(`${rawId}_invoice_main_${ensaio.invoicePdfUrl.substring(0, 30)}`);
+        }
+
+        return keys;
+    };
+
+    const hasUnreadDocs = (ensaio: any): boolean => {
+        const keys = getEnsaioDocKeys(ensaio);
+        if (keys.length === 0) return false;
+        return keys.some(k => !readDocKeys.has(k));
+    };
+
+    const markEnsaioDocsAsRead = (ensaio: any) => {
+        const keys = getEnsaioDocKeys(ensaio);
+        if (keys.length === 0) return;
+        setReadDocKeys(prev => {
+            const next = new Set(prev);
+            keys.forEach(k => next.add(k));
+            try {
+                localStorage.setItem("sgq_portal_read_docs", JSON.stringify(Array.from(next)));
+            } catch (e) {}
+            return next;
+        });
+    };
+
+    const toggleExpandCard = (ensaio: any, e: React.MouseEvent) => {
         e.stopPropagation();
-        setExpandedCardIds(prev => ({ ...prev, [id]: !prev[id] }));
+        const rawId = typeof ensaio === 'string' ? ensaio : (ensaio.rawId || ensaio.id);
+        const isOpening = !expandedCardIds[rawId];
+        setExpandedCardIds(prev => ({ ...prev, [rawId]: isOpening }));
+        if (isOpening && typeof ensaio !== 'string') {
+            markEnsaioDocsAsRead(ensaio);
+        }
     };
 
     const handleOpenScheduleModal = (ensaio: Ensaio, e: React.MouseEvent) => {
@@ -1064,6 +1135,8 @@ export default function PortalClientePage() {
                                             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug mb-1.5 group-hover:text-primary transition-colors">
                                                 {ensaio.titulo}
                                             </h3>
+
+
                                             
                                             {/* Survey Indicator (Apenas para o criador do ensaio) */}
                                             {ensaio.hasPendingSurvey && ensaio.isOwner && (
@@ -1139,12 +1212,22 @@ export default function PortalClientePage() {
 
                                             {/* Toggle de Documentos Dentro do Card */}
                                             <button
-                                                onClick={(e) => toggleExpandCard(ensaio.rawId, e)}
-                                                className="w-full flex items-center justify-between p-2 px-3 rounded-xl text-[11px] font-bold bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                                                onClick={(e) => toggleExpandCard(ensaio, e)}
+                                                className={`w-full flex items-center justify-between p-2 px-3 rounded-xl text-[11px] font-bold transition-all ${
+                                                    hasUnreadDocs(ensaio)
+                                                        ? 'bg-amber-100 dark:bg-amber-950/60 border-2 border-amber-400 dark:border-amber-600 text-amber-900 dark:text-amber-200 shadow-sm animate-pulse'
+                                                        : 'bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                                }`}
                                             >
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">folder_open</span>
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                    <span className={`material-symbols-outlined text-[16px] ${hasUnreadDocs(ensaio) ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'}`}>folder_open</span>
                                                     <span>Ver Documentos (Proposta, Relatórios, NFs)</span>
+                                                    {hasUnreadDocs(ensaio) && (
+                                                        <span className="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center gap-0.5 shadow-xs">
+                                                            <span className="material-symbols-outlined text-[11px]">notifications_active</span>
+                                                            Novo Documento
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <span className="material-symbols-outlined text-[18px] transition-transform duration-200" style={{ transform: expandedCardIds[ensaio.rawId] ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                                                     expand_more

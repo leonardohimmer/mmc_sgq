@@ -103,17 +103,17 @@ export async function POST(
                 await tx.testRequest.update({
                     where: { id },
                     data: {
-                        status: 'FINALIZADO',
-                        step: 10
+                        status: 'PESQUISA_PENDENTE',
+                        step: 9
                     }
                 })
 
                 await tx.testRequestHistory.create({
                     data: {
                         requestId: id,
-                        changedBy: 'Cliente (Pesquisa Respondida & Quitado)',
+                        changedBy: 'Cliente (Pesquisa Respondida - Aguardando Registro da Qualidade)',
                         oldStatus: reqData?.status || 'PESQUISA_PENDENTE',
-                        newStatus: 'FINALIZADO',
+                        newStatus: 'PESQUISA_PENDENTE',
                     }
                 })
             } else {

@@ -30,7 +30,9 @@ export async function GET() {
         const [
             profiles,
             baseOrcamentosCount,
-            testRequestCounts
+            testRequestCounts,
+            pesquisaPendenteCount,
+            finalizadoCount
         ] = await Promise.all([
             prisma.profile.findMany({
                 where: { name: { in: roles } },
@@ -41,6 +43,22 @@ export async function GET() {
                 by: ['status'],
                 _count: {
                     id: true
+                }
+            }),
+            prisma.testRequest.count({
+                where: {
+                    OR: [
+                        { status: 'PESQUISA_PENDENTE' },
+                        { satisfactionSurvey: { status: 'COMPLETED' } }
+                    ]
+                }
+            }),
+            prisma.testRequest.count({
+                where: {
+                    status: 'FINALIZADO',
+                    NOT: {
+                        satisfactionSurvey: { status: 'COMPLETED' }
+                    }
                 }
             })
         ])
@@ -67,8 +85,8 @@ export async function GET() {
             faturamento: faturamentoCount,
             cobranca: trStats['COBRANCA'] || 0,
             pagamento: trStats['PAGAMENTO'] || 0,
-            pesquisa: trStats['PESQUISA_PENDENTE'] || 0,
-            finalizado: trStats['FINALIZADO'] || 0
+            pesquisa: pesquisaPendenteCount,
+            finalizado: finalizadoCount
         }
 
         return NextResponse.json({

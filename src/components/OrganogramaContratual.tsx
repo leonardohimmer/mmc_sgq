@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { formatOsCode } from "@/lib/os-balance-service";
 
 interface ExecutionItemData {
@@ -88,117 +88,128 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
 
   const osFormattedCode = request.osCode || formatOsCode(request);
 
-  // Calcular total de ensaios contratados
-  const targetQuantity = request.qtdContratada || 
-    (typeof request.quantidadeEnsaios === 'number' ? request.quantidadeEnsaios : parseInt(String(request.quantidadeEnsaios || '1')) || 1);
+  // Garantir lista representativa de todos os ensaios (memoizado para evitar re-renders infinitos)
+  const ensaiosList = useMemo(() => {
+    if (!request) return [];
+    const targetQuantity = request.qtdContratada || 
+      (typeof request.quantidadeEnsaios === 'number' ? request.quantidadeEnsaios : parseInt(String(request.quantidadeEnsaios || '1')) || 1);
 
-  const existingItems = request.executionItems || [];
-  
-  // Garantir lista representativa de todos os ensaios
-  const ensaiosList = Array.from({ length: Math.max(targetQuantity, existingItems.length) }, (_, idx) => {
-    const seq = idx + 1;
-    const item = existingItems.find((i) => i.numeroSequencial === seq);
-    return {
-      numeroSequencial: seq,
-      id: item?.id || `virtual-${seq}`,
-      statusExecucao: item?.statusExecucao || "PENDENTE",
-      statusEntrega: item?.statusEntrega || "PENDENTE",
-      statusFaturamento: item?.statusFaturamento || "PENDENTE",
-      statusPagamento: item?.statusPagamento || (request.paymentConfirmedAt ? "PAGO" : "PENDENTE"),
-      reportNumber: item?.reportNumber || (seq === 1 && request.reportNumber ? request.reportNumber : null),
-      reportPdfUrl: item?.reportPdfUrl || (seq === 1 && request.reportPdfUrl ? request.reportPdfUrl : null),
-      partialInvoiceId: item?.partialInvoiceId || item?.partialInvoice?.id || null,
-      partialInvoice: item?.partialInvoice || null,
-    };
-  });
+    const existingItems = request.executionItems || [];
+    
+    return Array.from({ length: Math.max(targetQuantity, existingItems.length) }, (_, idx) => {
+      const seq = idx + 1;
+      const item = existingItems.find((i) => i.numeroSequencial === seq);
+      return {
+        numeroSequencial: seq,
+        id: item?.id || `virtual-${seq}`,
+        statusExecucao: item?.statusExecucao || "PENDENTE",
+        statusEntrega: item?.statusEntrega || "PENDENTE",
+        statusFaturamento: item?.statusFaturamento || "PENDENTE",
+        statusPagamento: item?.statusPagamento || (request.paymentConfirmedAt ? "PAGO" : "PENDENTE"),
+        reportNumber: item?.reportNumber || (seq === 1 && request.reportNumber ? request.reportNumber : null),
+        reportPdfUrl: item?.reportPdfUrl || (seq === 1 && request.reportPdfUrl ? request.reportPdfUrl : null),
+        partialInvoiceId: item?.partialInvoiceId || item?.partialInvoice?.id || null,
+        partialInvoice: item?.partialInvoice || null,
+      };
+    });
+  }, [request]);
 
   const totalEnsaios = ensaiosList.length;
   const laudosEntregues = ensaiosList.filter((e) => e.statusEntrega === "ENVIADO_AO_CLIENTE" || Boolean(e.reportPdfUrl)).length;
   const ensaiosFaturados = ensaiosList.filter((e) => e.statusFaturamento === "FATURADO" || Boolean(e.partialInvoiceId)).length;
-  const ensaiosPagos = ensaiosList.filter((e) => e.statusPagamento === "PAGO" || Boolean(request.paymentConfirmedAt)).length;
+  const ensaiosPagos = ensaiosList.filter((e) => e.statusPagamento === "PAGO" || Boolean(request?.paymentConfirmedAt)).length;
 
   const pendentesFaturamento = Math.max(0, laudosEntregues - ensaiosFaturados);
   const pendentesPagamento = Math.max(0, totalEnsaios - ensaiosPagos);
 
-  // Processamento e Agrupamento das Notas Fiscais Parciais
-  const rawInvoices = request.partialInvoices || [];
-  
-  let processedInvoices: Array<{
-    id: string;
-    numeroNf: string;
-    qtdFaturada: number;
-    valorNota?: number;
-    dataEmissao?: string;
-    notaPdfUrl?: string | null;
-    statusPagamento?: string | null;
-    coveredSequenciais: number[];
-  }> = [];
+  // Processamento e Agrupamento das Notas Fiscais Parciais (memoizado)
+  const processedInvoices = useMemo(() => {
+    if (!request) return [];
+    const rawInvoices = request.partialInvoices || [];
+    let list: Array<{
+      id: string;
+      numeroNf: string;
+      qtdFaturada: number;
+      valorNota?: number;
+      dataEmissao?: string;
+      notaPdfUrl?: string | null;
+      statusPagamento?: string | null;
+      coveredSequenciais: number[];
+    }> = [];
 
-  if (rawInvoices.length > 0) {
-    let unassignedFaturados = ensaiosList.filter((e) => e.statusFaturamento === 'FATURADO' || e.partialInvoiceId);
+    const faturadosCount = ensaiosList.filter((e) => e.statusFaturamento === "FATURADO" || Boolean(e.partialInvoiceId)).length;
+    const countTotal = ensaiosList.length;
 
-    processedInvoices = rawInvoices.map((nf) => {
-      let covered = ensaiosList.filter((e) => e.partialInvoiceId === nf.id || e.partialInvoice?.id === nf.id);
-      
-      if (covered.length === 0 && unassignedFaturados.length > 0) {
-        covered = unassignedFaturados.slice(0, nf.qtdFaturada || 1);
-        unassignedFaturados = unassignedFaturados.slice(nf.qtdFaturada || 1);
-      }
+    if (rawInvoices.length > 0) {
+      let unassignedFaturados = ensaiosList.filter((e) => e.statusFaturamento === 'FATURADO' || e.partialInvoiceId);
 
-      const coveredSequenciais = covered.map((c) => c.numeroSequencial);
+      list = rawInvoices.map((nf) => {
+        let covered = ensaiosList.filter((e) => e.partialInvoiceId === nf.id || e.partialInvoice?.id === nf.id);
+        
+        if (covered.length === 0 && unassignedFaturados.length > 0) {
+          covered = unassignedFaturados.slice(0, nf.qtdFaturada || 1);
+          unassignedFaturados = unassignedFaturados.slice(nf.qtdFaturada || 1);
+        }
 
-      return {
-        id: nf.id,
-        numeroNf: nf.numeroNf,
-        qtdFaturada: nf.qtdFaturada || coveredSequenciais.length || 1,
-        valorNota: nf.valorNota,
-        dataEmissao: nf.dataEmissao,
-        notaPdfUrl: nf.notaPdfUrl,
-        statusPagamento: nf.statusPagamento || (request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE'),
-        coveredSequenciais: coveredSequenciais.length > 0 ? coveredSequenciais : [1],
-      };
-    });
-  } else if (request.invoicePdfUrl || ensaiosFaturados > 0) {
-    const coveredSeqs = ensaiosList.filter((e) => e.statusFaturamento === 'FATURADO' || Boolean(e.reportPdfUrl)).map((e) => e.numeroSequencial);
-    processedInvoices = [
-      {
-        id: 'global-nf',
-        numeroNf: 'Global / Única',
-        qtdFaturada: coveredSeqs.length || totalEnsaios,
-        notaPdfUrl: request.invoicePdfUrl,
-        statusPagamento: request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE',
-        coveredSequenciais: coveredSeqs.length > 0 ? coveredSeqs : ensaiosList.map((e) => e.numeroSequencial),
-      },
-    ];
-  }
+        const coveredSequenciais = covered.map((c) => c.numeroSequencial);
+
+        return {
+          id: nf.id,
+          numeroNf: nf.numeroNf,
+          qtdFaturada: nf.qtdFaturada || coveredSequenciais.length || 1,
+          valorNota: nf.valorNota,
+          dataEmissao: nf.dataEmissao,
+          notaPdfUrl: nf.notaPdfUrl,
+          statusPagamento: nf.statusPagamento || (request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE'),
+          coveredSequenciais: coveredSequenciais.length > 0 ? coveredSequenciais : [1],
+        };
+      });
+    } else if (request.invoicePdfUrl || faturadosCount > 0) {
+      const coveredSeqs = ensaiosList.filter((e) => e.statusFaturamento === 'FATURADO' || Boolean(e.reportPdfUrl)).map((e) => e.numeroSequencial);
+      list = [
+        {
+          id: 'global-nf',
+          numeroNf: 'Global / Única',
+          qtdFaturada: coveredSeqs.length || countTotal,
+          notaPdfUrl: request.invoicePdfUrl,
+          statusPagamento: request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE',
+          coveredSequenciais: coveredSeqs.length > 0 ? coveredSeqs : ensaiosList.map((e) => e.numeroSequencial),
+        },
+      ];
+    }
+    return list;
+  }, [request, ensaiosList]);
 
   // Lista de ensaios que ainda NÃO possuem nota fiscal emitida
-  const allCoveredSeqs = new Set(processedInvoices.flatMap((nf) => nf.coveredSequenciais));
-  const ensaiosSemNf = ensaiosList.filter((e) => !allCoveredSeqs.has(e.numeroSequencial));
+  const clusters = useMemo(() => {
+    const allCoveredSeqs = new Set(processedInvoices.flatMap((nf) => nf.coveredSequenciais));
+    const ensaiosSemNf = ensaiosList.filter((e) => !allCoveredSeqs.has(e.numeroSequencial));
 
-  // Agrupamento por Clusters (NF + Seus Ensaios) para centralizar verticalmente
-  const clusters: Array<{
-    id: string;
-    nf: typeof processedInvoices[0] | null;
-    ensaios: typeof ensaiosList;
-  }> = [];
+    const list: Array<{
+      id: string;
+      nf: typeof processedInvoices[0] | null;
+      ensaios: typeof ensaiosList;
+    }> = [];
 
-  processedInvoices.forEach((nf) => {
-    const ensaiosDoNf = ensaiosList.filter((e) => nf.coveredSequenciais.includes(e.numeroSequencial));
-    clusters.push({
-      id: `cluster-nf-${nf.id}`,
-      nf,
-      ensaios: ensaiosDoNf,
+    processedInvoices.forEach((nf) => {
+      const ensaiosDoNf = ensaiosList.filter((e) => nf.coveredSequenciais.includes(e.numeroSequencial));
+      list.push({
+        id: `cluster-nf-${nf.id}`,
+        nf,
+        ensaios: ensaiosDoNf,
+      });
     });
-  });
 
-  if (ensaiosSemNf.length > 0) {
-    clusters.push({
-      id: "cluster-sem-nf",
-      nf: null,
-      ensaios: ensaiosSemNf,
-    });
-  }
+    if (ensaiosSemNf.length > 0) {
+      list.push({
+        id: "cluster-sem-nf",
+        nf: null,
+        ensaios: ensaiosSemNf,
+      });
+    }
+
+    return list;
+  }, [ensaiosList, processedInvoices]);
 
   // Recalcular as coordenadas das linhas SVG de conexão
   const updateLines = useCallback(() => {
@@ -266,6 +277,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
   }, [ensaiosList, processedInvoices]);
 
   useEffect(() => {
+    if (!request) return;
     updateLines();
     const t1 = setTimeout(updateLines, 100);
     const t2 = setTimeout(updateLines, 500);
@@ -276,7 +288,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
       clearTimeout(t2);
       window.removeEventListener('resize', updateLines);
     };
-  }, [updateLines]);
+  }, [request?.id, updateLines]);
 
   const openPdf = (url?: string | null) => {
     if (!url) return;

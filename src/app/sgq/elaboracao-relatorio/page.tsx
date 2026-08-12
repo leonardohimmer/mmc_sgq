@@ -97,13 +97,14 @@ export default function ElaboracaoRelatorioPage() {
         }
     }
 
-    // Pega os itens de ensaio a elaborar laudo nesta etapa
+    // Pega os itens de ensaio a elaborar laudo nesta etapa (exibindo apenas os ensaios efetivamente realizados/concluídos)
     const getItemsToReport = (req: TestRequest): { numeroSequencial: number; id?: string; reportNumber?: string | null; reportPdfUrl?: string | null }[] => {
         const items = req.executionItems || []
-        // Seleciona os itens recém concluídos/em elaboração que ainda não foram aprovados/enviados
-        const ativos = items.filter(i => (i.statusExecucao === 'EM_EXECUCAO' || i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
-        if (ativos.length > 0) {
-            return ativos.map(i => ({
+        
+        // 1. Seleciona estritamente os ensaios que foram REALIZADOS/CONCLUÍDOS na etapa de execução
+        const concluidos = items.filter(i => (i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        if (concluidos.length > 0) {
+            return concluidos.map(i => ({
                 numeroSequencial: i.numeroSequencial,
                 id: i.id,
                 reportNumber: i.reportNumber,
@@ -111,10 +112,31 @@ export default function ElaboracaoRelatorioPage() {
             }))
         }
 
-        const count = Math.max(1, typeof req.quantidadeEnsaios === 'number' ? req.quantidadeEnsaios : parseInt(String(req.quantidadeEnsaios || '1')) || 1)
-        return Array.from({ length: count }, (_, idx) => ({
-            numeroSequencial: idx + 1
-        }))
+        // 2. Se houver itens em execução ativa no laboratório/campo nesta visita
+        const emExecucao = items.filter(i => i.statusExecucao === 'EM_EXECUCAO' && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        if (emExecucao.length > 0) {
+            return emExecucao.map(i => ({
+                numeroSequencial: i.numeroSequencial,
+                id: i.id,
+                reportNumber: i.reportNumber,
+                reportPdfUrl: i.reportPdfUrl
+            }))
+        }
+
+        // 3. Se houver itens cadastrados mas nenhum marcado como concluído ainda, mostra apenas o 1º item pendente
+        if (items.length > 0) {
+            const pendentes = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+            if (pendentes.length > 0) {
+                return [pendentes[0]].map(i => ({
+                    numeroSequencial: i.numeroSequencial,
+                    id: i.id,
+                    reportNumber: i.reportNumber,
+                    reportPdfUrl: i.reportPdfUrl
+                }))
+            }
+        }
+
+        return [{ numeroSequencial: 1 }]
     }
 
     const handleSelectRequest = (req: TestRequest) => {
@@ -286,7 +308,7 @@ export default function ElaboracaoRelatorioPage() {
                                         Checklist dos Relatórios
                                     </h2>
                                     <p className="text-sm text-slate-500 mt-1">
-                                        Verifique a documentação técnica individual dos {itemsToReport.length} ensaio(s) solicitados (contrato total: {totalContratado} ensaios).
+                                        Verifique a documentação técnica do(s) {itemsToReport.length} ensaio(s) realizado(s) nesta etapa (contrato total: {totalContratado} ensaios).
                                     </p>
                                 </div>
                                 <div className="text-right shrink-0">
@@ -300,7 +322,7 @@ export default function ElaboracaoRelatorioPage() {
                                 {/* Lista de Relatórios por Ensaio */}
                                 <div className="space-y-6">
                                     <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-200 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                                        <span>Elaboração dos Relatórios ({itemsToReport.length} de {totalContratado})</span>
+                                        <span>Elaboração dos Relatórios ({itemsToReport.length} realizado(s) de {totalContratado} contratados)</span>
                                         <span className="text-xs font-normal text-slate-500">Configure cada laudo individualmente</span>
                                     </h3>
 
@@ -324,7 +346,7 @@ export default function ElaboracaoRelatorioPage() {
                                                         </span>
                                                         <div>
                                                             <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">
-                                                                Relatório do Ensaio {item.numeroSequencial} de {totalContratado}
+                                                                Relatório do Ensaio #{item.numeroSequencial}
                                                             </h4>
                                                             <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 font-mono">
                                                                 OS {formatOsCode(selectedRequest, item.numeroSequencial)}

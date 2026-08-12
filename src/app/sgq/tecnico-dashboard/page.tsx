@@ -43,7 +43,7 @@ export default function TecnicoDashboardPage() {
         '05': { label: 'Aprovação de Relatório', statusDesc: 'Aprovação pendente', icon: 'task', href: '/sgq/aprovacao', permission: 'tecnico_aprovacao', statusKey: 'AGUARDANDO_APROVACAO', color: 'red', responsible: 'Responsável Técnico' },
         '06': { label: 'Faturamento', statusDesc: 'Emissão & Baixa de NF', icon: 'payments', href: '/sgq/faturamento', permission: 'tecnico_cobrancas', statusKey: 'FATURAMENTO', color: 'teal', responsible: 'Financeiro/Setor Técnico' },
         '07': { label: 'Pesquisa de Satisfação', statusDesc: 'Aguardando feedback', icon: 'sentiment_satisfied', href: '/sgq/pesquisa-satisfacao', permission: 'tecnico_pesquisa_satisfacao', statusKey: 'PESQUISA_PENDENTE', color: 'pink', responsible: 'Qualidade' },
-        '08': { label: 'Processo Finalizado', statusDesc: 'Concluído', icon: 'verified', href: '/sgq/historico-processos', permission: 'tecnico_dashboard', statusKey: 'FINALIZADO', color: 'emerald', responsible: 'Sistema' },
+        '08': { label: 'Processo Finalizado', statusDesc: 'Concluído', icon: 'verified', href: '/sgq/historico-processos', permission: 'tecnico_historico_processos', statusKey: 'FINALIZADO', color: 'emerald', responsible: 'Sistema' },
     }
 
     const getCountByStep = (stepId: string) => {

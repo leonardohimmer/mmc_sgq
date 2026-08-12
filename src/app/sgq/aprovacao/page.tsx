@@ -153,15 +153,28 @@ function AprovacaoContent() {
 
     const getItemsToApprove = (req: TestRequest): { numeroSequencial: number; id?: string }[] => {
         const items = req.executionItems || []
-        const pendentes = items.filter(i => (i.statusExecucao === 'EM_EXECUCAO' || i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
-        if (pendentes.length > 0) {
-            return pendentes.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
+        
+        // 1. Seleciona estritamente os ensaios realizados/concluídos aguardando aprovação
+        const concluidos = items.filter(i => (i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        if (concluidos.length > 0) {
+            return concluidos.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
         }
 
-        const count = Math.max(1, typeof req.quantidadeEnsaios === 'number' ? req.quantidadeEnsaios : parseInt(String(req.quantidadeEnsaios || '1')) || 1)
-        return Array.from({ length: count }, (_, idx) => ({
-            numeroSequencial: idx + 1
-        }))
+        // 2. Se houver itens em execução ativa
+        const emExecucao = items.filter(i => i.statusExecucao === 'EM_EXECUCAO' && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        if (emExecucao.length > 0) {
+            return emExecucao.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
+        }
+
+        // 3. Se houver itens cadastrados na OS
+        if (items.length > 0) {
+            const pendentes = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+            if (pendentes.length > 0) {
+                return [pendentes[0]].map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
+            }
+        }
+
+        return [{ numeroSequencial: 1 }]
     }
 
     const handleSelectRequest = (req: TestRequest) => {
