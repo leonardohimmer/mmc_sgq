@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import SuccessModal from "@/components/SuccessModal"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 import { Suspense, useState, useEffect } from "react"
 import { format } from "date-fns"
 import { useSearchParams } from "next/navigation"
@@ -154,24 +155,26 @@ function AprovacaoContent() {
     const getItemsToApprove = (req: TestRequest): { numeroSequencial: number; id?: string }[] => {
         const items = req.executionItems || []
         
-        // 1. Seleciona estritamente os ensaios realizados/concluídos aguardando aprovação
-        const concluidos = items.filter(i => (i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
-        if (concluidos.length > 0) {
-            return concluidos.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
+        // 1. Ensaios especificamente liberados para laudo ou em execução ativa nesta visita/etapa
+        const liberados = items.filter(i => (i.statusFaturamento === 'LIBERADO' || i.statusExecucao === 'EM_EXECUCAO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        if (liberados.length > 0) {
+            return liberados.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
         }
 
-        // 2. Se houver itens em execução ativa
-        const emExecucao = items.filter(i => i.statusExecucao === 'EM_EXECUCAO' && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
-        if (emExecucao.length > 0) {
-            return emExecucao.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
+        // 2. Se houver itens concluídos aguardando aprovação
+        const concluidos = items.filter(i => (i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO') && i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        if (concluidos.length > 0) {
+            const liberadosFaixa = concluidos.filter(i => i.statusFaturamento === 'LIBERADO')
+            if (liberadosFaixa.length > 0) {
+                return liberadosFaixa.map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
+            }
+            return [concluidos[0]].map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
         }
 
         // 3. Se houver itens cadastrados na OS
-        if (items.length > 0) {
-            const pendentes = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
-            if (pendentes.length > 0) {
-                return [pendentes[0]].map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
-            }
+        const pendentes = items.filter(i => i.statusEntrega !== 'ENVIADO_AO_CLIENTE')
+        if (pendentes.length > 0) {
+            return [pendentes[0]].map(i => ({ numeroSequencial: i.numeroSequencial, id: i.id }))
         }
 
         return [{ numeroSequencial: 1 }]
@@ -292,9 +295,11 @@ function AprovacaoContent() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-                <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                fullScreen={false}
+                message="Carregando aprovações técnicas..."
+                submessage="Sincronizando revisões e assinaturas do laboratório"
+            />
         )
     }
 

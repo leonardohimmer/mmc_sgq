@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { format, differenceInDays, differenceInBusinessDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import OrganogramaContratual from "@/components/OrganogramaContratual"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 export default function HistoricoProcessosPage() {
     return (
@@ -68,9 +69,11 @@ function HistoricoTab() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[30vh]">
-                <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                fullScreen={false}
+                message="Carregando histórico de processos..."
+                submessage="Sincronizando processos concluídos e pesquisas revisadas"
+            />
         )
     }
 

@@ -465,7 +465,7 @@ export default function PortalClientePage() {
 
     useEffect(() => {
         fetchClientRequests();
-        const interval = setInterval(fetchClientRequests, 15000);
+        const interval = setInterval(fetchClientRequests, 60000);
         return () => clearInterval(interval);
     }, [fetchClientRequests]);
 

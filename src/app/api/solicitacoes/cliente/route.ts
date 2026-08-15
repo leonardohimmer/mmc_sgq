@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { ensureExecutionItemsCreated } from '@/lib/os-balance-service'
+import { getLightweightRequests } from '@/lib/lightweight-requests'
 
 export async function GET(request: Request) {
     try {
@@ -22,57 +23,7 @@ export async function GET(request: Request) {
                 clientName: clientName
             }
 
-        const requests = await prisma.testRequest.findMany({
-            where: whereCondition,
-            include: {
-                executionItems: {
-                    orderBy: { numeroSequencial: 'asc' },
-                    include: {
-                        partialInvoice: true
-                    }
-                },
-                partialInvoices: {
-                    orderBy: { createdAt: 'desc' }
-                },
-                satisfactionSurvey: true
-            },
-            orderBy: { createdAt: 'desc' }
-        })
-
-        const formattedRequests = await Promise.all(requests.map(async req => {
-            const hasReportPdf = Boolean(req.reportPdfUrl && req.reportPdfUrl.trim() !== "");
-            const hasProposalPdf = Boolean(req.proposalPdfUrl && req.proposalPdfUrl.trim() !== "");
-            const hasInvoicePdf = Boolean(req.invoicePdfUrl && req.invoicePdfUrl.trim() !== "");
-
-            let items = req.executionItems;
-            if (items.length === 0) {
-                items = await ensureExecutionItemsCreated(req.id, req.quantidadeEnsaios);
-            }
-
-            const isElaborandoOuPosterior = ['ELABORANDO_RELATORIO', 'AGUARDANDO_APROVACAO', 'COBRANCA', 'PAGAMENTO', 'PESQUISA_PENDENTE', 'FINALIZADO'].includes(req.status);
-            const qtdContratada = Math.max(req.qtdContratada || 1, items.length);
-            const qtdExecutadaCalc = items.filter(i => i.statusExecucao === 'CONCLUIDO' || i.statusExecucao === 'APROVADO' || Boolean(i.reportPdfUrl)).length;
-            const batchCount = req.quantidadeEnsaios ? (parseInt(String(req.quantidadeEnsaios)) || 1) : 1;
-            const qtdExecutada = Math.max(qtdExecutadaCalc, isElaborandoOuPosterior ? Math.min(qtdContratada, Math.max(1, batchCount)) : 0);
-            const qtdEntregue = items.filter(i => i.statusEntrega === 'ENVIADO_AO_CLIENTE').length;
-            const qtdFaturada = req.partialInvoices.reduce((acc, inv) => acc + inv.qtdFaturada, 0);
-
-            return {
-                ...req,
-                executionItems: items,
-                qtdContratada,
-                qtdExecutada,
-                qtdEntregue,
-                qtdPendenteExecucao: Math.max(0, qtdContratada - qtdExecutada),
-                qtdPendenteEntrega: Math.max(0, qtdContratada - qtdEntregue),
-                qtdFaturada,
-                qtdPendenteFaturamento: Math.max(0, qtdExecutada - qtdFaturada),
-                porcentagemConcluida: Math.min(100, Math.round((qtdEntregue / qtdContratada) * 100)),
-                reportPdfUrl: hasReportPdf ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
-                proposalPdfUrl: hasProposalPdf ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
-                invoicePdfUrl: hasInvoicePdf ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
-            };
-        }))
+        const formattedRequests = await getLightweightRequests(whereCondition)
 
         return NextResponse.json(formattedRequests)
     } catch (error) {

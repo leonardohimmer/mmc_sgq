@@ -39,12 +39,13 @@ export async function GET(req: NextRequest) {
         const dateLimit = new Date()
         dateLimit.setDate(dateLimit.getDate() - days)
 
-        // Buscar todos os cliques no período
+        // Buscar no máximo 200 cliques recentes no período para o mapa de calor
         const clicks = await prisma.clickLog.findMany({
             where: {
                 createdAt: { gte: dateLimit }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            take: 200
         })
 
         // Agrupar por seletor/texto para o "termômetro"

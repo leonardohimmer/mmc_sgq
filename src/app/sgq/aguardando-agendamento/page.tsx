@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import SuccessModal from "@/components/SuccessModal"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 import { formatOsCode } from "@/lib/os-balance-service"
 
 type TestRequest = {
@@ -113,9 +114,11 @@ export default function AguardandoAgendamentoPage() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-                <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                fullScreen={false}
+                message="Carregando agendamentos..."
+                submessage="Sincronizando datas de ensaios e alocação de equipe"
+            />
         )
     }
 

@@ -133,22 +133,11 @@ export async function POST(
       isFinalized = true;
     }
 
-    // Calcular novo saldo atualizado da OS
+    // Atualizar o status da OS com base no saldo e pesquisa de satisfação
+    const { updateOsStatusBasedOnBalance } = await import("@/lib/os-balance-service");
+    const updatedStatus = await updateOsStatusBasedOnBalance(id);
     const balance = await calculateOsBalance(id);
-
-    // Se a OS atendeu a todas as condições (todos os ensaios entregues E pesquisa respondida)
-    if (balance.isOsFinalizada) {
-      await prisma.testRequest.update({
-        where: { id },
-        data: {
-          status: "FINALIZADO",
-          step: 10,
-          paymentConfirmedAt: existingRequest.paymentConfirmedAt || now,
-          paymentConfirmedBy: existingRequest.paymentConfirmedBy || changedBy,
-        },
-      });
-      isFinalized = true;
-    }
+    isFinalized = updatedStatus === "FINALIZADO";
 
     return NextResponse.json({
       success: true,
@@ -156,6 +145,8 @@ export async function POST(
       isFinalized,
       message: isFinalized
         ? "Pagamento total confirmado! O processo foi finalizado e enviado ao Histórico de Processos."
+        : updatedStatus === "PESQUISA_PENDENTE"
+        ? "Pagamento total confirmado! O processo avançou para a Pesquisa de Satisfação."
         : "Pagamento parcial registrado com sucesso.",
     });
   } catch (error: any) {

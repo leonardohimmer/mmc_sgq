@@ -269,6 +269,7 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
 
   const isSurveyCompleted = request.satisfactionSurvey?.status === 'REVIEWED';
   const isTodosEnsaiosEntregues = balance.qtdEntregue >= balance.qtdContratada && balance.qtdExecutada >= balance.qtdContratada;
+  const isTodosEnsaiosPagos = balance.qtdPagos >= balance.qtdContratada;
 
   // 1. Se a OS cumpriu TODOS os critérios (todos ensaios entregues, todos pagos E pesquisa registrada), a OS é FINALIZADA
   if (balance.isOsFinalizada) {
@@ -279,6 +280,18 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
       });
     }
     return 'FINALIZADO';
+  }
+
+  // 2. Se todos os ensaios foram entregues E todos os ensaios foram pagos, mas a pesquisa AINDA NÃO FOI AVALIADA PELA QUALIDADE:
+  // A OS sai do Faturamento/Financeiro e avança para PESQUISA_PENDENTE
+  if (isTodosEnsaiosEntregues && isTodosEnsaiosPagos && !isSurveyCompleted) {
+    if (request.status !== 'PESQUISA_PENDENTE') {
+      await prisma.testRequest.update({
+        where: { id: requestId },
+        data: { status: 'PESQUISA_PENDENTE', step: 9 },
+      });
+    }
+    return 'PESQUISA_PENDENTE';
   }
 
   // Se a OS está em FINALIZADO mas NÃO cumpriu todos os critérios de quitação ou de registro da pesquisa
@@ -293,7 +306,7 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
     return fallbackStatus;
   }
 
-  // 2. Se a OS está ativamente em uma etapa do fluxo procedural (Elaboração, Aprovação, Cobrança, Pagamento, Aceite), PRESERVA este status sem sobrescrever!
+  // 3. Se a OS está ativamente em uma etapa do fluxo procedural (Elaboração, Aprovação, Cobrança, Pagamento, Aceite), PRESERVA este status sem sobrescrever!
   if (
     request.status === 'ELABORANDO_RELATORIO' ||
     request.status === 'AGUARDANDO_APROVACAO' ||
@@ -304,12 +317,12 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
     return request.status;
   }
 
-  // 3. Se todos os ensaios foram entregues mas a pesquisa de satisfação está pendente
+  // 4. Se todos os ensaios foram entregues mas a pesquisa de satisfação está pendente
   if (isTodosEnsaiosEntregues && !isSurveyCompleted) {
     if (request.status !== 'PESQUISA_PENDENTE') {
       await prisma.testRequest.update({
         where: { id: requestId },
-        data: { status: 'PESQUISA_PENDENTE' },
+        data: { status: 'PESQUISA_PENDENTE', step: 9 },
       });
     }
     return 'PESQUISA_PENDENTE';

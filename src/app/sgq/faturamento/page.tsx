@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 import SuccessModal from "@/components/SuccessModal";
+import MMCLoadingScreen from "@/components/MMCLoadingScreen";
 import { formatOsCode } from "@/lib/os-balance-service";
 import OrganogramaContratual from "@/components/OrganogramaContratual";
 
@@ -108,9 +109,10 @@ export default function FaturamentoParcialPage() {
       const res = await fetch("/api/solicitacoes");
       if (res.ok) {
         const data: RequestWithBalance[] = await res.json();
-        // Filtra apenas OSs onde ao menos um relatório foi entregue ao cliente e EXCLUI OSs já finalizadas
+        // Filtra apenas OSs onde ao menos um relatório foi entregue e EXCLUI OSs já finalizadas, em Pesquisa de Satisfação ou 100% quitadas
         const eligibleRequests = data.filter((req) => {
-          if (req.status === 'FINALIZADO') return false;
+          if (req.status === 'FINALIZADO' || req.status === 'PESQUISA_PENDENTE') return false;
+          if (req.qtdPagos && req.qtdContratada && req.qtdPagos >= req.qtdContratada && req.qtdExecutada >= req.qtdContratada && req.qtdEntregue >= req.qtdContratada) return false;
           return (req.qtdEntregue > 0 || (req.partialInvoices && req.partialInvoices.length > 0) || req.qtdFaturada > 0);
         });
         setRequests(eligibleRequests);
@@ -340,9 +342,11 @@ export default function FaturamentoParcialPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-        <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin" />
-      </div>
+      <MMCLoadingScreen
+        fullScreen={false}
+        message="Carregando módulo de faturamento..."
+        submessage="Sincronizando notas fiscais e baixas financeiras MMC LAB"
+      />
     );
   }
 

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import SuccessModal from "@/components/SuccessModal"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 import ConfirmModal from "@/components/ConfirmModal"
 import { formatOsCode } from "@/lib/os-balance-service"
 
@@ -207,9 +208,11 @@ export default function EnvioPropostaPage() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-                <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                fullScreen={false}
+                message="Carregando propostas comerciais..."
+                submessage="Sincronizando orçamentos e propostas com a MMC LAB"
+            />
         )
     }
 

@@ -21,9 +21,11 @@ export const viewport = {
   maximumScale: 5,
 };
 
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 import ClickTracker from "@/components/ClickTracker";
 import ScrollToTop from "@/components/ScrollToTop";
+import GlobalNavigationLoader from "@/components/GlobalNavigationLoader";
 
 export default function RootLayout({
   children,
@@ -44,6 +46,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <Toaster richColors closeButton position="top-right" />
           <AuthProvider>
+            <Suspense fallback={null}>
+              <GlobalNavigationLoader />
+            </Suspense>
             <ClickTracker />
             {children}
             <ScrollToTop />

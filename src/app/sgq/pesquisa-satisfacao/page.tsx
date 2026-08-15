@@ -1,6 +1,7 @@
 "use client"
 
 import { toast } from "sonner"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 import { useState, useEffect } from "react"
 import { format, differenceInDays, differenceInBusinessDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -56,9 +57,11 @@ function RespostasTab() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[30vh]">
-                <div className="h-8 w-8 border-4 border-slate-200 dark:border-slate-800 border-t-primary rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                fullScreen={false}
+                message="Carregando pesquisas de satisfação..."
+                submessage="Sincronizando avaliações e relatórios com a Qualidade MMC LAB"
+            />
         )
     }
 
