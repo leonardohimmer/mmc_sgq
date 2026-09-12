@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { sendFinalizedEmail, sendInvoiceEmail } from '@/lib/mail'
+import { sendFinalizedEmail, sendInvoiceEmail, normalizeRecipients } from '@/lib/mail'
 import { attachReportToExecutionItem, formatOsCode, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service'
 
 export async function PATCH(
@@ -267,30 +267,32 @@ export async function PATCH(
             (currentStatusValue === 'PAGAMENTO' && existingRequest.status !== 'PAGAMENTO' && updatedRequest.invoiceNumber);
 
         if (isEmittingInvoice) {
-            const recipientList: string[] = [];
-            if (updatedRequest.emailsProposta && Array.isArray(updatedRequest.emailsProposta)) {
-                recipientList.push(...updatedRequest.emailsProposta);
-            }
-            if (updatedRequest.proposalEmail) {
-                recipientList.push(updatedRequest.proposalEmail);
-            }
-            if (updatedRequest.clientEmail) {
-                recipientList.push(updatedRequest.clientEmail);
-            }
+            const recipientList: string[] = normalizeRecipients([
+                ...(updatedRequest.emailsProposta || []),
+                ...(updatedRequest.emailsRelatorio || []),
+                ...(updatedRequest.sharedEmails || []),
+                updatedRequest.proposalEmail,
+                updatedRequest.reportEmail,
+                updatedRequest.clientEmail,
+            ]);
 
             if (recipientList.length > 0) {
                 const osCode = formatOsCode(updatedRequest);
-                sendInvoiceEmail({
-                    to: recipientList,
-                    name: updatedRequest.clientName || 'Cliente',
-                    requestId: updatedRequest.id,
-                    osCode,
-                    invoiceNumber: updatedRequest.invoiceNumber || invoiceNumber || 'NF-e',
-                    valorNota: updatedRequest.valorTotal || null,
-                    qtdFaturada: updatedRequest.qtdContratada || null,
-                    type: updatedRequest.type,
-                    invoicePdfUrl: updatedRequest.invoicePdfUrl || invoicePdfUrl || null,
-                }).catch((err) => console.error('Erro assíncrono ao enviar e-mail de nota fiscal na OS:', err));
+                try {
+                    await sendInvoiceEmail({
+                        to: recipientList,
+                        name: updatedRequest.clientName || 'Cliente',
+                        requestId: updatedRequest.id,
+                        osCode,
+                        invoiceNumber: updatedRequest.invoiceNumber || invoiceNumber || 'NF-e',
+                        valorNota: updatedRequest.valorTotal || null,
+                        qtdFaturada: updatedRequest.qtdContratada || null,
+                        type: updatedRequest.type,
+                        invoicePdfUrl: updatedRequest.invoicePdfUrl || invoicePdfUrl || null,
+                    });
+                } catch (err) {
+                    console.error('Erro ao enviar e-mail de nota fiscal na OS:', err);
+                }
             }
         }
 

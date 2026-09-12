@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { calculateOsBalance, formatOsCode } from '@/lib/os-balance-service';
-import { sendInvoiceEmail } from '@/lib/mail';
+import { sendInvoiceEmail, normalizeRecipients } from '@/lib/mail';
 
 // POST /api/solicitacoes/[id]/faturamento-parcial
 export async function POST(
@@ -97,47 +97,61 @@ export async function POST(
       select: {
         clientEmail: true,
         proposalEmail: true,
+        reportEmail: true,
         emailsProposta: true,
+        emailsRelatorio: true,
+        sharedEmails: true,
         clientName: true,
         type: true,
         createdAt: true,
       },
     });
 
+    let emailSent = false;
+    let emailSimulated = false;
+    let recipientList: string[] = [];
+
     if (requestDetails) {
-      const recipientList: string[] = [];
-      if (requestDetails.emailsProposta && Array.isArray(requestDetails.emailsProposta)) {
-        recipientList.push(...requestDetails.emailsProposta);
-      }
-      if (requestDetails.proposalEmail) {
-        recipientList.push(requestDetails.proposalEmail);
-      }
-      if (requestDetails.clientEmail) {
-        recipientList.push(requestDetails.clientEmail);
-      }
+      recipientList = normalizeRecipients([
+        ...(requestDetails.emailsProposta || []),
+        ...(requestDetails.emailsRelatorio || []),
+        ...(requestDetails.sharedEmails || []),
+        requestDetails.proposalEmail,
+        requestDetails.reportEmail,
+        requestDetails.clientEmail,
+      ]);
 
       if (recipientList.length > 0) {
         const osCode = formatOsCode(requestDetails);
-        sendInvoiceEmail({
-          to: recipientList,
-          name: requestDetails.clientName || 'Cliente',
-          requestId,
-          osCode,
-          invoiceNumber: numeroNf,
-          valorNota: valorCalculado,
-          qtdFaturada,
-          type: requestDetails.type,
-          invoicePdfUrl: notaPdfUrl || null,
-          observacoes: observacoes || null,
-        }).catch((err) => console.error('Erro assíncrono ao enviar e-mail com nota fiscal:', err));
+        try {
+          const mailRes = await sendInvoiceEmail({
+            to: recipientList,
+            name: requestDetails.clientName || 'Cliente',
+            requestId,
+            osCode,
+            invoiceNumber: numeroNf,
+            valorNota: valorCalculado,
+            qtdFaturada,
+            type: requestDetails.type,
+            invoicePdfUrl: notaPdfUrl || null,
+            observacoes: observacoes || null,
+          });
+          emailSent = !!mailRes?.success;
+          emailSimulated = !!mailRes?.simulated;
+        } catch (err) {
+          console.error('Erro ao enviar e-mail com nota fiscal:', err);
+        }
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: `Nota Fiscal Parcial nº ${numeroNf} emitida e enviada por e-mail com sucesso para ${qtdFaturada} ensaio(s).`,
+      message: `Nota Fiscal Parcial nº ${numeroNf} emitida com sucesso para ${qtdFaturada} ensaio(s).`,
       partialInvoice,
       balance,
+      emailSent,
+      emailSimulated,
+      recipients: recipientList,
     });
   } catch (error: any) {
     console.error('Erro ao emitir faturamento parcial:', error);

@@ -25,7 +25,7 @@ function getPortalLoginUrl() {
     return `${baseUrl}/login-cliente`
 }
 
-export function normalizeRecipients(to: string | string[] | undefined | null): string[] {
+export function normalizeRecipients(to: string | (string | null | undefined)[] | null | undefined): string[] {
     if (!to) return []
     const list = Array.isArray(to) ? to : [to]
     const clean = list
@@ -59,6 +59,36 @@ export function renderProcessTrackingBanner(loginUrl?: string) {
             </p>
         </div>
     `
+}
+
+export function getPdfAttachment(dataUrlOrBase64: string | null | undefined, defaultFilename: string) {
+    if (!dataUrlOrBase64) return null
+    try {
+        if (dataUrlOrBase64.startsWith("data:")) {
+            const commaIndex = dataUrlOrBase64.indexOf(",")
+            if (commaIndex !== -1) {
+                const header = dataUrlOrBase64.substring(0, commaIndex)
+                const contentTypeMatch = header.match(/data:(.*?);base64/)
+                const contentType = contentTypeMatch ? contentTypeMatch[1] : "application/pdf"
+                const base64Data = dataUrlOrBase64.substring(commaIndex + 1).trim()
+                return {
+                    filename: defaultFilename,
+                    content: Buffer.from(base64Data, "base64"),
+                    contentType
+                }
+            }
+        }
+        if (dataUrlOrBase64.length > 200 && !dataUrlOrBase64.startsWith("http") && !dataUrlOrBase64.startsWith("/")) {
+            return {
+                filename: defaultFilename,
+                content: Buffer.from(dataUrlOrBase64.trim(), "base64"),
+                contentType: "application/pdf"
+            }
+        }
+    } catch (e) {
+        console.error("Erro ao processar anexo PDF para e-mail:", e)
+    }
+    return null
 }
 
 /**
@@ -122,11 +152,12 @@ export async function sendVerificationEmail(to: string, name: string, token: str
     }
 
     try {
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.warn("Aviso: EMAIL_USER ou EMAIL_PASS não configurados. E-mail de verificação simulado para:", to)
+        const emailUser = process.env.EMAIL_USER?.trim()
+        const emailPass = process.env.EMAIL_PASS?.trim()
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de verificação simulado para:", to)
             return { success: true, simulated: true }
         }
-        await transporter.verify()
         const info = await transporter.sendMail(mailOptions)
         console.log(`E-mail de verificação enviado com sucesso para ${to}. MessageId: ${info.messageId}`)
         return { success: true }
@@ -164,13 +195,9 @@ export async function sendProposalEmail(params: {
     const transporter = createTransporter()
 
     const attachments: any[] = []
-    if (proposalPdfUrl && proposalPdfUrl.startsWith("data:application/pdf;base64,")) {
-        const base64Data = proposalPdfUrl.replace("data:application/pdf;base64,", "")
-        attachments.push({
-            filename: `Proposta_${proposalCode || "MMC"}.pdf`,
-            content: Buffer.from(base64Data, "base64"),
-            contentType: "application/pdf"
-        })
+    const attachment = getPdfAttachment(proposalPdfUrl, `Proposta_${proposalCode || "MMC"}.pdf`)
+    if (attachment) {
+        attachments.push(attachment)
     }
 
     const mailOptions = {
@@ -246,11 +273,12 @@ export async function sendProposalEmail(params: {
     }
 
     try {
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.warn("Aviso: EMAIL_USER ou EMAIL_PASS não configurados. E-mail de proposta simulado para:", recipients)
+        const emailUser = process.env.EMAIL_USER?.trim()
+        const emailPass = process.env.EMAIL_PASS?.trim()
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de proposta simulado para:", recipients)
             return { success: true, simulated: true }
         }
-        await transporter.verify()
         const info = await transporter.sendMail(mailOptions)
         console.log(`E-mail de proposta enviado com sucesso para ${recipients.join(", ")}. MessageId: ${info.messageId}`)
         return { success: true }
@@ -299,9 +327,12 @@ export async function sendWelcomeEmail(to: string, name: string, rawPassword: st
     }
 
     try {
-        // Verificar conexão antes de enviar
-        await transporter.verify();
-        console.log("Conexão SMTP verificada com sucesso.");
+        const emailUser = process.env.EMAIL_USER?.trim()
+        const emailPass = process.env.EMAIL_PASS?.trim()
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de boas-vindas simulado para:", to)
+            return { success: true, simulated: true }
+        }
 
         const info = await transporter.sendMail(mailOptions)
         console.log(`E-mail enviado com sucesso para ${to}. MessageId: ${info.messageId}`)
@@ -357,7 +388,12 @@ export async function sendFinalizedEmail(to: string, name: string, requestId: st
     }
 
     try {
-        await transporter.verify();
+        const emailUser = process.env.EMAIL_USER?.trim()
+        const emailPass = process.env.EMAIL_PASS?.trim()
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de finalização simulado para:", to)
+            return { success: true, simulated: true }
+        }
         const info = await transporter.sendMail(mailOptions)
         console.log(`E-mail de finalização enviado com sucesso para ${to}. MessageId: ${info.messageId}`)
         return { success: true }
@@ -392,13 +428,9 @@ export async function sendReportWithSurveyEmail(params: {
     const transporter = createTransporter();
 
     const attachments: any[] = [];
-    if (reportPdfUrl && reportPdfUrl.startsWith("data:application/pdf;base64,")) {
-        const base64Data = reportPdfUrl.replace("data:application/pdf;base64,", "");
-        attachments.push({
-            filename: `Relatorio_Tecnico_Ensaio_${itemNumber}_${osCode || "MMC"}.pdf`,
-            content: Buffer.from(base64Data, "base64"),
-            contentType: "application/pdf"
-        });
+    const attachment = getPdfAttachment(reportPdfUrl, `Relatorio_Tecnico_Ensaio_${itemNumber}_${osCode || "MMC"}.pdf`);
+    if (attachment) {
+        attachments.push(attachment);
     }
 
     const mailOptions = {
@@ -457,11 +489,12 @@ export async function sendReportWithSurveyEmail(params: {
     };
 
     try {
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.warn("Aviso: EMAIL_USER ou EMAIL_PASS não configurados. E-mail de relatório simulado para:", recipients);
+        const emailUser = process.env.EMAIL_USER?.trim();
+        const emailPass = process.env.EMAIL_PASS?.trim();
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de relatório simulado para:", recipients);
             return { success: true, simulated: true };
         }
-        await transporter.verify();
         const info = await transporter.sendMail(mailOptions);
         console.log(`E-mail de relatório enviado com sucesso para ${recipients.join(", ")}. MessageId: ${info.messageId}`);
         return { success: true };
@@ -499,13 +532,9 @@ export async function sendInvoiceEmail(params: {
     const transporter = createTransporter();
 
     const attachments: any[] = [];
-    if (invoicePdfUrl && invoicePdfUrl.startsWith("data:application/pdf;base64,")) {
-        const base64Data = invoicePdfUrl.replace("data:application/pdf;base64,", "");
-        attachments.push({
-            filename: `Nota_Fiscal_${invoiceNumber || "MMC"}.pdf`,
-            content: Buffer.from(base64Data, "base64"),
-            contentType: "application/pdf"
-        });
+    const attachment = getPdfAttachment(invoicePdfUrl, `Nota_Fiscal_${invoiceNumber || "MMC"}.pdf`);
+    if (attachment) {
+        attachments.push(attachment);
     }
 
     const valorFormatado = valorNota != null
@@ -587,11 +616,12 @@ export async function sendInvoiceEmail(params: {
     };
 
     try {
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.warn("Aviso: EMAIL_USER ou EMAIL_PASS não configurados. E-mail de nota fiscal simulado para:", recipients);
+        const emailUser = process.env.EMAIL_USER?.trim();
+        const emailPass = process.env.EMAIL_PASS?.trim();
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de nota fiscal simulado para:", recipients);
             return { success: true, simulated: true };
         }
-        await transporter.verify();
         const info = await transporter.sendMail(mailOptions);
         console.log(`E-mail de nota fiscal enviado com sucesso para ${recipients.join(", ")}. MessageId: ${info.messageId}`);
         return { success: true };
@@ -639,7 +669,12 @@ export async function sendResetPasswordEmail(to: string, name: string, token: st
     }
 
     try {
-        await transporter.verify();
+        const emailUser = process.env.EMAIL_USER?.trim();
+        const emailPass = process.env.EMAIL_PASS?.trim();
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de recuperação simulado para:", to);
+            return { success: true, simulated: true };
+        }
         const info = await transporter.sendMail(mailOptions)
         console.log(`E-mail de recuperação enviado com sucesso para ${to}. MessageId: ${info.messageId}`)
         return { success: true }

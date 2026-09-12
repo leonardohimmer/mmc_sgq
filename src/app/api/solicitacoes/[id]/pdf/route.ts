@@ -15,34 +15,105 @@ export async function GET(
 
         const { id } = await params
         const { searchParams } = new URL(request.url)
-        const type = searchParams.get('type') // 'report', 'proposal', 'invoice', 'acceptance_proof'
+        const type = searchParams.get('type') // 'report', 'proposal', 'invoice', 'acceptance_proof', 'proof'
+        const itemId = searchParams.get('itemId')
+        const invoiceId = searchParams.get('invoiceId')
 
         if (!type || !['report', 'proposal', 'invoice', 'acceptance_proof', 'proof'].includes(type)) {
             return new Response('Tipo de arquivo inválido', { status: 400 })
         }
 
-        // Busca apenas o campo específico do banco
-        const fieldName = (type === 'acceptance_proof' || type === 'proof') 
-            ? 'acceptanceProofUrl' 
-            : type === 'report' 
-                ? 'reportPdfUrl' 
-                : type === 'proposal' 
-                    ? 'proposalPdfUrl' 
-                    : 'invoicePdfUrl'
+        let fileUrl: string | null = null
+        let docNumber: string | null = null
 
-        const req = await prisma.testRequest.findUnique({
-            where: { id },
-            select: {
-                [fieldName]: true,
-                reportNumber: true
+        if (type === 'report') {
+            // 1. Tenta buscar no item específico se itemId foi fornecido
+            if (itemId) {
+                const item = await prisma.testExecutionItem.findFirst({
+                    where: { id: itemId, requestId: id },
+                    select: { reportPdfUrl: true, reportNumber: true }
+                })
+                if (item?.reportPdfUrl) {
+                    fileUrl = item.reportPdfUrl
+                    docNumber = item.reportNumber
+                }
             }
-        })
 
-        if (!req) {
-            return new Response('Solicitação não encontrada', { status: 404 })
+            // 2. Se não achou no item, busca no TestRequest principal
+            if (!fileUrl) {
+                const req = await prisma.testRequest.findUnique({
+                    where: { id },
+                    select: { reportPdfUrl: true, reportNumber: true }
+                })
+                if (req?.reportPdfUrl) {
+                    fileUrl = req.reportPdfUrl
+                    docNumber = req.reportNumber
+                }
+            }
+
+            // 3. Fallback: se ainda não achou, busca no primeiro item com PDF
+            if (!fileUrl) {
+                const firstItem = await prisma.testExecutionItem.findFirst({
+                    where: { requestId: id, reportPdfUrl: { not: null } },
+                    select: { reportPdfUrl: true, reportNumber: true }
+                })
+                if (firstItem?.reportPdfUrl) {
+                    fileUrl = firstItem.reportPdfUrl
+                    docNumber = firstItem.reportNumber
+                }
+            }
+        } else if (type === 'invoice') {
+            // 1. Tenta buscar na PartialInvoice se invoiceId foi fornecido
+            if (invoiceId) {
+                const inv = await prisma.partialInvoice.findFirst({
+                    where: { id: invoiceId, requestId: id },
+                    select: { notaPdfUrl: true, numeroNf: true }
+                })
+                if (inv?.notaPdfUrl) {
+                    fileUrl = inv.notaPdfUrl
+                    docNumber = inv.numeroNf
+                }
+            }
+
+            // 2. Se não achou na PartialInvoice, busca no TestRequest principal
+            if (!fileUrl) {
+                const req = await prisma.testRequest.findUnique({
+                    where: { id },
+                    select: { invoicePdfUrl: true, invoiceNumber: true }
+                })
+                if (req?.invoicePdfUrl) {
+                    fileUrl = req.invoicePdfUrl
+                    docNumber = req.invoiceNumber
+                }
+            }
+
+            // 3. Fallback: se ainda não achou, busca na primeira PartialInvoice com PDF
+            if (!fileUrl) {
+                const firstInv = await prisma.partialInvoice.findFirst({
+                    where: { requestId: id, notaPdfUrl: { not: null } },
+                    select: { notaPdfUrl: true, numeroNf: true }
+                })
+                if (firstInv?.notaPdfUrl) {
+                    fileUrl = firstInv.notaPdfUrl
+                    docNumber = firstInv.numeroNf
+                }
+            }
+        } else if (type === 'proposal') {
+            const req = await prisma.testRequest.findUnique({
+                where: { id },
+                select: { proposalPdfUrl: true, proposalCode: true }
+            })
+            fileUrl = req?.proposalPdfUrl || null
+            docNumber = req?.proposalCode || null
+        } else {
+            // acceptance_proof ou proof
+            const req = await prisma.testRequest.findUnique({
+                where: { id },
+                select: { acceptanceProofUrl: true }
+            })
+            fileUrl = req?.acceptanceProofUrl || null
         }
 
-        const fileUrl = (req as any)[fieldName]
         if (!fileUrl) {
             return new Response('Arquivo não encontrado', { status: 404 })
         }
@@ -62,15 +133,15 @@ export async function GET(
                 const filename = (type === 'acceptance_proof' || type === 'proof')
                     ? `Comprovante-Aceite-${id}.${ext}`
                     : type === 'report' 
-                        ? `Relatorio-${req.reportNumber || id}.pdf`
+                        ? `Relatorio-${docNumber || id}.pdf`
                         : type === 'proposal' 
-                            ? `Proposta-${id}.pdf`
-                            : `Fatura-${id}.pdf`
+                            ? `Proposta-${docNumber || id}.pdf`
+                            : `Nota-Fiscal-${docNumber || id}.pdf`
 
                 return new Response(fileBuffer, {
                     headers: {
                         'Content-Type': contentType,
-                        'Content-Disposition': `inline; filename="${filename}"`,
+                        'Content-Disposition': `inline; filename="${encodeURIComponent(filename)}"`,
                     }
                 })
             }

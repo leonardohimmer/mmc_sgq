@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { calculateOsBalance, formatOsCode, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service';
-import { sendReportWithSurveyEmail } from '@/lib/mail';
+import { sendReportWithSurveyEmail, normalizeRecipients } from '@/lib/mail';
 
 // POST /api/solicitacoes/[id]/enviar-relatorio-parcial
 export async function POST(
@@ -88,7 +88,10 @@ export async function POST(
       select: {
         clientEmail: true,
         reportEmail: true,
+        proposalEmail: true,
         emailsRelatorio: true,
+        emailsProposta: true,
+        sharedEmails: true,
         clientName: true,
         type: true,
         qtdContratada: true,
@@ -98,30 +101,38 @@ export async function POST(
       },
     });
 
+    let emailSent = false;
+    let emailSimulated = false;
+    let recipientList: string[] = [];
+
     if (requestData) {
-      const recipientList: string[] = [];
-      if (requestData.emailsRelatorio && Array.isArray(requestData.emailsRelatorio)) {
-        recipientList.push(...requestData.emailsRelatorio);
-      }
-      if (requestData.reportEmail) {
-        recipientList.push(requestData.reportEmail);
-      }
-      if (requestData.clientEmail) {
-        recipientList.push(requestData.clientEmail);
-      }
+      recipientList = normalizeRecipients([
+        ...(requestData.emailsRelatorio || []),
+        ...(requestData.emailsProposta || []),
+        ...(requestData.sharedEmails || []),
+        requestData.reportEmail,
+        requestData.proposalEmail,
+        requestData.clientEmail,
+      ]);
 
       if (recipientList.length > 0) {
         const osCode = formatOsCode(requestData, updatedItem.numeroSequencial);
-        sendReportWithSurveyEmail({
-          to: recipientList,
-          name: requestData.clientName || 'Cliente',
-          requestId,
-          type: requestData.type,
-          itemNumber: updatedItem.numeroSequencial,
-          totalItems: Math.max(requestData.qtdContratada || 1, balance.qtdContratada),
-          osCode,
-          reportPdfUrl: updatedItem.reportPdfUrl || reportPdfUrl,
-        }).catch((err) => console.error('Erro assíncrono ao enviar e-mail com relatório e pesquisa:', err));
+        try {
+          const mailRes = await sendReportWithSurveyEmail({
+            to: recipientList,
+            name: requestData.clientName || 'Cliente',
+            requestId,
+            type: requestData.type,
+            itemNumber: updatedItem.numeroSequencial,
+            totalItems: Math.max(requestData.qtdContratada || 1, balance.qtdContratada),
+            osCode,
+            reportPdfUrl: updatedItem.reportPdfUrl || reportPdfUrl,
+          });
+          emailSent = !!mailRes?.success;
+          emailSimulated = !!mailRes?.simulated;
+        } catch (err) {
+          console.error('Erro ao enviar e-mail com relatório e pesquisa:', err);
+        }
       }
     }
 
@@ -131,6 +142,9 @@ export async function POST(
       item: updatedItem,
       balance,
       osStatus: newOsStatus,
+      emailSent,
+      emailSimulated,
+      recipients: recipientList,
     });
   } catch (error: any) {
     console.error('Erro ao enviar relatório parcial:', error);
