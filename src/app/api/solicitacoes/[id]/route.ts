@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { sendFinalizedEmail } from '@/lib/mail'
-import { attachReportToExecutionItem, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service'
+import { sendFinalizedEmail, sendInvoiceEmail } from '@/lib/mail'
+import { attachReportToExecutionItem, formatOsCode, updateOsStatusBasedOnBalance } from '@/lib/os-balance-service'
 
 export async function PATCH(
     request: Request,
@@ -260,6 +260,38 @@ export async function PATCH(
                 updatedRequest.id,
                 updatedRequest.type
             )
+        }
+
+        // Disparar envio de Nota Fiscal por e-mail se uma fatura/cobrança foi emitida
+        const isEmittingInvoice = (invoiceNumber !== undefined && invoiceNumber !== "" && invoiceNumber !== existingRequest.invoiceNumber) ||
+            (currentStatusValue === 'PAGAMENTO' && existingRequest.status !== 'PAGAMENTO' && updatedRequest.invoiceNumber);
+
+        if (isEmittingInvoice) {
+            const recipientList: string[] = [];
+            if (updatedRequest.emailsProposta && Array.isArray(updatedRequest.emailsProposta)) {
+                recipientList.push(...updatedRequest.emailsProposta);
+            }
+            if (updatedRequest.proposalEmail) {
+                recipientList.push(updatedRequest.proposalEmail);
+            }
+            if (updatedRequest.clientEmail) {
+                recipientList.push(updatedRequest.clientEmail);
+            }
+
+            if (recipientList.length > 0) {
+                const osCode = formatOsCode(updatedRequest);
+                sendInvoiceEmail({
+                    to: recipientList,
+                    name: updatedRequest.clientName || 'Cliente',
+                    requestId: updatedRequest.id,
+                    osCode,
+                    invoiceNumber: updatedRequest.invoiceNumber || invoiceNumber || 'NF-e',
+                    valorNota: updatedRequest.valorTotal || null,
+                    qtdFaturada: updatedRequest.qtdContratada || null,
+                    type: updatedRequest.type,
+                    invoicePdfUrl: updatedRequest.invoicePdfUrl || invoicePdfUrl || null,
+                }).catch((err) => console.error('Erro assíncrono ao enviar e-mail de nota fiscal na OS:', err));
+            }
         }
 
         // Atualiza status e saldos detalhados da OS Mãe

@@ -82,11 +82,13 @@ export async function POST(
     const newOsStatus = await updateOsStatusBasedOnBalance(requestId);
     const balance = await calculateOsBalance(requestId);
 
-    // Enviar e-mail ao cliente com o relatório e o link para a pesquisa de satisfação dos ensaios já realizados
+    // Enviar e-mail a todos os destinatários de relatório do cliente com o laudo e link para a pesquisa
     const requestData = await prisma.testRequest.findUnique({
       where: { id: requestId },
       select: {
         clientEmail: true,
+        reportEmail: true,
+        emailsRelatorio: true,
         clientName: true,
         type: true,
         qtdContratada: true,
@@ -96,18 +98,31 @@ export async function POST(
       },
     });
 
-    if (requestData && requestData.clientEmail) {
-      const osCode = formatOsCode(requestData, updatedItem.numeroSequencial);
-      sendReportWithSurveyEmail({
-        to: requestData.clientEmail,
-        name: requestData.clientName || 'Cliente',
-        requestId,
-        type: requestData.type,
-        itemNumber: updatedItem.numeroSequencial,
-        totalItems: Math.max(requestData.qtdContratada || 1, balance.qtdContratada),
-        osCode,
-        reportPdfUrl: updatedItem.reportPdfUrl || reportPdfUrl,
-      }).catch((err) => console.error('Erro assíncrono ao enviar e-mail com relatório e pesquisa:', err));
+    if (requestData) {
+      const recipientList: string[] = [];
+      if (requestData.emailsRelatorio && Array.isArray(requestData.emailsRelatorio)) {
+        recipientList.push(...requestData.emailsRelatorio);
+      }
+      if (requestData.reportEmail) {
+        recipientList.push(requestData.reportEmail);
+      }
+      if (requestData.clientEmail) {
+        recipientList.push(requestData.clientEmail);
+      }
+
+      if (recipientList.length > 0) {
+        const osCode = formatOsCode(requestData, updatedItem.numeroSequencial);
+        sendReportWithSurveyEmail({
+          to: recipientList,
+          name: requestData.clientName || 'Cliente',
+          requestId,
+          type: requestData.type,
+          itemNumber: updatedItem.numeroSequencial,
+          totalItems: Math.max(requestData.qtdContratada || 1, balance.qtdContratada),
+          osCode,
+          reportPdfUrl: updatedItem.reportPdfUrl || reportPdfUrl,
+        }).catch((err) => console.error('Erro assíncrono ao enviar e-mail com relatório e pesquisa:', err));
+      }
     }
 
     return NextResponse.json({

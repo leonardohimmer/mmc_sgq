@@ -44,6 +44,11 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Atenção: Área de equipe. Clientes devem entrar pelo Portal do Cliente.")
                 }
 
+                // Se o cliente possui token de confirmação pendente e ainda não confirmou o e-mail
+                if (user.role === "CLIENTE" && user.emailVerified === false && user.verificationToken) {
+                    throw new Error("Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada ou use a opção 'Reenviar' para ativar seu acesso.")
+                }
+
                 return {
                     id: user.id,
                     name: user.name,

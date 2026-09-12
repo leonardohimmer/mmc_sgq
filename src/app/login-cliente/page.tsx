@@ -25,6 +25,9 @@ export default function LoginClientePage() {
     const [isForgotModalOpen, setIsForgotModalOpen] = useState(false)
     const [forgotEmail, setForgotEmail] = useState("")
     const [isSendingForgot, setIsSendingForgot] = useState(false)
+    const [isResendModalOpen, setIsResendModalOpen] = useState(false)
+    const [resendVerificationEmail, setResendVerificationEmail] = useState("")
+    const [isSendingResend, setIsSendingResend] = useState(false)
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -78,7 +81,7 @@ export default function LoginClientePage() {
             if (!res.ok) {
                 toast.error(data.error || "Erro ao registrar.")
             } else {
-                toast.success("Conta criada com sucesso!")
+                toast.success("Conta criada! Verifique seu e-mail para confirmar o acesso.")
                 setShowSuccessModal(true)
                 setRegisterForm({ name: "", company: "", whatsapp: "", email: "", password: "" })
                 // Preenche o email para facilitar o login após fechar
@@ -116,6 +119,34 @@ export default function LoginClientePage() {
             toast.error("Erro de conexão.")
         } finally {
             setIsSendingForgot(false)
+        }
+    }
+
+    const handleResendSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!resendVerificationEmail) return
+        setIsSendingResend(true)
+
+        try {
+            const res = await fetch("/api/auth/resend-verification", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: resendVerificationEmail })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                toast.error(data.error || "Erro ao reenviar confirmação.")
+            } else {
+                toast.success(data.message)
+                setIsResendModalOpen(false)
+                setResendVerificationEmail("")
+            }
+        } catch (err) {
+            toast.error("Erro de conexão ao reenviar.")
+        } finally {
+            setIsSendingResend(false)
         }
     }
 
@@ -223,7 +254,7 @@ export default function LoginClientePage() {
                         </button>
                     </form>
 
-                    <div className="mt-8 flex flex-col items-center gap-4 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+                    <div className="mt-8 flex flex-col items-center gap-3 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
                         <button 
                             type="button" 
                             onClick={() => setIsRegisterModalOpen(true)}
@@ -231,7 +262,14 @@ export default function LoginClientePage() {
                         >
                             Criar meu acesso
                         </button>
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                        <button 
+                            type="button" 
+                            onClick={() => setIsResendModalOpen(true)}
+                            className="text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+                        >
+                            Não recebeu o e-mail de confirmação? Reenviar
+                        </button>
+                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
                             Ainda não conhece nossos serviços? <Link href="/contato" className="text-slate-700 dark:text-slate-300 font-bold hover:underline">Solicite um orçamento</Link>
                         </p>
                     </div>
@@ -344,7 +382,7 @@ export default function LoginClientePage() {
                     setIsRegisterModalOpen(false)
                 }}
                 title="Cadastro realizado com sucesso!"
-                message="Seu acesso foi criado. Você já pode realizar o login com seu e-mail e senha."
+                message="Enviamos um e-mail de confirmação para liberar o seu acesso ao sistema. Por favor, verifique sua caixa de entrada (e pasta de spam) e clique no link de ativação antes de realizar o login."
                 buttonText="Ir para o Login"
             />
 
@@ -392,6 +430,59 @@ export default function LoginClientePage() {
                                         disabled={isSendingForgot}
                                     >
                                         {isSendingForgot ? "Enviando..." : "Enviar Link"}
+                                        <span className="material-symbols-outlined text-sm">send</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Reenviar Confirmação de E-mail */}
+            {isResendModalOpen && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Reenviar Confirmação</h2>
+                            <button 
+                                onClick={() => setIsResendModalOpen(false)}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        
+                        <div className="p-6">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                                Digite o e-mail cadastrado e enviaremos um novo link para confirmar seu cadastro.
+                            </p>
+
+                            <form onSubmit={handleResendSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">E-mail Cadastrado</label>
+                                    <input
+                                        type="email" required
+                                        className="w-full px-4 py-2.5 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-slate-100"
+                                        value={resendVerificationEmail} onChange={e => setResendVerificationEmail(e.target.value)}
+                                        placeholder="seu@email.com"
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-3 pt-4">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setIsResendModalOpen(false)} 
+                                        className="px-5 py-2.5 text-slate-600 font-medium hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl transition" 
+                                        disabled={isSendingResend}
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 transition shadow-md shadow-primary/20 flex items-center gap-2" 
+                                        disabled={isSendingResend}
+                                    >
+                                        {isSendingResend ? "Enviando..." : "Reenviar E-mail"}
                                         <span className="material-symbols-outlined text-sm">send</span>
                                     </button>
                                 </div>

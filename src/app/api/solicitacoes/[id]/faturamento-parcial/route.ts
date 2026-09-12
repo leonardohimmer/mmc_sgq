@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { calculateOsBalance } from '@/lib/os-balance-service';
+import { calculateOsBalance, formatOsCode } from '@/lib/os-balance-service';
+import { sendInvoiceEmail } from '@/lib/mail';
 
 // POST /api/solicitacoes/[id]/faturamento-parcial
 export async function POST(
@@ -90,9 +91,51 @@ export async function POST(
 
     const balance = await calculateOsBalance(requestId);
 
+    // Disparar envio de e-mail com a Nota Fiscal para o cliente
+    const requestDetails = await prisma.testRequest.findUnique({
+      where: { id: requestId },
+      select: {
+        clientEmail: true,
+        proposalEmail: true,
+        emailsProposta: true,
+        clientName: true,
+        type: true,
+        createdAt: true,
+      },
+    });
+
+    if (requestDetails) {
+      const recipientList: string[] = [];
+      if (requestDetails.emailsProposta && Array.isArray(requestDetails.emailsProposta)) {
+        recipientList.push(...requestDetails.emailsProposta);
+      }
+      if (requestDetails.proposalEmail) {
+        recipientList.push(requestDetails.proposalEmail);
+      }
+      if (requestDetails.clientEmail) {
+        recipientList.push(requestDetails.clientEmail);
+      }
+
+      if (recipientList.length > 0) {
+        const osCode = formatOsCode(requestDetails);
+        sendInvoiceEmail({
+          to: recipientList,
+          name: requestDetails.clientName || 'Cliente',
+          requestId,
+          osCode,
+          invoiceNumber: numeroNf,
+          valorNota: valorCalculado,
+          qtdFaturada,
+          type: requestDetails.type,
+          invoicePdfUrl: notaPdfUrl || null,
+          observacoes: observacoes || null,
+        }).catch((err) => console.error('Erro assíncrono ao enviar e-mail com nota fiscal:', err));
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Nota Fiscal Parcial nº ${numeroNf} emitida com sucesso para ${qtdFaturada} ensaio(s).`,
+      message: `Nota Fiscal Parcial nº ${numeroNf} emitida e enviada por e-mail com sucesso para ${qtdFaturada} ensaio(s).`,
       partialInvoice,
       balance,
     });

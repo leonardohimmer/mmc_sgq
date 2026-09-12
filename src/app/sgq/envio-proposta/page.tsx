@@ -101,7 +101,7 @@ export default function EnvioPropostaPage() {
         setSelectedRequest(req)
         setProposalCode("")
         setProposalPdfUrl("")
-        setEmailConfirmed(false)
+        setEmailConfirmed(true)
     }
 
     const handleDeleteRequest = (req: TestRequest, e?: React.MouseEvent) => {
@@ -377,16 +377,22 @@ export default function EnvioPropostaPage() {
                                 </div>
 
                                 <div className="pt-4 flex items-center">
-                                    <label className="relative flex items-center cursor-pointer gap-3 p-4 border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl w-full">
+                                    <label className="relative flex items-center cursor-pointer gap-3 p-4 border border-blue-200 dark:border-blue-800 bg-blue-50/70 dark:bg-blue-950/20 rounded-xl w-full">
                                         <input
                                             type="checkbox"
                                             checked={emailConfirmed}
                                             onChange={(e) => setEmailConfirmed(e.target.checked)}
-                                            className="w-5 h-5 text-emerald-600 rounded bg-emerald-100 border-emerald-300 focus:ring-emerald-500 focus:ring-2"
+                                            className="w-5 h-5 text-blue-600 rounded bg-blue-100 border-blue-300 focus:ring-blue-500 focus:ring-2"
                                         />
-                                        <span className="text-sm font-bold text-emerald-800 dark:text-emerald-400">
-                                            Confirmo que a proposta foi enviada por e-mail para o cliente.
-                                        </span>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
+                                                <span className="material-symbols-outlined text-[18px]">forward_to_inbox</span>
+                                                Enviar proposta comercial automaticamente por e-mail para o cliente
+                                            </span>
+                                            <span className="text-xs text-blue-700 dark:text-blue-400 mt-0.5">
+                                                O cliente receberá o anexo da proposta em PDF e as orientações para acompanhar e dar o aceite pelo portal.
+                                            </span>
+                                        </div>
                                     </label>
                                 </div>
                             </div>
@@ -479,7 +485,7 @@ export default function EnvioPropostaPage() {
                 isOpen={isSuccessModalOpen}
                 onClose={() => setIsSuccessModalOpen(false)}
                 title="Proposta enviada com sucesso!"
-                message="O processo agora aguarda o aceite do cliente para prosseguir."
+                message="A proposta foi registrada e disparada por e-mail para o cliente com link de acompanhamento e aceite pelo portal."
             />
 
             <ConfirmModal
