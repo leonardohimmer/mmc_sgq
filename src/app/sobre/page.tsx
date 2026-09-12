@@ -1,4 +1,6 @@
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
     title: "O Laboratório | MMC LAB",
     description: "Conheça a missão, visão e valores do nosso laboratório.",
@@ -9,7 +11,14 @@ import { SiteFooter } from "@/components/SiteFooter";
 import prisma from "@/lib/prisma";
 
 export default async function SobrePage() {
-    const contents = await prisma.siteContent.findMany();
+    let contents: any[] = [];
+    try {
+        if (process.env.DATABASE_URL) {
+            contents = await prisma.siteContent.findMany();
+        }
+    } catch (err) {
+        console.warn("Aviso: Não foi possível carregar o conteúdo dinâmico do banco para a página /sobre:", err);
+    }
     const data: any = {};
     contents.forEach(c => {
         data[c.section] = c.data;
