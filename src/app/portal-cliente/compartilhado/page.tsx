@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { downloadPdf, viewPdf } from "@/lib/pdf-utils";
 
 interface SharedProcessData {
     id: string;
@@ -111,11 +112,6 @@ function SharedProcessContent() {
 
         fetchSharedData();
     }, [token]);
-
-    const openPdf = (url?: string) => {
-        if (!url) return;
-        window.open(url, "_blank");
-    };
 
     if (loading) {
         return (
@@ -346,13 +342,25 @@ function SharedProcessContent() {
                                 </div>
                             </div>
                             {processData.proposalPdfUrl ? (
-                                <button
-                                    onClick={() => openPdf(processData.proposalPdfUrl)}
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/20"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]">download</span>
-                                    Baixar Proposta (PDF)
-                                </button>
+                                <div className="flex items-center gap-2 w-full">
+                                    <button
+                                        type="button"
+                                        onClick={() => downloadPdf(processData.proposalPdfUrl, `Proposta-OS-${processData.osCode}.pdf`)}
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/20 active:scale-[0.98]"
+                                        title="Baixar arquivo PDF no computador"
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">download</span>
+                                        <span>Baixar Proposta (PDF)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => viewPdf(processData.proposalPdfUrl)}
+                                        className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700"
+                                        title="Visualizar em nova aba"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="text-center py-2 px-3 rounded-xl bg-slate-900 border border-slate-800/80 text-[11px] text-slate-500 font-medium">
                                     Documento em elaboração
@@ -374,13 +382,25 @@ function SharedProcessContent() {
                                 </div>
                             </div>
                             {processData.reportPdfUrl ? (
-                                <button
-                                    onClick={() => openPdf(processData.reportPdfUrl)}
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md shadow-emerald-600/20"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]">download</span>
-                                    Baixar Laudo Técnico (PDF)
-                                </button>
+                                <div className="flex items-center gap-2 w-full">
+                                    <button
+                                        type="button"
+                                        onClick={() => downloadPdf(processData.reportPdfUrl, `Relatorio-${processData.reportNumber || processData.osCode || processData.id}.pdf`)}
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md shadow-emerald-600/20 active:scale-[0.98]"
+                                        title="Baixar arquivo PDF no computador"
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">download</span>
+                                        <span>Baixar Laudo (PDF)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => viewPdf(processData.reportPdfUrl)}
+                                        className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700"
+                                        title="Visualizar em nova aba"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="text-center py-2 px-3 rounded-xl bg-slate-900 border border-slate-800/80 text-[11px] text-slate-500 font-medium">
                                     Aguardando emissão técnica
@@ -402,13 +422,25 @@ function SharedProcessContent() {
                                 </div>
                             </div>
                             {processData.invoicePdfUrl ? (
-                                <button
-                                    onClick={() => openPdf(processData.invoicePdfUrl)}
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md shadow-purple-600/20"
-                                >
-                                    <span className="material-symbols-outlined text-[16px]">download</span>
-                                    Baixar Nota Fiscal (PDF)
-                                </button>
+                                <div className="flex items-center gap-2 w-full">
+                                    <button
+                                        type="button"
+                                        onClick={() => downloadPdf(processData.invoicePdfUrl, `NotaFiscal-${processData.invoiceNumber || processData.osCode || processData.id}.pdf`)}
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md shadow-purple-600/20 active:scale-[0.98]"
+                                        title="Baixar arquivo PDF no computador"
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">download</span>
+                                        <span>Baixar Nota Fiscal (PDF)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => viewPdf(processData.invoicePdfUrl)}
+                                        className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700"
+                                        title="Visualizar em nova aba"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="text-center py-2 px-3 rounded-xl bg-slate-900 border border-slate-800/80 text-[11px] text-slate-500 font-medium">
                                     Ainda não emitida
@@ -457,13 +489,25 @@ function SharedProcessContent() {
                                             </span>
 
                                             {item.reportPdfUrl && (
-                                                <button
-                                                    onClick={() => openPdf(item.reportPdfUrl)}
-                                                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
-                                                    title="Baixar Laudo Parcial"
-                                                >
-                                                    <span className="material-symbols-outlined text-[18px]">download</span>
-                                                </button>
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => downloadPdf(item.reportPdfUrl, `Relatorio-Ensaio-${item.itemNumber}.pdf`)}
+                                                        className="flex items-center gap-1 py-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-xs"
+                                                        title="Baixar Laudo Parcial"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[15px]">download</span>
+                                                        <span>Baixar</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => viewPdf(item.reportPdfUrl)}
+                                                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                                                        title="Visualizar em nova aba"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[16px]">visibility</span>
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -494,13 +538,25 @@ function SharedProcessContent() {
                                             </div>
                                         </div>
                                         {inv.notaPdfUrl && (
-                                            <button
-                                                onClick={() => openPdf(inv.notaPdfUrl)}
-                                                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1 transition-all"
-                                            >
-                                                <span className="material-symbols-outlined text-[16px]">download</span>
-                                                Baixar NF
-                                            </button>
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => downloadPdf(inv.notaPdfUrl, `NF-${inv.numeroNf}.pdf`)}
+                                                    className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1 transition-all shadow-xs"
+                                                    title="Baixar Nota Fiscal"
+                                                >
+                                                    <span className="material-symbols-outlined text-[16px]">download</span>
+                                                    <span>Baixar NF</span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => viewPdf(inv.notaPdfUrl)}
+                                                    className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                                                    title="Visualizar em nova aba"
+                                                >
+                                                    <span className="material-symbols-outlined text-[16px]">visibility</span>
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                 ))}

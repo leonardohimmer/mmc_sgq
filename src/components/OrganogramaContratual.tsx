@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { formatOsCode } from "@/lib/os-balance-service";
+import { downloadPdf } from "@/lib/pdf-utils";
 
 interface ExecutionItemData {
   id: string;
@@ -292,7 +293,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
 
   const openPdf = (url?: string | null) => {
     if (!url) return;
-    window.open(url, "_blank");
+    downloadPdf(url, "documento.pdf");
   };
 
   return (

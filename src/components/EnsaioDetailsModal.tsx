@@ -3,6 +3,7 @@
 import React from "react";
 import { formatOsCode } from "@/lib/os-balance-service";
 import OrganogramaContratual from "@/components/OrganogramaContratual";
+import { downloadPdf, viewPdf } from "@/lib/pdf-utils";
 
 interface EnsaioDetailsModalProps {
     isOpen: boolean;
@@ -53,7 +54,7 @@ export default function EnsaioDetailsModal({
 
     const openPdf = (url?: string, filename?: string) => {
         if (!url) return;
-        window.open(url, "_blank");
+        downloadPdf(url, filename || "documento.pdf");
     };
 
     const getStatusColors = (color?: string) => {
