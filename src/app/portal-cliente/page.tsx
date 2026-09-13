@@ -1163,7 +1163,7 @@ export default function PortalClientePage() {
                                                 const allPartialPaid = hasPartialInvoices && invoices.every((inv: any) => inv.statusPagamento === 'PAGO' || Boolean(inv.dataPagamento));
                                                 const isFullyPaidByFinanceiro = Boolean(ensaio.fullData?.paymentConfirmedAt) && (!hasPartialInvoices || allPartialPaid);
 
-                                                if (!isFullyPaidByFinanceiro && !ensaio.clientPaymentConfirmed && (ensaio.isOwner ?? true) && hasNfEnviada) {
+                                                if (!isFullyPaidByFinanceiro && !ensaio.clientPaymentConfirmed && Boolean(ensaio.isOwner) && hasNfEnviada) {
                                                     return (
                                                         <div className="mt-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 flex flex-col gap-2 relative z-10 shadow-xs">
                                                             <div className="flex items-center justify-between gap-2">
@@ -2158,7 +2158,11 @@ function ShareModal({
 
             const data = await res.json();
             if (res.ok && data.success) {
-                toast.success("Permissões de compartilhamento salvas com sucesso!");
+                if (data.emailsSentCount && data.emailsSentCount > 0) {
+                    toast.success(`Compartilhamento salvo! E-mail com Acesso Rápido enviado para ${data.emailsSentCount} novo(s) e-mail(s).`);
+                } else {
+                    toast.success("Permissões de compartilhamento salvas com sucesso!");
+                }
                 onSaveSuccess(ensaio.rawId, data.sharedEmails);
                 onClose();
             } else {
@@ -2203,7 +2207,7 @@ function ShareModal({
                     <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 flex items-start gap-2.5">
                         <span className="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">info</span>
                         <span>
-                            As pessoas com os e-mails cadastrados abaixo poderão acompanhar o status, cronograma e baixar propostas e relatórios deste processo no Portal do Cliente.
+                            As pessoas com os e-mails cadastrados abaixo poderão acompanhar o status, cronograma e baixar propostas e relatórios deste processo. E-mails novos receberão uma notificação com <strong>botão de Acesso Rápido direto por e-mail</strong>.
                         </span>
                     </p>
 
@@ -2296,11 +2300,14 @@ function ShareModal({
                         className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/20 flex items-center gap-2 disabled:opacity-50"
                     >
                         {isSaving ? (
-                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            <>
+                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                <span>Enviando e Salvando...</span>
+                            </>
                         ) : (
                             <>
                                 <span className="material-symbols-outlined text-[18px]">check</span>
-                                Salvar Compartilhamento
+                                <span>Salvar Compartilhamento</span>
                             </>
                         )}
                     </button>

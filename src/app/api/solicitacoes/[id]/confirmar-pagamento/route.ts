@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 export async function POST(
     request: Request,
@@ -14,6 +16,24 @@ export async function POST(
 
         if (!existingRequest) {
             return NextResponse.json({ error: 'Solicitação não encontrada' }, { status: 404 })
+        }
+
+        const session = await getServerSession(authOptions)
+        if (session && session.user?.role === 'CLIENTE') {
+            const userEmail = (session.user.email || '').toLowerCase().trim()
+            const userName = (session.user.name || '').toLowerCase().trim()
+            const ownerEmail = (existingRequest.clientEmail || '').toLowerCase().trim()
+            const ownerName = (existingRequest.clientName || '').toLowerCase().trim()
+
+            const isOwner = (userEmail && ownerEmail && userEmail === ownerEmail) ||
+                            (userName && ownerName && userName === ownerName)
+
+            if (!isOwner) {
+                return NextResponse.json(
+                    { error: 'Usuários com acesso compartilhado têm permissão apenas para visualização e download de arquivos.' },
+                    { status: 403 }
+                )
+            }
         }
 
         const updatedRequest = await prisma.testRequest.update({

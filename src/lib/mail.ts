@@ -683,3 +683,132 @@ export async function sendResetPasswordEmail(to: string, name: string, token: st
         return { success: false, error }
     }
 }
+
+/**
+ * 8) E-mail de Compartilhamento de Processo de Ensaio (Acesso Rápido - Somente Visualização e Download)
+ */
+export async function sendShareProcessEmail(params: {
+    to: string;
+    sharedByName: string;
+    processId: string;
+    osCode?: string;
+    processType: string;
+    workName?: string | null;
+    contractorName?: string | null;
+    accessUrl: string;
+    isNewUser?: boolean;
+}) {
+    const transporter = createTransporter()
+    const { to, sharedByName, processId, osCode, processType, workName, contractorName, accessUrl } = params
+    const codeDisplay = osCode || processId.split('-')[0].toUpperCase()
+    const portalUrl = getPortalLoginUrl()
+
+    const mailOptions = {
+        from: getSender(),
+        to,
+        subject: `[MMC Lab] Ensaio Compartilhado com Você - OS #${codeDisplay}`,
+        html: `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+                {/* Header */}
+                <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 36px 30px; text-align: center;">
+                    <div style="display: inline-block; background-color: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 50px; padding: 5px 14px; margin-bottom: 14px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🌐 Portal do Cliente MMC Lab</span>
+                    </div>
+                    <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Ensaio Técnico Compartilhado com Você</h1>
+                    <p style="margin: 8px 0 0; font-size: 14px; color: #94a3b8;">Acompanhe o andamento e acesse os laudos e documentos em tempo real.</p>
+                </div>
+
+                {/* Conteúdo Principal */}
+                <div style="padding: 32px 28px; line-height: 1.6;">
+                    <p style="font-size: 15px; margin: 0 0 16px 0; color: #334155;">
+                        Olá,
+                    </p>
+                    <p style="font-size: 15px; margin: 0 0 24px 0; color: #334155;">
+                        <strong>${sharedByName}</strong> concedeu permissão para você acompanhar o processo técnico do ensaio abaixo no sistema da <strong>MMC Lab</strong>:
+                    </p>
+
+                    {/* Card de Detalhes do Ensaio */}
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                        <div style="margin-bottom: 12px;">
+                            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Código / OS:</span>
+                            <div style="font-size: 16px; font-weight: 800; color: #0284c7; margin-top: 2px;">OS #${codeDisplay}</div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Tipo de Ensaio:</span>
+                            <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 2px;">${processType}</div>
+                        </div>
+                        ${(workName || contractorName) ? `
+                        <div>
+                            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Obra / Local:</span>
+                            <div style="font-size: 13px; font-weight: 600; color: #334155; margin-top: 2px;">${workName || contractorName}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    {/* Box Explicativo de Permissões e Regras de Segurança */}
+                    <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 10px; padding: 18px; margin-bottom: 28px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 14px; font-weight: 800; color: #1e40af;">🔒 Regras de Acesso e Permissões</span>
+                        </div>
+                        <ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #1e3a8a; line-height: 1.6;">
+                            <li style="margin-bottom: 6px;">
+                                <strong>Apenas Visualização e Download:</strong> Você pode acompanhar o status, cronograma de execução e realizar o download dos arquivos técnicos (como propostas, relatórios técnicos e notas fiscais).
+                            </li>
+                            <li>
+                                <strong>Sem Permissão de Alteração:</strong> Como este é um acesso compartilhado de consulta, não é permitido editar dados, aprovar alterações, excluir ou modificar nada do processo original.
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Botão de Acesso Rápido em Destaque */}
+                    <div style="text-align: center; margin: 32px 0;">
+                        <a href="${accessUrl}" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 16px 36px; text-decoration: none; border-radius: 10px; font-weight: 800; display: inline-block; font-size: 15px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35); text-transform: uppercase; letter-spacing: 0.3px;">
+                            🚀 Acessar Dados do Ensaio
+                        </a>
+                        <p style="margin: 12px 0 0 0; font-size: 12px; color: #64748b;">
+                            Acesso rápido direto pelo navegador (sem necessidade de senha inicial).
+                        </p>
+                    </div>
+
+                    {/* Fallback Link */}
+                    <div style="background-color: #f1f5f9; padding: 14px; border-radius: 8px; margin-bottom: 24px; font-size: 12px; color: #64748b; word-break: break-all;">
+                        <span>Caso o botão acima não funcione, copie e cole o link no seu navegador:</span><br/>
+                        <a href="${accessUrl}" style="color: #0284c7; text-decoration: underline; font-weight: 600;">${accessUrl}</a>
+                    </div>
+
+                    {/* Dica para criar conta */}
+                    <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 13px; color: #64748b;">
+                        <p style="margin: 0 0 8px 0;">
+                            <strong>💡 Ainda não tem conta no Portal MMC Lab?</strong>
+                        </p>
+                        <p style="margin: 0; line-height: 1.5;">
+                            Se você desejar centralizar e gerenciar seus ensaios em um painel completo, você pode criar uma conta gratuita a qualquer momento com este mesmo e-mail (<a href="${portalUrl}" style="color: #0284c7; font-weight: 600; text-decoration: none;">Cadastrar-se no Portal do Cliente</a>).
+                        </p>
+                    </div>
+                </div>
+
+                {/* Footer Corporativo */}
+                <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; color: #64748b; padding: 22px; text-align: center; font-size: 12px; line-height: 1.5;">
+                    <p style="margin: 0 0 4px 0; font-weight: 700; color: #334155;">MMC Engenharia & Laboratório Tecnológico</p>
+                    <p style="margin: 0;">Sistema de Gestão da Qualidade &bull; Todos os direitos reservados</p>
+                </div>
+            </div>
+        `,
+    }
+
+    try {
+        const emailUser = process.env.EMAIL_USER?.trim();
+        const emailPass = process.env.EMAIL_PASS?.trim();
+        if (!emailUser || !emailPass) {
+            console.warn("[AVISO EMAIL] EMAIL_USER ou EMAIL_PASS não configurados. E-mail de compartilhamento simulado para:", to);
+            return { success: true, simulated: true };
+        }
+        const info = await transporter.sendMail(mailOptions)
+        console.log(`E-mail de compartilhamento de ensaio enviado com sucesso para ${to}. MessageId: ${info.messageId}`)
+        return { success: true, messageId: info.messageId }
+    } catch (error) {
+        console.error("ERRO AO ENVIAR E-MAIL DE COMPARTILHAMENTO:", error)
+        return { success: false, error }
+    }
+}
+

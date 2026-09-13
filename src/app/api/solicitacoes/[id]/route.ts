@@ -67,6 +67,22 @@ export async function PATCH(
             return NextResponse.json({ error: 'Solicitação não encontrada' }, { status: 404 })
         }
 
+        // Se for cliente, validar se é o criador/titular do processo (convidados têm apenas leitura)
+        const userEmail = (session.user.email || '').toLowerCase().trim()
+        const userName = (session.user.name || '').toLowerCase().trim()
+        const ownerEmail = (existingRequest.clientEmail || '').toLowerCase().trim()
+        const ownerName = (existingRequest.clientName || '').toLowerCase().trim()
+
+        const isOwner = (userEmail && ownerEmail && userEmail === ownerEmail) ||
+                        (userName && ownerName && userName === ownerName)
+
+        if (session.user.role === 'CLIENTE' && !isOwner) {
+            return NextResponse.json(
+                { error: 'Usuários com acesso compartilhado têm permissão apenas para visualização e download de arquivos.' },
+                { status: 403 }
+            )
+        }
+
         // Store the name of the user making the change
         const changedBy = session.user.name || session.user.email || 'Sistema'
 
@@ -350,6 +366,29 @@ export async function DELETE(
         }
 
         const { id } = await params
+
+        const existing = await prisma.testRequest.findUnique({
+            where: { id }
+        })
+
+        if (!existing) {
+            return NextResponse.json({ error: 'Solicitação não encontrada' }, { status: 404 })
+        }
+
+        const userEmail = (session.user.email || '').toLowerCase().trim()
+        const userName = (session.user.name || '').toLowerCase().trim()
+        const ownerEmail = (existing.clientEmail || '').toLowerCase().trim()
+        const ownerName = (existing.clientName || '').toLowerCase().trim()
+
+        const isOwner = (userEmail && ownerEmail && userEmail === ownerEmail) ||
+                        (userName && ownerName && userName === ownerName)
+
+        if (!isOwner && session.user.role !== 'ADMIN' && session.user.role !== 'TECNICO') {
+            return NextResponse.json(
+                { error: 'Usuários com acesso compartilhado têm permissão apenas para visualização e download de arquivos.' },
+                { status: 403 }
+            )
+        }
 
         // Excluir registros associados em cascata
         await prisma.testRequestHistory.deleteMany({ where: { requestId: id } })

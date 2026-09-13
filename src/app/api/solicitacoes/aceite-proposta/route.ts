@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(request: Request) {
     try {
@@ -8,6 +10,32 @@ export async function POST(request: Request) {
 
         if (!requestId) {
             return NextResponse.json({ error: "Dados incompletos: ID da solicitação é obrigatório." }, { status: 400 });
+        }
+
+        const existing = await prisma.testRequest.findUnique({
+            where: { id: requestId }
+        });
+
+        if (!existing) {
+            return NextResponse.json({ error: "Solicitação não encontrada." }, { status: 404 });
+        }
+
+        const session = await getServerSession(authOptions);
+        if (session && session.user?.role === "CLIENTE") {
+            const userEmail = (session.user.email || '').toLowerCase().trim();
+            const userName = (session.user.name || '').toLowerCase().trim();
+            const ownerEmail = (existing.clientEmail || '').toLowerCase().trim();
+            const ownerName = (existing.clientName || '').toLowerCase().trim();
+
+            const isOwner = (userEmail && ownerEmail && userEmail === ownerEmail) ||
+                            (userName && ownerName && userName === ownerName);
+
+            if (!isOwner) {
+                return NextResponse.json(
+                    { error: "Usuários com acesso compartilhado têm permissão apenas para visualização e download de arquivos." },
+                    { status: 403 }
+                );
+            }
         }
 
         // Se for um aceite manual registrado por colaborador, o anexo de comprovante é obrigatório
