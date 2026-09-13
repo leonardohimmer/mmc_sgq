@@ -19,60 +19,60 @@ interface MMCAnimatedLogoProps {
 
 const SIZE_CONFIG = {
     xs: {
-        card: "w-7 h-7 rounded-lg p-1",
+        card: "w-7 h-7 rounded-lg p-0.5",
         outerRing: "-inset-1 border-[1.5px]",
         innerRing: "-inset-0.5 border-[1px]",
         glow: "-inset-1 blur-sm",
-        logoW: 22,
-        logoH: 10,
+        logoW: 24,
+        logoH: 14,
         title: "text-sm",
         subtitle: "text-[9px]",
         gap: "gap-2",
         wrapperSize: "w-9 h-9"
     },
     sm: {
-        card: "w-9 h-9 rounded-xl p-1.5",
+        card: "w-9 h-9 rounded-xl p-0.5",
         outerRing: "-inset-1.5 border-[2px]",
         innerRing: "-inset-0.5 border-[1.5px]",
         glow: "-inset-2 blur-md",
-        logoW: 30,
-        logoH: 14,
+        logoW: 32,
+        logoH: 19,
         title: "text-base",
         subtitle: "text-[10px]",
         gap: "gap-2.5",
         wrapperSize: "w-12 h-12"
     },
     md: {
-        card: "w-12 h-12 rounded-2xl p-2",
+        card: "w-12 h-12 rounded-2xl p-1",
         outerRing: "-inset-2 border-[2px]",
         innerRing: "-inset-1 border-[1.5px]",
         glow: "-inset-2.5 blur-lg",
-        logoW: 42,
-        logoH: 18,
+        logoW: 44,
+        logoH: 26,
         title: "text-lg",
         subtitle: "text-xs",
         gap: "gap-3",
         wrapperSize: "w-16 h-16"
     },
     lg: {
-        card: "w-24 h-24 rounded-3xl p-3.5",
+        card: "w-24 h-24 rounded-3xl p-1.5",
         outerRing: "-inset-4 border-[2.5px]",
         innerRing: "-inset-2 border-[2px]",
         glow: "-inset-5 blur-xl",
         logoW: 86,
-        logoH: 36,
+        logoH: 50,
         title: "text-2xl",
         subtitle: "text-sm",
         gap: "gap-4",
         wrapperSize: "w-32 h-32"
     },
     xl: {
-        card: "w-28 h-28 rounded-3xl p-4",
+        card: "w-28 h-28 rounded-3xl p-2",
         outerRing: "-inset-5 border-[3px]",
         innerRing: "-inset-2 border-[2px]",
         glow: "-inset-6 blur-xl",
         logoW: 100,
-        logoH: 40,
+        logoH: 58,
         title: "text-3xl",
         subtitle: "text-base",
         gap: "gap-5",
@@ -133,11 +133,11 @@ export default function MMCAnimatedLogo({
                     `}
                 >
                     <Image
-                        src="/logo.png"
+                        src="/logo-trimmed.png"
                         alt="MMC LAB"
                         width={config.logoW}
                         height={config.logoH}
-                        className={`object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.6)] ${
+                        className={`object-contain max-w-full max-h-full drop-shadow-[0_0_10px_rgba(59,130,246,0.65)] ${
                             animate ? "animate-pulse" : ""
                         }`}
                         priority={priority}

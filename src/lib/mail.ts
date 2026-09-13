@@ -39,9 +39,9 @@ export function renderEmailLogo(baseUrl?: string) {
                         <img 
                             src="${logoUrl}" 
                             alt="MMC LAB" 
-                            width="86" 
-                            height="86" 
-                            style="display: block; width: 86px; height: 86px; border-radius: 22px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); outline: none; text-decoration: none;" 
+                            width="140" 
+                            height="140" 
+                            style="display: block; width: 140px; height: 140px; border: 0; outline: none; text-decoration: none; margin: 0 auto;" 
                         />
                     </td>
                 </tr>

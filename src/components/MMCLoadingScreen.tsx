@@ -112,13 +112,13 @@ export default function MMCLoadingScreen({
                     <div className="absolute -inset-2 rounded-full border-2 border-transparent border-b-emerald-400 border-l-purple-500 animate-[spin_2s_linear_infinite_reverse]" />
 
                     {/* Card de Vidro da Logo Central */}
-                    <div className="relative w-28 h-28 rounded-3xl bg-slate-900/90 shadow-2xl border-2 border-slate-800 flex items-center justify-center p-4 backdrop-blur-md hover:scale-105 transition-transform duration-300">
+                    <div className="relative w-28 h-28 rounded-3xl bg-slate-900/90 shadow-2xl border-2 border-slate-800 flex items-center justify-center p-2 backdrop-blur-md hover:scale-105 transition-transform duration-300">
                         <Image
-                            src="/logo.png"
+                            src="/logo-trimmed.png"
                             alt="MMC LAB"
                             width={100}
-                            height={40}
-                            className="object-contain drop-shadow-[0_0_12px_rgba(59,130,246,0.6)] animate-pulse"
+                            height={58}
+                            className="object-contain max-w-full max-h-full drop-shadow-[0_0_12px_rgba(59,130,246,0.65)] animate-pulse"
                             priority
                         />
                     </div>
