@@ -1247,7 +1247,7 @@ export default function PortalClientePage() {
                                                                 className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center gap-1 shadow-sm"
                                                             >
                                                                 <span className="material-symbols-outlined text-[13px]">download</span>
-                                                                Visualizar Proposta
+                                                                Baixar
                                                             </button>
                                                         ) : (
                                                             <span className="text-slate-400 italic">Pendente</span>
@@ -1282,7 +1282,7 @@ export default function PortalClientePage() {
                                                                                     className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-xs shrink-0"
                                                                                 >
                                                                                     <span className="material-symbols-outlined text-[13px]">download</span>
-                                                                                    Baixar PDF
+                                                                                    Baixar
                                                                                 </button>
                                                                             </div>
                                                                         ))}
@@ -1302,7 +1302,7 @@ export default function PortalClientePage() {
                                                                             className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-xs"
                                                                         >
                                                                             <span className="material-symbols-outlined text-[13px]">download</span>
-                                                                            Baixar PDF
+                                                                            Baixar
                                                                         </button>
                                                                     </div>
                                                                 );
@@ -1356,7 +1356,7 @@ export default function PortalClientePage() {
                                                                                         className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center gap-1 shadow-xs shrink-0"
                                                                                     >
                                                                                         <span className="material-symbols-outlined text-[13px]">download</span>
-                                                                                        Baixar NF
+                                                                                        Baixar
                                                                                     </button>
                                                                                 </div>
                                                                             );
@@ -1377,7 +1377,7 @@ export default function PortalClientePage() {
                                                                             className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center gap-1 shadow-xs"
                                                                         >
                                                                             <span className="material-symbols-outlined text-[13px]">download</span>
-                                                                            Baixar NF
+                                                                            Baixar
                                                                         </button>
                                                                     </div>
                                                                 );

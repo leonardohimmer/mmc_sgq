@@ -346,7 +346,7 @@ export default function EnsaioDetailsModal({
                                                             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors"
                                                         >
                                                             <span className="material-symbols-outlined text-[16px]">download</span>
-                                                            Laudo Parcial #{item.numeroSequencial}
+                                                            Baixar
                                                         </button>
                                                     ) : (
                                                         <span className="text-xs text-slate-400 italic">Aguardando laudo</span>
@@ -391,10 +391,11 @@ export default function EnsaioDetailsModal({
                                         {nf.notaPdfUrl && (
                                             <button
                                                 onClick={() => openPdf(nf.notaPdfUrl, `NF-${nf.numeroNf}.pdf`)}
-                                                className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition-colors"
+                                                className="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-colors"
                                                 title="Baixar Nota Fiscal"
                                             >
-                                                <span className="material-symbols-outlined text-[18px]">download</span>
+                                                <span className="material-symbols-outlined text-[16px]">download</span>
+                                                <span>Baixar</span>
                                             </button>
                                         )}
                                     </div>

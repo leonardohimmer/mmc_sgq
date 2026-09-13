@@ -464,7 +464,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                     className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] rounded-lg shadow-md transition-all"
                   >
                     <span className="material-symbols-outlined text-[14px]">download</span>
-                    <span>Visualizar Proposta PDF</span>
+                    <span>Baixar</span>
                   </button>
                 ) : (
                   <div className="w-full text-center py-1.5 bg-slate-900/60 rounded-lg border border-slate-800 text-[10px] text-slate-400 italic">
@@ -563,7 +563,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                                 className="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-md transition-all flex items-center gap-1 shadow-sm shrink-0"
                               >
                                 <span className="material-symbols-outlined text-[13px]">download</span>
-                                <span>Laudo #{ensaio.numeroSequencial}</span>
+                                <span>Baixar</span>
                               </button>
                             ) : (
                               <span className="text-[9px] text-slate-500 italic">Em elaboração</span>
@@ -654,7 +654,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                             className="w-full flex items-center justify-center gap-1 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-[10px] rounded-md shadow-sm transition-all"
                           >
                             <span className="material-symbols-outlined text-[13px]">download</span>
-                            <span>Baixar NF nº {nf.numeroNf} (PDF)</span>
+                            <span>Baixar</span>
                           </button>
                         ) : (
                           <div className="w-full text-center py-1.5 bg-slate-950/60 rounded-md border border-slate-800 text-[9px] text-slate-400 italic">

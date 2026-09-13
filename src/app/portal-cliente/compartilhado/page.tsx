@@ -350,7 +350,7 @@ function SharedProcessContent() {
                                         title="Baixar arquivo PDF no computador"
                                     >
                                         <span className="material-symbols-outlined text-[16px]">download</span>
-                                        <span>Baixar Proposta (PDF)</span>
+                                        <span>Baixar</span>
                                     </button>
                                     <button
                                         type="button"
@@ -390,7 +390,7 @@ function SharedProcessContent() {
                                         title="Baixar arquivo PDF no computador"
                                     >
                                         <span className="material-symbols-outlined text-[16px]">download</span>
-                                        <span>Baixar Laudo (PDF)</span>
+                                        <span>Baixar</span>
                                     </button>
                                     <button
                                         type="button"
@@ -430,7 +430,7 @@ function SharedProcessContent() {
                                         title="Baixar arquivo PDF no computador"
                                     >
                                         <span className="material-symbols-outlined text-[16px]">download</span>
-                                        <span>Baixar Nota Fiscal (PDF)</span>
+                                        <span>Baixar</span>
                                     </button>
                                     <button
                                         type="button"
@@ -546,7 +546,7 @@ function SharedProcessContent() {
                                                     title="Baixar Nota Fiscal"
                                                 >
                                                     <span className="material-symbols-outlined text-[16px]">download</span>
-                                                    <span>Baixar NF</span>
+                                                    <span>Baixar</span>
                                                 </button>
                                                 <button
                                                     type="button"
