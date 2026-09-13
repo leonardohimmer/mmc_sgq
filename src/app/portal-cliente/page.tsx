@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -934,17 +935,14 @@ export default function PortalClientePage() {
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         {/* Logo area */}
                         <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <Image
-                                    src="/logo.png"
-                                    alt="MMC LAB"
-                                    width={120}
-                                    height={40}
-                                    className="object-contain transition-all w-[100px] sm:w-[140px]"
-                                    priority
-                                />
-                                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">PORTAL</span>
-                            </div>
+                            <MMCAnimatedLogo
+                                size="sm"
+                                showText={true}
+                                subtitle="Portal do Cliente"
+                                badgeText="PORTAL"
+                                href="/portal-cliente"
+                                priority
+                            />
                             
                             {/* Mobile Theme Toggle, Profile & Logout */}
                             <div className="flex sm:hidden items-center gap-2">

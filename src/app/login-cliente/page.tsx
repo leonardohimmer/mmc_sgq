@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo"
 import { toast } from "sonner"
 import SuccessModal from "@/components/SuccessModal"
 
@@ -168,8 +169,8 @@ export default function LoginClientePage() {
                     {/* Detalhe superior */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
 
-                    <div className="flex justify-center mb-6 pt-4 cursor-pointer">
-                        <Image src="/logo.png" alt="MMC LAB" width={160} height={50} className="object-contain" priority />
+                    <div className="flex justify-center mb-6 pt-4">
+                        <MMCAnimatedLogo size="lg" priority />
                     </div>
 
                     <h2 className="text-2xl font-extrabold text-center mb-2 text-slate-900 dark:text-white">Portal do Cliente</h2>

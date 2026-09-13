@@ -3,6 +3,7 @@
 import { useSession, signOut } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo"
 import { usePathname } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { ThemeToggle } from "@/components/ThemeToggle"
@@ -332,7 +333,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 >
                     <span className="material-symbols-outlined text-[22px]">menu</span>
                 </button>
-                <Image src="/logo.png" alt="MMC LAB" width={100} height={32} className="object-contain" />
+                <MMCAnimatedLogo size="sm" showText={true} subtitle="SGQ" href="/sgq" />
                 <div className="w-9 h-9 flex items-center justify-center">
                     <ThemeToggle />
                 </div>
@@ -388,25 +389,23 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     </span>
                 </button>
 
-                <div className={`h-20 flex items-center ${isCollapsed ? "justify-center" : "justify-between px-6"} border-b border-slate-100 dark:border-white/5 shrink-0 overflow-hidden`}>
+                <div className={`h-20 flex items-center ${isCollapsed ? "justify-center" : "justify-between px-5"} border-b border-slate-100 dark:border-white/5 shrink-0 overflow-hidden`}>
                     {isCollapsed ? (
                         <div className="flex items-center justify-center">
-                            <Image
-                                src="/logo.png"
-                                alt="MMC LAB"
-                                width={60}
-                                height={30}
-                                className="object-contain"
+                            <MMCAnimatedLogo
+                                size="sm"
+                                showText={false}
+                                href="/sgq"
+                                priority
                             />
                         </div>
                     ) : (
                         <div className="flex items-center">
-                            <Image
-                                src="/logo.png"
-                                alt="MMC LAB"
-                                width={140}
-                                height={45}
-                                className="object-contain transition-all"
+                            <MMCAnimatedLogo
+                                size="md"
+                                showText={true}
+                                subtitle="Gestão da Qualidade"
+                                href="/sgq"
                                 priority
                             />
                         </div>
@@ -600,7 +599,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
                     {!isCollapsed && (
                         <div className="flex justify-center mt-2.5">
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v{packageJson.version} • Atualizado: 12/09/2026</span>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v{packageJson.version} • Atualizado: 13/09/2026</span>
                         </div>
                     )}
                 </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
 import { Instagram, Facebook, Youtube, Linkedin } from "lucide-react";
@@ -28,17 +28,14 @@ export function SiteHeader() {
 
                 {/* Logo e Redes Sociais */}
                 <div className="flex flex-col items-start lg:items-center gap-[2px] shrink-0">
-                    <Link href="/" className="flex items-center gap-2">
-                        <Image
-                            src="/logo.png"
-                            alt="MMC LAB"
-                            width={115}
-                            height={37}
-                            className="object-contain transition-all"
-                            priority
-                        />
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 hidden xs:inline-block">BETA</span>
-                    </Link>
+                    <MMCAnimatedLogo
+                        size="sm"
+                        showText={true}
+                        subtitle="Controle Tecnológico"
+                        badgeText="BETA"
+                        href="/"
+                        priority
+                    />
                     {/* Redes Sociais Desktop */}
                     <div className="hidden lg:flex items-center gap-[6px]">
                         <a

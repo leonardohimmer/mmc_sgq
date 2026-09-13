@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo";
 
 export function SiteFooter() {
     return (
@@ -8,16 +8,13 @@ export function SiteFooter() {
 
                 {/* Brand & Sobre */}
                 <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                        <Image
-                            src="/logo.png"
-                            alt="MMC Logo"
-                            width={160}
-                            height={50}
-                            className="opacity-90 dark:brightness-200 transition-all duration-300"
-                        />
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">BETA</span>
-                    </div>
+                    <MMCAnimatedLogo
+                        size="md"
+                        showText={true}
+                        subtitle="Controle Tecnológico e Engenharia"
+                        badgeText="BETA"
+                        href="/"
+                    />
                     <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium text-justify transition-colors duration-300">
                         Oferecemos testes confiáveis e precisos de alta tecnologia para Construção Civil no Brasil. Com a MMC Lab você garante conformidade e qualidade em seus projetos.
                     </p>

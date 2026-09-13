@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo"
 import { toast } from "sonner"
 
 function VerificarEmailContent() {
@@ -88,7 +89,7 @@ function VerificarEmailContent() {
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-primary"></div>
 
                     <div className="flex justify-center mb-6 pt-2">
-                        <Image src="/logo.png" alt="MMC LAB" width={160} height={50} className="object-contain" priority />
+                        <MMCAnimatedLogo size="lg" priority />
                     </div>
 
                     {status === "loading" && (

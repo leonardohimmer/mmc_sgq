@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo";
 import Link from "next/link";
 import { use } from "react";
 import { toast } from "sonner";
@@ -209,14 +210,8 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 py-12 px-4">
             <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-8">
-                    <Image
-                        src="/logo.png"
-                        alt="MMC LAB"
-                        width={180}
-                        height={60}
-                        className="mx-auto object-contain mb-6"
-                    />
+                <div className="text-center mb-8 flex flex-col items-center justify-center">
+                    <MMCAnimatedLogo size="lg" className="mb-6" priority />
                     <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">Pesquisa de Satisfação</h1>
                 </div>
 
