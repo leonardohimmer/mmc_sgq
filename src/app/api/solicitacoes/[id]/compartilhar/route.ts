@@ -82,7 +82,7 @@ export async function POST(
         })
 
         // Disparo de e-mails para novos destinatários com link de acesso rápido (Somente Visualização e Download)
-        const baseUrl = process.env.NEXTAUTH_URL || 'https://site-sgq-six.vercel.app'
+        const baseUrl = (process.env.NEXTAUTH_URL || 'https://mmclab.vercel.app').replace('site-sgq-six.vercel.app', 'mmclab.vercel.app')
         const osCodeFormatted = formatOsCode(existing)
 
         let emailsSentCount = 0

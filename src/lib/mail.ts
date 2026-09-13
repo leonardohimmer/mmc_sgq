@@ -21,7 +21,8 @@ function getSender() {
 }
 
 function getPortalLoginUrl() {
-    const baseUrl = process.env.NEXTAUTH_URL || "https://site-sgq-six.vercel.app"
+    const rawBase = process.env.NEXTAUTH_URL || "https://mmclab.vercel.app"
+    const baseUrl = rawBase.replace("site-sgq-six.vercel.app", "mmclab.vercel.app")
     return `${baseUrl}/login-cliente`
 }
 
@@ -29,19 +30,23 @@ function getPortalLoginUrl() {
  * Cabeçalho visual oficial com a logo orbital animada da MMC LAB para e-mails de clientes
  */
 export function renderEmailLogo(baseUrl?: string) {
-    const host = baseUrl || process.env.NEXTAUTH_URL || "https://site-sgq-six.vercel.app"
-    const logoUrl = `${host}/logo-animated.gif`
+    const defaultHost = "https://mmclab.vercel.app"
+    let host = baseUrl || process.env.NEXTAUTH_URL || defaultHost
+    if (host.includes("site-sgq-six.vercel.app")) {
+        host = host.replace("site-sgq-six.vercel.app", "mmclab.vercel.app")
+    }
+    const logoUrl = `${host}/logo-animated.gif?v=3.0`
     return `
         <div style="text-align: center; margin-bottom: 22px;">
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto; border-collapse: collapse;">
                 <tr>
-                    <td align="center" style="padding: 0;">
+                    <td align="center" valign="middle" style="padding: 0; margin: 0;">
                         <img 
                             src="${logoUrl}" 
                             alt="MMC LAB" 
                             width="140" 
                             height="140" 
-                            style="display: block; width: 140px; height: 140px; border: 0; outline: none; text-decoration: none; margin: 0 auto;" 
+                            style="display: block; width: 140px; height: 140px; max-width: 140px; border: 0; outline: none; text-decoration: none; margin: 0 auto; -ms-interpolation-mode: bicubic;" 
                         />
                     </td>
                 </tr>
@@ -134,7 +139,7 @@ export async function sendVerificationEmail(to: string, name: string, token: str
         subject: "Confirme seu e-mail e ative sua conta - MMC Lab",
         html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background-color: #0f172a; color: white; padding: 36px 24px; text-align: center;">
+                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
                     ${renderEmailLogo(baseUrl)}
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Bem-vindo(a), ${name}!</h1>
                     <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Estamos muito felizes em ter você conosco.</p>
@@ -233,7 +238,7 @@ export async function sendProposalEmail(params: {
         subject: `Proposta Comercial - ${type} [${proposalCode || osCode || "MMC Lab"}]`,
         html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background-color: #0f172a; color: white; padding: 36px 24px; text-align: center;">
+                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
                     ${renderEmailLogo()}
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Proposta Comercial Disponível</h1>
                     <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Olá, ${name}! Analise os detalhes da proposta enviada para o seu ensaio.</p>
@@ -326,7 +331,7 @@ export async function sendWelcomeEmail(to: string, name: string, rawPassword: st
         subject: "Bem-vindo ao Portal do Cliente - MMC Lab",
         html: `
             <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-                <div style="background-color: #0f172a; color: white; padding: 36px 24px; text-align: center;">
+                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
                     ${renderEmailLogo()}
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Olá, ${name}!</h1>
                     <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Seu acesso ao Portal do Cliente está pronto.</p>
@@ -386,7 +391,7 @@ export async function sendFinalizedEmail(to: string, name: string, requestId: st
         subject: `Processo Finalizado - ${type} - MMC Lab`,
         html: `
             <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-                <div style="background-color: #0f172a; color: white; padding: 36px 24px; text-align: center; border-bottom: 3px solid #10b981;">
+                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center; border-bottom: 3px solid #10b981;">
                     ${renderEmailLogo()}
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Olá, ${name}!</h1>
                     <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px; color: #34d399; font-weight: 600;">Temos ótimas notícias: seu processo foi finalizado!</p>
@@ -468,7 +473,7 @@ export async function sendReportWithSurveyEmail(params: {
         subject: `Relatório de Ensaio (${itemNumber} de ${totalItems}) & Pesquisa de Satisfação - ${osCode || 'MMC Lab'}`,
         html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background-color: #0f172a; color: white; padding: 36px 24px; text-align: center;">
+                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
                     ${renderEmailLogo(baseUrl)}
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Relatório Técnico Disponível</h1>
                     <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Olá, ${name}! Seu laudo de ensaio já foi concluído e disponibilizado.</p>
@@ -576,7 +581,7 @@ export async function sendInvoiceEmail(params: {
         subject: `Nota Fiscal Emitida - ${type} [NF nº ${invoiceNumber}] - MMC Lab`,
         html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background-color: #0f172a; color: white; padding: 36px 24px; text-align: center;">
+                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
                     ${renderEmailLogo()}
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Nota Fiscal de Serviços Emitida</h1>
                     <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Olá, ${name}! Disponibilizamos a nota fiscal referente aos serviços prestados.</p>
@@ -670,7 +675,7 @@ export async function sendResetPasswordEmail(to: string, name: string, token: st
         subject: "Recuperação de Senha - MMC Lab",
         html: `
             <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-                <div style="background-color: #0f172a; color: white; padding: 36px 24px; text-align: center;">
+                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
                     ${renderEmailLogo()}
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Olá, ${name}!</h1>
                     <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Você solicitou a recuperação de sua senha.</p>
@@ -740,7 +745,7 @@ export async function sendShareProcessEmail(params: {
         html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
                 {/* Header */}
-                <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 36px 30px; text-align: center;">
+                <div style="background: #0f172a linear-gradient(135deg, #0f172a 0%, #1e293b 100%); background-color: #0f172a !important; color: white; padding: 36px 30px; text-align: center;">
                     ${renderEmailLogo()}
                     <div style="display: inline-block; background-color: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 50px; padding: 5px 14px; margin-bottom: 14px;">
                         <span style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🌐 Portal do Cliente MMC Lab</span>
