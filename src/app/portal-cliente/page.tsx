@@ -1158,8 +1158,11 @@ export default function PortalClientePage() {
                                                 
                                                 const invoices = ensaio.fullData?.partialInvoices || [];
                                                 const hasPartialInvoices = invoices.length > 0;
+                                                const executionItems = ensaio.fullData?.executionItems || [];
+                                                const allItemsPaid = executionItems.length > 0 && executionItems.every((it: any) => it.statusPagamento === 'PAGO');
+                                                const isProcessFinalizado = ensaio.status === 'Finalizado' || ensaio.fullData?.status === 'FINALIZADO';
                                                 const allPartialPaid = hasPartialInvoices && invoices.every((inv: any) => inv.statusPagamento === 'PAGO' || Boolean(inv.dataPagamento));
-                                                const isFullyPaidByFinanceiro = Boolean(ensaio.fullData?.paymentConfirmedAt) && (!hasPartialInvoices || allPartialPaid);
+                                                const isFullyPaidByFinanceiro = isProcessFinalizado || allItemsPaid || (Boolean(ensaio.fullData?.paymentConfirmedAt) && (!hasPartialInvoices || allPartialPaid));
 
                                                 if (!isFullyPaidByFinanceiro && !ensaio.clientPaymentConfirmed && Boolean(ensaio.isOwner) && hasNfEnviada) {
                                                     return (
@@ -1340,16 +1343,33 @@ export default function PortalClientePage() {
                                                                                         </span>
                                                                                         <span className="truncate">Nota Fiscal nº {inv.numeroNf || inv.nfeNumber || (idx + 1)}</span>
                                                                                         {inv.qtdFaturada && <span className="text-[10px] text-slate-400 hidden sm:inline">({inv.qtdFaturada} ensaio{inv.qtdFaturada > 1 ? 's' : ''})</span>}
-                                                                                        {(inv.statusPagamento === 'PAGO' || Boolean(inv.dataPagamento) || Boolean(ensaio.fullData?.paymentConfirmedAt)) ? (
-                                                                                             <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0 ml-1">
-                                                                                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                                                                 Paga
-                                                                                             </span>
-                                                                                         ) : (
-                                                                                             <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 ml-1">
-                                                                                                 Aguardando Pgt
-                                                                                             </span>
-                                                                                         )}
+                                                                                        {(() => {
+                                                                                            const isPaid = (
+                                                                                                inv.statusPagamento === 'PAGO' ||
+                                                                                                Boolean(inv.dataPagamento) ||
+                                                                                                Boolean(ensaio.fullData?.paymentConfirmedAt) ||
+                                                                                                ensaio.status === 'Finalizado' ||
+                                                                                                ensaio.fullData?.status === 'FINALIZADO' ||
+                                                                                                (() => {
+                                                                                                    const items = ensaio.fullData?.executionItems || [];
+                                                                                                    const invItems = items.filter((it: any) => it.partialInvoiceId === inv.id);
+                                                                                                    if (invItems.length > 0 && invItems.every((it: any) => it.statusPagamento === 'PAGO')) return true;
+                                                                                                    if (items.length > 0 && items.every((it: any) => it.statusPagamento === 'PAGO')) return true;
+                                                                                                    return false;
+                                                                                                })()
+                                                                                            );
+
+                                                                                            return isPaid ? (
+                                                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0 ml-1">
+                                                                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                                                                    Paga
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 ml-1">
+                                                                                                    Aguardando Pgt
+                                                                                                </span>
+                                                                                            );
+                                                                                        })()}
                                                                                     </span>
                                                                                     <button
                                                                                         onClick={() => openPdfLink(pdfUrl, `NF-${inv.numeroNf || (idx + 1)}.pdf`, 'view')}
@@ -1366,11 +1386,28 @@ export default function PortalClientePage() {
                                                             } else if (ensaio.invoicePdfUrl) {
                                                                 return (
                                                                     <div className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
-                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
                                                                             <span className="w-5 h-5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[10px] font-extrabold flex items-center justify-center shrink-0">
                                                                                 NF
                                                                             </span>
-                                                                            <span>Nota Fiscal Comercial</span>
+                                                                            <span className="truncate">Nota Fiscal Comercial</span>
+                                                                            {(() => {
+                                                                                const isSinglePaid = Boolean(ensaio.fullData?.paymentConfirmedAt) ||
+                                                                                    ensaio.status === 'Finalizado' ||
+                                                                                    ensaio.fullData?.status === 'FINALIZADO' ||
+                                                                                    ((ensaio.fullData?.executionItems || []).length > 0 && (ensaio.fullData?.executionItems || []).every((it: any) => it.statusPagamento === 'PAGO'));
+
+                                                                                return isSinglePaid ? (
+                                                                                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0 ml-1">
+                                                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                                                        Paga
+                                                                                    </span>
+                                                                                ) : (
+                                                                                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 ml-1">
+                                                                                        Aguardando Pgt
+                                                                                    </span>
+                                                                                );
+                                                                            })()}
                                                                         </span>
                                                                         <button
                                                                             onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}

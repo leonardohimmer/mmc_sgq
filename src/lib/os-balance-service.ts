@@ -214,9 +214,9 @@ export async function calculateOsBalance(requestId: string): Promise<OsBalanceSu
     (item) => item.statusPagamento === 'PAGO'
   ).length;
 
-  // Removida auto-quitação legado genérica para depender da baixa por item pelo colaborador
-  const legacyPaid = 0;
-  const qtdPagos = Math.min(qtdContratada, qtdPagosCalc);
+  // Considerar quitado se a OS tiver quitação confirmada pelo financeiro ou se estiver FINALIZADO com todos itens concluídos
+  const legacyPaid = (Boolean(request.paymentConfirmedAt) || (request.status === 'FINALIZADO' && qtdExecutada >= qtdContratada)) ? qtdContratada : 0;
+  const qtdPagos = Math.min(qtdContratada, Math.max(qtdPagosCalc, legacyPaid));
 
   const qtdPendenteExecucao = Math.max(0, qtdContratada - qtdExecutada);
   const qtdPendenteEntrega = Math.max(0, qtdContratada - qtdEntregue);
@@ -273,10 +273,21 @@ export async function updateOsStatusBasedOnBalance(requestId: string): Promise<s
 
   // 1. Se a OS cumpriu TODOS os critérios (todos ensaios entregues, todos pagos E pesquisa registrada), a OS é FINALIZADA
   if (balance.isOsFinalizada) {
-    if (request.status !== 'FINALIZADO') {
+    const now = new Date();
+    if (request.status !== 'FINALIZADO' || !request.paymentConfirmedAt) {
       await prisma.testRequest.update({
         where: { id: requestId },
-        data: { status: 'FINALIZADO', step: 10 },
+        data: {
+          status: 'FINALIZADO',
+          step: 10,
+          ...(!request.paymentConfirmedAt ? { paymentConfirmedAt: now } : {}),
+        },
+      });
+
+      // Garantir quitação das notas parciais que estejam com status pendente
+      await prisma.partialInvoice.updateMany({
+        where: { requestId, statusPagamento: { not: 'PAGO' } },
+        data: { statusPagamento: 'PAGO', dataPagamento: now },
       });
     }
     return 'FINALIZADO';

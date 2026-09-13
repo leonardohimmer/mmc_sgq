@@ -148,6 +148,59 @@ export async function PATCH(
       },
     });
 
+    // Se o statusPagamento foi alterado, sincronizar com as Notas Fiscais Parciais e a OS Mãe
+    if (statusPagamento) {
+      const now = new Date();
+      const allItems = await prisma.testExecutionItem.findMany({
+        where: { requestId },
+        select: { id: true, partialInvoiceId: true, statusPagamento: true },
+      });
+
+      if (statusPagamento === 'PAGO') {
+        // 1. Sincronizar PartialInvoices cujos itens associados estão 100% pagos
+        const partialInvoiceIds = Array.from(
+          new Set(allItems.map((i) => i.partialInvoiceId).filter(Boolean))
+        ) as string[];
+
+        for (const pId of partialInvoiceIds) {
+          const itemsForInvoice = allItems.filter((i) => i.partialInvoiceId === pId);
+          const allInvoiceItemsPaid = itemsForInvoice.length > 0 && itemsForInvoice.every((i) => i.statusPagamento === 'PAGO');
+          if (allInvoiceItemsPaid) {
+            await prisma.partialInvoice.update({
+              where: { id: pId },
+              data: {
+                statusPagamento: 'PAGO',
+                dataPagamento: now,
+              },
+            });
+          }
+        }
+
+        // 2. Se todos os itens da OS estão pagos, atualizar paymentConfirmedAt da OS
+        const allReqItemsPaid = allItems.length > 0 && allItems.every((i) => i.statusPagamento === 'PAGO');
+        if (allReqItemsPaid) {
+          await prisma.testRequest.update({
+            where: { id: requestId },
+            data: {
+              paymentConfirmedAt: now,
+            },
+          });
+        }
+      } else {
+        // Se foi revertido para PENDENTE, reverter a PartialInvoice associada
+        const targetPartialId = targetItem.partialInvoiceId;
+        if (targetPartialId) {
+          await prisma.partialInvoice.update({
+            where: { id: targetPartialId },
+            data: {
+              statusPagamento: 'PENDENTE',
+              dataPagamento: null,
+            },
+          });
+        }
+      }
+    }
+
     const updatedItem = await prisma.testExecutionItem.findUnique({
       where: { id: targetItem.id },
     });

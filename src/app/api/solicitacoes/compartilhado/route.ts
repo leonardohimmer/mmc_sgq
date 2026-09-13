@@ -94,6 +94,7 @@ export async function GET(request: Request) {
             reportNumber: testReq.reportNumber,
             invoicePdfUrl: testReq.invoicePdfUrl,
             invoiceNumber: testReq.invoiceNumber,
+            paymentConfirmedAt: testReq.paymentConfirmedAt,
             clientPaymentConfirmed: testReq.clientPaymentConfirmed,
             // Itens de execução e relatórios parciais
             executionItems: (testReq.executionItems || []).map((item: any) => ({
@@ -102,6 +103,8 @@ export async function GET(request: Request) {
                 tipoEnsaio: testReq.type,
                 statusExecucao: item.statusExecucao,
                 statusEntrega: item.statusEntrega,
+                statusPagamento: item.statusPagamento,
+                partialInvoiceId: item.partialInvoiceId,
                 dataExecucao: item.dataExecucao,
                 reportPdfUrl: item.reportPdfUrl,
                 numeroRelatorio: item.reportNumber,
@@ -114,6 +117,7 @@ export async function GET(request: Request) {
                 valorNota: inv.valorNota,
                 qtdFaturada: inv.qtdFaturada,
                 statusPagamento: inv.statusPagamento,
+                dataPagamento: inv.dataPagamento,
                 notaPdfUrl: inv.notaPdfUrl
             })),
             // Metadados do compartilhamento

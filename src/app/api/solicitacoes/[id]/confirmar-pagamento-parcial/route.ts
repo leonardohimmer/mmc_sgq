@@ -80,6 +80,21 @@ export async function POST(
       }
     }
 
+    // Verificar se todos os itens da OS estão quitados para atualizar paymentConfirmedAt
+    const allItemsStatus = await prisma.testExecutionItem.findMany({
+      where: { requestId: id },
+      select: { statusPagamento: true },
+    });
+    if (allItemsStatus.length > 0 && allItemsStatus.every((i) => i.statusPagamento === "PAGO")) {
+      await prisma.testRequest.update({
+        where: { id },
+        data: {
+          paymentConfirmedAt: existingRequest.paymentConfirmedAt || now,
+          paymentConfirmedBy: existingRequest.paymentConfirmedBy || changedBy,
+        },
+      });
+    }
+
     // Ação: Finalizar Processo e Mover para Histórico
     let isFinalized = false;
     if (action === "FINALIZAR_PROCESSO") {

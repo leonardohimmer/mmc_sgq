@@ -373,16 +373,32 @@ export default function EnsaioDetailsModal({
                                         <div>
                                             <div className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5 flex-wrap">
                                                 <span>NF nº {nf.numeroNf} ({nf.qtdFaturada} ensaio{nf.qtdFaturada > 1 ? 's' : ''})</span>
-                                                {(nf.statusPagamento === 'PAGO' || Boolean(nf.dataPagamento) || Boolean(data.paymentConfirmedAt)) ? (
-                                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                        Paga
-                                                    </span>
-                                                ) : (
-                                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                                                        Aguardando Pgt
-                                                    </span>
-                                                )}
+                                                {(() => {
+                                                    const isPaid = (
+                                                        nf.statusPagamento === 'PAGO' ||
+                                                        Boolean(nf.dataPagamento) ||
+                                                        Boolean(data.paymentConfirmedAt) ||
+                                                        data.status === 'FINALIZADO' ||
+                                                        (() => {
+                                                            const items = data.executionItems || [];
+                                                            const invItems = items.filter((it: any) => it.partialInvoiceId === nf.id);
+                                                            if (invItems.length > 0 && invItems.every((it: any) => it.statusPagamento === 'PAGO')) return true;
+                                                            if (items.length > 0 && items.every((it: any) => it.statusPagamento === 'PAGO')) return true;
+                                                            return false;
+                                                        })()
+                                                    );
+
+                                                    return isPaid ? (
+                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                            Paga
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                                                            Aguardando Pgt
+                                                        </span>
+                                                    );
+                                                })()}
                                             </div>
                                             <div className="text-[11px] text-slate-500 mt-0.5">
                                                 {nf.dataEmissao ? new Date(nf.dataEmissao).toLocaleDateString('pt-BR') : 'Data N/I'} - R$ {nf.valorNota ? nf.valorNota.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}

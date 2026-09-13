@@ -153,6 +153,9 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
         }
 
         const coveredSequenciais = covered.map((c) => c.numeroSequencial);
+        const isNfPago = nf.statusPagamento === 'PAGO' ||
+          Boolean(request.paymentConfirmedAt) ||
+          (covered.length > 0 && covered.every((c) => c.statusPagamento === 'PAGO'));
 
         return {
           id: nf.id,
@@ -161,19 +164,20 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
           valorNota: nf.valorNota,
           dataEmissao: nf.dataEmissao,
           notaPdfUrl: nf.notaPdfUrl,
-          statusPagamento: nf.statusPagamento || (request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE'),
+          statusPagamento: isNfPago ? 'PAGO' : (nf.statusPagamento || 'PENDENTE'),
           coveredSequenciais: coveredSequenciais.length > 0 ? coveredSequenciais : [1],
         };
       });
     } else if (request.invoicePdfUrl || faturadosCount > 0) {
       const coveredSeqs = ensaiosList.filter((e) => e.statusFaturamento === 'FATURADO' || Boolean(e.reportPdfUrl)).map((e) => e.numeroSequencial);
+      const isGlobalPago = Boolean(request.paymentConfirmedAt) || (ensaiosList.length > 0 && ensaiosList.every((e) => e.statusPagamento === 'PAGO'));
       list = [
         {
           id: 'global-nf',
           numeroNf: 'Global / Única',
           qtdFaturada: coveredSeqs.length || countTotal,
           notaPdfUrl: request.invoicePdfUrl,
-          statusPagamento: request.paymentConfirmedAt ? 'PAGO' : 'PENDENTE',
+          statusPagamento: isGlobalPago ? 'PAGO' : 'PENDENTE',
           coveredSequenciais: coveredSeqs.length > 0 ? coveredSeqs : ensaiosList.map((e) => e.numeroSequencial),
         },
       ];

@@ -38,6 +38,7 @@ interface SharedProcessData {
     reportNumber?: string;
     invoicePdfUrl?: string;
     invoiceNumber?: string;
+    paymentConfirmedAt?: string | Date | null;
     clientPaymentConfirmed?: boolean;
     executionItems?: Array<{
         id: string;
@@ -45,6 +46,8 @@ interface SharedProcessData {
         tipoEnsaio: string;
         statusExecucao: string;
         statusEntrega: string;
+        statusPagamento?: string;
+        partialInvoiceId?: string | null;
         dataExecucao?: string;
         reportPdfUrl?: string;
         numeroRelatorio?: string;
@@ -57,6 +60,7 @@ interface SharedProcessData {
         valorNota?: number;
         qtdFaturada?: number;
         statusPagamento?: string;
+        dataPagamento?: string | Date | null;
         notaPdfUrl?: string;
     }>;
     sharedWithEmail: string;
@@ -529,8 +533,34 @@ function SharedProcessContent() {
                                         className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-2xl flex items-center justify-between gap-4"
                                     >
                                         <div>
-                                            <div className="text-xs font-extrabold text-white">
-                                                Nota Fiscal nº {inv.numeroNf}
+                                            <div className="text-xs font-extrabold text-white flex items-center gap-1.5 flex-wrap">
+                                                <span>Nota Fiscal nº {inv.numeroNf}</span>
+                                                {(() => {
+                                                    const isPaid = (
+                                                        inv.statusPagamento === 'PAGO' ||
+                                                        Boolean(inv.dataPagamento) ||
+                                                        Boolean(processData.paymentConfirmedAt) ||
+                                                        processData.status === 'FINALIZADO' ||
+                                                        (() => {
+                                                            const items = (processData as any).executionItems || [];
+                                                            const invItems = items.filter((it: any) => it.partialInvoiceId === inv.id);
+                                                            if (invItems.length > 0 && invItems.every((it: any) => it.statusPagamento === 'PAGO')) return true;
+                                                            if (items.length > 0 && items.every((it: any) => it.statusPagamento === 'PAGO')) return true;
+                                                            return false;
+                                                        })()
+                                                    );
+
+                                                    return isPaid ? (
+                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                            Paga
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                                            Aguardando Pgt
+                                                        </span>
+                                                    );
+                                                })()}
                                             </div>
                                             <div className="text-[11px] text-slate-400">
                                                 {inv.dataEmissao ? new Date(inv.dataEmissao).toLocaleDateString("pt-BR") : "Data N/I"}
