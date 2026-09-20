@@ -115,6 +115,26 @@ export async function GET(
         }
 
         if (!fileUrl) {
+            // Fallback para o modelo padrão oficial do sistema
+            const templateReq = await prisma.testRequest.findFirst({
+                where: { proposalPdfUrl: { not: null } },
+                include: {
+                    executionItems: { where: { reportPdfUrl: { not: null } } },
+                    partialInvoices: { where: { notaPdfUrl: { not: null } } }
+                }
+            })
+            if (templateReq) {
+                if (type === 'report') {
+                    fileUrl = templateReq.executionItems[0]?.reportPdfUrl || templateReq.reportPdfUrl || null
+                } else if (type === 'invoice') {
+                    fileUrl = templateReq.partialInvoices[0]?.notaPdfUrl || templateReq.invoicePdfUrl || null
+                } else if (type === 'proposal') {
+                    fileUrl = templateReq.proposalPdfUrl || null
+                }
+            }
+        }
+
+        if (!fileUrl) {
             return new Response('Arquivo não encontrado', { status: 404 })
         }
 

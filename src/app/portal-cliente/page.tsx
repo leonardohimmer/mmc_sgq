@@ -246,29 +246,33 @@ export default function PortalClientePage() {
         const rawId = ensaio.rawId || ensaio.id;
 
         // Proposta Comercial
-        if (ensaio.proposalPdfUrl && ensaio.proposalPdfUrl.trim() !== "") {
-            keys.push(`${rawId}_proposal_${ensaio.proposalPdfUrl.substring(0, 30)}`);
+        if (ensaio.proposalPdfUrl || ensaio.status !== "Recebido") {
+            keys.push(`${rawId}_proposal`);
         }
 
         // Relatórios
-        const items = (ensaio.fullData?.executionItems || []).filter((item: any) => item.reportPdfUrl && item.reportPdfUrl.trim() !== "");
+        const items = (ensaio.fullData?.executionItems || []).filter((item: any) => 
+            (item.reportPdfUrl && item.reportPdfUrl.trim() !== "") ||
+            item.statusEntrega === 'ENVIADO_AO_CLIENTE' ||
+            item.statusExecucao === 'CONCLUIDO' ||
+            item.statusExecucao === 'APROVADO'
+        );
         if (items.length > 0) {
             items.forEach((item: any) => {
-                keys.push(`${rawId}_report_${item.id || item.numeroSequencial}_${item.reportPdfUrl.substring(0, 30)}`);
+                keys.push(`${rawId}_report_${item.id || item.numeroSequencial}`);
             });
-        } else if (ensaio.reportPdfUrl && ensaio.reportPdfUrl.trim() !== "") {
-            keys.push(`${rawId}_report_main_${ensaio.reportPdfUrl.substring(0, 30)}`);
+        } else if (ensaio.reportPdfUrl || ensaio.qtdEntregue > 0 || ensaio.status === 'Finalizado' || ensaio.fullData?.status === 'FINALIZADO') {
+            keys.push(`${rawId}_report_main`);
         }
 
         // Notas Fiscais
-        const invoices = (ensaio.fullData?.partialInvoices || []).filter((inv: any) => inv.notaPdfUrl || inv.invoicePdfUrl);
+        const invoices = (ensaio.fullData?.partialInvoices || []);
         if (invoices.length > 0) {
             invoices.forEach((inv: any, idx: number) => {
-                const url = inv.notaPdfUrl || inv.invoicePdfUrl;
-                keys.push(`${rawId}_invoice_${inv.id || idx}_${url.substring(0, 30)}`);
+                keys.push(`${rawId}_invoice_${inv.id || idx}`);
             });
-        } else if (ensaio.invoicePdfUrl && ensaio.invoicePdfUrl.trim() !== "") {
-            keys.push(`${rawId}_invoice_main_${ensaio.invoicePdfUrl.substring(0, 30)}`);
+        } else if (ensaio.invoicePdfUrl || ['COBRANCA', 'PAGAMENTO', 'PESQUISA_PENDENTE', 'FINALIZADO'].includes(ensaio.fullData?.status) || ensaio.status === 'Finalizado' || ensaio.status === 'Aguardando Pagamento' || ensaio.status === 'Faturamento em Processamento') {
+            keys.push(`${rawId}_invoice_main`);
         }
 
         return keys;
@@ -1241,9 +1245,9 @@ export default function PortalClientePage() {
                                                             <span className="material-symbols-outlined text-[16px] text-blue-500">assignment</span>
                                                             Proposta Comercial:
                                                         </span>
-                                                        {ensaio.proposalPdfUrl ? (
+                                                        {ensaio.proposalPdfUrl || ensaio.status !== "Recebido" ? (
                                                             <button
-                                                                onClick={() => openPdfLink(ensaio.proposalPdfUrl, `Proposta-${ensaio.osCode}.pdf`, 'view')}
+                                                                onClick={() => openPdfLink(ensaio.proposalPdfUrl || `/api/solicitacoes/${ensaio.rawId}/pdf?type=proposal`, `Proposta-${ensaio.osCode}.pdf`, 'view')}
                                                                 className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center gap-1 shadow-sm"
                                                             >
                                                                 <span className="material-symbols-outlined text-[13px]">download</span>
@@ -1264,31 +1268,40 @@ export default function PortalClientePage() {
                                                         </div>
                                                         
                                                         {(() => {
-                                                            const items = (ensaio.fullData?.executionItems || []).filter((item: any) => item.reportPdfUrl && item.reportPdfUrl.trim() !== "");
+                                                            const items = (ensaio.fullData?.executionItems || []).filter((item: any) => 
+                                                                (item.reportPdfUrl && item.reportPdfUrl.trim() !== "") ||
+                                                                item.statusEntrega === 'ENVIADO_AO_CLIENTE' ||
+                                                                item.statusExecucao === 'CONCLUIDO' ||
+                                                                item.statusExecucao === 'APROVADO'
+                                                            );
                                                             if (items.length > 0) {
                                                                 return (
                                                                     <div className="space-y-1.5 pl-1">
-                                                                        {items.map((item: any) => (
-                                                                            <div key={item.id || item.numeroSequencial} className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
-                                                                                <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
-                                                                                    <span className="w-5 h-5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold flex items-center justify-center shrink-0">
-                                                                                        #{item.numeroSequencial}
+                                                                        {items.map((item: any) => {
+                                                                            const pdfUrl = item.reportPdfUrl || `/api/solicitacoes/${ensaio.rawId}/pdf?type=report&itemId=${item.id}`;
+                                                                            return (
+                                                                                <div key={item.id || item.numeroSequencial} className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
+                                                                                    <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
+                                                                                        <span className="w-5 h-5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                                                                                            #{item.numeroSequencial}
+                                                                                        </span>
+                                                                                        <span className="truncate">Relatório {item.numeroSequencial} de {ensaio.qtdContratada}</span>
+                                                                                        {item.reportNumber && <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">({item.reportNumber})</span>}
                                                                                     </span>
-                                                                                    <span className="truncate">Relatório {item.numeroSequencial} de {ensaio.qtdContratada}</span>
-                                                                                    {item.reportNumber && <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">({item.reportNumber})</span>}
-                                                                                </span>
-                                                                                <button
-                                                                                    onClick={() => openPdfLink(item.reportPdfUrl, `Relatorio-Ensaio-${item.numeroSequencial}.pdf`, 'view')}
-                                                                                    className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-xs shrink-0"
-                                                                                >
-                                                                                    <span className="material-symbols-outlined text-[13px]">download</span>
-                                                                                    Baixar
-                                                                                </button>
-                                                                            </div>
-                                                                        ))}
+                                                                                    <button
+                                                                                        onClick={() => openPdfLink(pdfUrl, `Relatorio-Ensaio-${item.numeroSequencial}.pdf`, 'view')}
+                                                                                        className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-xs shrink-0"
+                                                                                    >
+                                                                                        <span className="material-symbols-outlined text-[13px]">download</span>
+                                                                                        Baixar
+                                                                                    </button>
+                                                                                </div>
+                                                                            );
+                                                                        })}
                                                                     </div>
                                                                 );
-                                                            } else if (ensaio.reportPdfUrl) {
+                                                            } else if (ensaio.reportPdfUrl || ensaio.qtdEntregue > 0 || ensaio.status === 'Finalizado' || ensaio.fullData?.status === 'FINALIZADO') {
+                                                                const pdfUrl = ensaio.reportPdfUrl || `/api/solicitacoes/${ensaio.rawId}/pdf?type=report`;
                                                                 return (
                                                                     <div className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
                                                                         <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
@@ -1298,7 +1311,7 @@ export default function PortalClientePage() {
                                                                             <span>Relatório Geral {ensaio.reportNumber ? `(${ensaio.reportNumber})` : ''}</span>
                                                                         </span>
                                                                         <button
-                                                                            onClick={() => openPdfLink(ensaio.reportPdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
+                                                                            onClick={() => openPdfLink(pdfUrl, `Relatorio-${ensaio.reportNumber || ensaio.id}.pdf`, 'view')}
                                                                             className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white transition-all flex items-center gap-1 shadow-xs"
                                                                         >
                                                                             <span className="material-symbols-outlined text-[13px]">download</span>
@@ -1326,12 +1339,12 @@ export default function PortalClientePage() {
                                                         </div>
 
                                                         {(() => {
-                                                            const invoices = (ensaio.fullData?.partialInvoices || []).filter((inv: any) => inv.notaPdfUrl || inv.invoicePdfUrl);
+                                                            const invoices = (ensaio.fullData?.partialInvoices || []);
                                                             if (invoices.length > 0) {
                                                                 return (
                                                                     <div className="space-y-1.5 pl-1">
                                                                         {invoices.map((inv: any, idx: number) => {
-                                                                            const pdfUrl = inv.notaPdfUrl || inv.invoicePdfUrl;
+                                                                            const pdfUrl = inv.notaPdfUrl || inv.invoicePdfUrl || `/api/solicitacoes/${ensaio.rawId}/pdf?type=invoice&invoiceId=${inv.id}`;
                                                                             return (
                                                                                 <div key={inv.id || idx} className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
                                                                                     <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
@@ -1380,7 +1393,8 @@ export default function PortalClientePage() {
                                                                         })}
                                                                     </div>
                                                                 );
-                                                            } else if (ensaio.invoicePdfUrl) {
+                                                            } else if (ensaio.invoicePdfUrl || ['COBRANCA', 'PAGAMENTO', 'PESQUISA_PENDENTE', 'FINALIZADO'].includes(ensaio.fullData?.status) || ensaio.status === 'Finalizado' || ensaio.status === 'Aguardando Pagamento' || ensaio.status === 'Faturamento em Processamento') {
+                                                                const pdfUrl = ensaio.invoicePdfUrl || `/api/solicitacoes/${ensaio.rawId}/pdf?type=invoice`;
                                                                 return (
                                                                     <div className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900/80 p-2 px-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/80 shadow-xs">
                                                                         <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
@@ -1407,7 +1421,7 @@ export default function PortalClientePage() {
                                                                             })()}
                                                                         </span>
                                                                         <button
-                                                                            onClick={() => openPdfLink(ensaio.invoicePdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
+                                                                            onClick={() => openPdfLink(pdfUrl, `NotaFiscal-${ensaio.id}.pdf`, 'view')}
                                                                             className="px-2.5 py-1 rounded-lg font-extrabold text-[10px] bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center gap-1 shadow-xs"
                                                                         >
                                                                             <span className="material-symbols-outlined text-[13px]">download</span>

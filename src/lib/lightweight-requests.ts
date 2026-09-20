@@ -170,13 +170,23 @@ export async function getLightweightRequests(whereCondition: any = {}) {
 
         return {
             ...req,
-            executionItems: req.executionItems.map((item: any) => ({
-                ...item,
-                reportPdfUrl: itemPdfFlagsMap.get(item.id) ? `/api/solicitacoes/${req.id}/pdf?type=report&itemId=${item.id}` : null
-            })),
+            executionItems: req.executionItems.map((item: any) => {
+                const canHaveReport = Boolean(
+                    itemPdfFlagsMap.get(item.id) ||
+                    item.statusEntrega === 'ENVIADO_AO_CLIENTE' ||
+                    item.statusExecucao === 'CONCLUIDO' ||
+                    item.statusExecucao === 'APROVADO' ||
+                    req.status === 'FINALIZADO' ||
+                    hasReportPdf
+                );
+                return {
+                    ...item,
+                    reportPdfUrl: canHaveReport ? `/api/solicitacoes/${req.id}/pdf?type=report&itemId=${item.id}` : null
+                };
+            }),
             partialInvoices: req.partialInvoices.map((inv: any) => ({
                 ...inv,
-                notaPdfUrl: invoicePdfFlagsMap.get(inv.id) ? `/api/solicitacoes/${req.id}/pdf?type=invoice&invoiceId=${inv.id}` : null
+                notaPdfUrl: `/api/solicitacoes/${req.id}/pdf?type=invoice&invoiceId=${inv.id}`
             })),
             qtdContratada,
             qtdExecutada,
@@ -189,9 +199,9 @@ export async function getLightweightRequests(whereCondition: any = {}) {
             qtdPendentePagamento: Math.max(0, qtdContratada - qtdPagos),
             podeFinalizarPagamento: qtdPagos >= qtdContratada,
             porcentagemConcluida: Math.min(100, Math.round((qtdEntregue / qtdContratada) * 100)),
-            reportPdfUrl: hasReportPdf ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
-            proposalPdfUrl: hasProposalPdf ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
-            invoicePdfUrl: hasInvoicePdf ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
+            reportPdfUrl: (hasReportPdf || qtdEntregue > 0 || req.status === 'FINALIZADO') ? `/api/solicitacoes/${req.id}/pdf?type=report` : null,
+            proposalPdfUrl: (hasProposalPdf || req.status !== 'RECEBIDO') ? `/api/solicitacoes/${req.id}/pdf?type=proposal` : null,
+            invoicePdfUrl: (hasInvoicePdf || req.partialInvoices.length > 0 || ['COBRANCA', 'PAGAMENTO', 'PESQUISA_PENDENTE', 'FINALIZADO'].includes(req.status)) ? `/api/solicitacoes/${req.id}/pdf?type=invoice` : null,
         };
     });
 }
