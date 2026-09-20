@@ -236,7 +236,6 @@ export default function ElaboracaoRelatorioPage() {
     if (loading) {
         return (
             <MMCLoadingScreen
-                fullScreen={false}
                 message="Carregando elaboração de relatórios..."
                 submessage="Sincronizando modelos e laudos técnicos da MMC LAB"
             />

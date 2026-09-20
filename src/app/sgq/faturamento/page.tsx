@@ -343,7 +343,6 @@ export default function FaturamentoParcialPage() {
   if (loading) {
     return (
       <MMCLoadingScreen
-        fullScreen={false}
         message="Carregando módulo de faturamento..."
         submessage="Sincronizando notas fiscais e baixas financeiras MMC LAB"
       />

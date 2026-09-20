@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 type Supplier = {
     id: string
@@ -43,7 +44,14 @@ export default function FornecedoresQualidadePage() {
         return s.name.toLowerCase().includes(filterName.toLowerCase()) && s.active
     })
 
-    if (isLoading) return <div className="p-8">Carregando...</div>
+    if (isLoading) {
+        return (
+            <MMCLoadingScreen
+                message="Carregando fornecedores e qualificação..."
+                submessage="Sincronizando homologações e registros da Qualidade"
+            />
+        )
+    }
 
     return (
         <div className="space-y-6 p-6">

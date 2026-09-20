@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import { useSession } from "next-auth/react"
 import ConfirmModal from "@/components/ConfirmModal"
 import SuccessModal from "@/components/SuccessModal"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 type Equipment = {
     id: string
@@ -295,6 +296,15 @@ export default function EquipamentosPage() {
             <span className="material-symbols-outlined text-[14px] text-primary">expand_less</span> : 
             <span className="material-symbols-outlined text-[14px] text-primary">expand_more</span>;
     };
+
+    if (loading) {
+        return (
+            <MMCLoadingScreen
+                message="Carregando inventário de equipamentos..."
+                submessage="Sincronizando calibrações e status com a MMC LAB"
+            />
+        )
+    }
 
     return (
         <div className="space-y-6 font-sans max-w-7xl mx-auto px-4 md:px-6">

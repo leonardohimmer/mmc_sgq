@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 type Document = {
     id: string
@@ -29,6 +30,15 @@ export default function DocumentosPage() {
 
     const userRoles = (session?.user?.role || "").split(",").map(r => r.trim())
     const isAdminOrAuditor = userRoles.includes("ADMIN") || userRoles.includes("AUDITOR") || userRoles.includes("DESENVOLVEDOR")
+
+    if (loading) {
+        return (
+            <MMCLoadingScreen
+                message="Carregando controle de documentos..."
+                submessage="Sincronizando procedimentos, POPs e manuais"
+            />
+        )
+    }
 
     return (
         <div className="space-y-6 font-sans">

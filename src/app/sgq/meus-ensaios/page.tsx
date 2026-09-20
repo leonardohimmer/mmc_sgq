@@ -163,6 +163,15 @@ export default function MeusEnsaiosPage() {
         }
     }
 
+    if (loading) {
+        return (
+            <MMCLoadingScreen 
+                message="Carregando gerenciador de ensaios..." 
+                submessage="Buscando requisições técnicas do sistema MMC LAB" 
+            />
+        )
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
@@ -183,16 +192,7 @@ export default function MeusEnsaiosPage() {
                 </div>
             </div>
 
-            {loading ? (
-                <div className="space-y-6 animate-in fade-in duration-300">
-                    <MMCLoadingScreen 
-                        compact={true} 
-                        message="Carregando gerenciador de ensaios..." 
-                        submessage="Buscando requisições técnicas do sistema MMC LAB" 
-                    />
-                    <SkeletonTable rows={6} />
-                </div>
-            ) : filteredRequests.length === 0 ? (
+            {filteredRequests.length === 0 ? (
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-16 text-center transition-colors">
                     <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
                         <span className="material-symbols-outlined text-[40px] text-slate-400 dark:text-slate-500">search_off</span>

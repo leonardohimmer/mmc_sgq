@@ -70,7 +70,6 @@ function HistoricoTab() {
     if (loading) {
         return (
             <MMCLoadingScreen
-                fullScreen={false}
                 message="Carregando histórico de processos..."
                 submessage="Sincronizando processos concluídos e pesquisas revisadas"
             />

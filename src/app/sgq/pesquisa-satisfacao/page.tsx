@@ -58,7 +58,6 @@ function RespostasTab() {
     if (loading) {
         return (
             <MMCLoadingScreen
-                fullScreen={false}
                 message="Carregando pesquisas de satisfação..."
                 submessage="Sincronizando avaliações e relatórios com a Qualidade MMC LAB"
             />

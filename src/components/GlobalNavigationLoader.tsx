@@ -65,6 +65,7 @@ export default function GlobalNavigationLoader() {
   return (
     <MMCLoadingScreen
       fullScreen={true}
+      className="!z-50"
       message={loadingMessage}
       submessage="Sincronizando dados e preparando o ambiente MMC LAB"
     />

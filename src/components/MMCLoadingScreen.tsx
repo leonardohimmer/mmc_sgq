@@ -10,6 +10,7 @@ interface MMCLoadingScreenProps {
     fullScreen?: boolean;
     compact?: boolean;
     duration?: number;
+    className?: string;
 }
 
 const LOADING_STATUS_CYCLES = [
@@ -25,7 +26,8 @@ export default function MMCLoadingScreen({
     submessage,
     fullScreen = true,
     compact = false,
-    duration = 2200
+    duration = 2200,
+    className = ""
 }: MMCLoadingScreenProps) {
     const [statusIndex, setStatusIndex] = useState(0);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -121,11 +123,12 @@ export default function MMCLoadingScreen({
         <div 
             onMouseMove={handleMouseMove}
             className={`
-                ${fullScreen ? "fixed inset-0 z-50 min-h-screen" : "w-full py-20 min-h-[400px] rounded-3xl"} 
+                ${fullScreen ? "fixed inset-0 z-30 min-h-screen" : "w-full py-20 min-h-[400px] rounded-3xl"} 
                 flex flex-col items-center justify-center 
                 bg-slate-950/95 backdrop-blur-xl 
                 text-white select-none
                 transition-all duration-300 animate-in fade-in duration-300 relative overflow-hidden
+                ${className}
             `}
         >
             {/* Fundo com Orbes de Brilho Dinâmicos */}

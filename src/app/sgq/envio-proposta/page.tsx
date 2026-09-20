@@ -209,7 +209,6 @@ export default function EnvioPropostaPage() {
     if (loading) {
         return (
             <MMCLoadingScreen
-                fullScreen={false}
                 message="Carregando propostas comerciais..."
                 submessage="Sincronizando orçamentos e propostas com a MMC LAB"
             />

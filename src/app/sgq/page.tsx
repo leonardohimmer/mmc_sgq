@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 export default function DashboardPage() {
     const { data: session } = useSession()
@@ -21,6 +22,15 @@ export default function DashboardPage() {
             .catch(console.error)
             .finally(() => setLoadingEq(false))
     }, [])
+
+    if (loadingEq) {
+        return (
+            <MMCLoadingScreen
+                message="Carregando Painel de Controle..."
+                submessage="Sincronizando dados e indicadores de qualidade"
+            />
+        )
+    }
 
     const expiredCount = equipments.filter((eq: any) => {
         if (!eq.nextCalibrationDate) return false

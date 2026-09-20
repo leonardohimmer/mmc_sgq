@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import useSWR from 'swr'
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
@@ -22,6 +23,15 @@ export default function TecnicoDashboardPage() {
         dedupingInterval: 2000,
         onSuccess: () => setLastUpdated(new Date())
     })
+
+    if (isLoading && !data) {
+        return (
+            <MMCLoadingScreen
+                message="Carregando Painel Técnico SGQ..."
+                submessage="Sincronizando fluxo produtivo e indicadores"
+            />
+        )
+    }
 
     const counts = data?.counts
     const userPermissions = data?.permissions || []

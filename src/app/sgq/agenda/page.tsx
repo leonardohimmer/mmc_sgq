@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import { toast } from "sonner"
 import { Calendar, Loader2, Link as LinkIcon, RefreshCw, AlertTriangle } from "lucide-react"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 // Importação dinâmica do visualizador da agenda para evitar problemas de SSR com o FullCalendar
 const GoogleCalendarView = dynamic(
@@ -105,10 +106,10 @@ function AgendaPageContent() {
 
     if (checkingStatus) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-400 dark:text-slate-600">
-                <Loader2 className="animate-spin mb-4 text-blue-500" size={32} />
-                <p className="text-sm font-bold">Verificando sincronização da agenda...</p>
-            </div>
+            <MMCLoadingScreen
+                message="Sincronizando Google Agenda..."
+                submessage="Conectando compromissos e visitas técnicas da MMC LAB"
+            />
         )
     }
 

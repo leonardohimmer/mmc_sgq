@@ -115,7 +115,6 @@ export default function AguardandoAgendamentoPage() {
     if (loading) {
         return (
             <MMCLoadingScreen
-                fullScreen={false}
                 message="Carregando agendamentos..."
                 submessage="Sincronizando datas de ensaios e alocação de equipe"
             />

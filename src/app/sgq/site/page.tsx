@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import Cropper from "react-easy-crop"
 import { getCroppedImg } from "@/lib/imageUtils"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 interface StatItem {
     value: string
@@ -211,9 +212,10 @@ export default function SiteAdminPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-32">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
+            <MMCLoadingScreen
+                message="Carregando gerenciador do site..."
+                submessage="Sincronizando conteúdos, depoimentos e mídia da MMC LAB"
+            />
         )
     }
 

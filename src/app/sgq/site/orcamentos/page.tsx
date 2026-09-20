@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import ConfirmModal from "@/components/ConfirmModal"
 import { toast } from "sonner"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 interface Orcamento {
     id: string
@@ -156,9 +157,10 @@ export default function OrcamentosPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-32">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
+            <MMCLoadingScreen
+                message="Carregando solicitações de orçamento..."
+                submessage="Sincronizando propostas e contatos comerciais do site"
+            />
         )
     }
 

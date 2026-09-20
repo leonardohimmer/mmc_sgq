@@ -296,7 +296,6 @@ function AprovacaoContent() {
     if (loading) {
         return (
             <MMCLoadingScreen
-                fullScreen={false}
                 message="Carregando aprovações técnicas..."
                 submessage="Sincronizando revisões e assinaturas do laboratório"
             />

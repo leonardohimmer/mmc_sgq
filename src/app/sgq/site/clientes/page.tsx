@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import ReactCrop, { centerCrop, makeAspectCrop, Crop, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { getCroppedImg } from "@/lib/imageUtils"
+import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 interface ClientItem {
     name: string
@@ -118,9 +119,10 @@ export default function ClientsAdminPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-32">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
+            <MMCLoadingScreen
+                message="Carregando clientes e parceiros..."
+                submessage="Sincronizando construtoras e logotipos exibidos no site"
+            />
         )
     }
 
