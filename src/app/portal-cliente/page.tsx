@@ -936,10 +936,7 @@ export default function PortalClientePage() {
                         {/* Logo area */}
                         <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                             <MMCAnimatedLogo
-                                size="sm"
-                                showText={true}
-                                subtitle="Portal do Cliente"
-                                badgeText="PORTAL"
+                                size="md"
                                 href="/portal-cliente"
                                 priority
                             />

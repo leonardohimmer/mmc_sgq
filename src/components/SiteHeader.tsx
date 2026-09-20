@@ -26,55 +26,13 @@ export function SiteHeader() {
         <header className="fixed top-0 left-0 right-0 z-[100] border-b border-slate-200/50 dark:border-slate-800/50 bg-white/85 dark:bg-slate-950/85 backdrop-blur-md shadow-sm transition-all duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-1.5 lg:py-2 flex items-center justify-between gap-4">
 
-                {/* Logo e Redes Sociais */}
-                <div className="flex flex-col items-start lg:items-center gap-[2px] shrink-0">
+                {/* Logo */}
+                <div className="flex items-center shrink-0">
                     <MMCAnimatedLogo
-                        size="sm"
-                        showText={true}
-                        subtitle="Controle Tecnológico"
-                        badgeText="BETA"
+                        size="md"
                         href="/"
                         priority
                     />
-                    {/* Redes Sociais Desktop */}
-                    <div className="hidden lg:flex items-center gap-[6px]">
-                        <a
-                            href="https://www.instagram.com/mmc.lab/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-slate-400 hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-100 transition-colors duration-200"
-                            aria-label="Instagram"
-                        >
-                            <Instagram className="w-3 h-3" />
-                        </a>
-                        <a
-                            href="https://www.facebook.com/mmclab.controle"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-slate-400 hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-100 transition-colors duration-200"
-                            aria-label="Facebook"
-                        >
-                            <Facebook className="w-3 h-3" />
-                        </a>
-                        <a
-                            href="https://www.youtube.com/@mmclab_canoas"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-slate-400 hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-100 transition-colors duration-200"
-                            aria-label="YouTube"
-                        >
-                            <Youtube className="w-3 h-3" />
-                        </a>
-                        <a
-                            href="https://www.linkedin.com/company/mmc-lab-controle-tecnologico/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-slate-400 hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-100 transition-colors duration-200"
-                            aria-label="LinkedIn"
-                        >
-                            <Linkedin className="w-3 h-3" />
-                        </a>
-                    </div>
                 </div>
 
                 {/* Nav Desktop */}

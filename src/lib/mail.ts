@@ -37,22 +37,20 @@ export function renderEmailLogo(baseUrl?: string) {
     }
     const logoUrl = `${host}/logo-animated.gif?v=3.0`
     return `
-        <div style="text-align: center; margin-bottom: 22px;">
+        <div style="text-align: center; margin-bottom: 24px;">
             <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto; border-collapse: collapse;">
                 <tr>
                     <td align="center" valign="middle" style="padding: 0; margin: 0;">
                         <img 
                             src="${logoUrl}" 
                             alt="MMC LAB" 
-                            width="140" 
-                            height="140" 
-                            style="display: block; width: 140px; height: 140px; max-width: 140px; border: 0; outline: none; text-decoration: none; margin: 0 auto; -ms-interpolation-mode: bicubic;" 
+                            width="180" 
+                            height="180" 
+                            style="display: block; width: 180px; height: 180px; max-width: 180px; border: 0; outline: none; text-decoration: none; margin: 0 auto; -ms-interpolation-mode: bicubic;" 
                         />
                     </td>
                 </tr>
             </table>
-            <div style="margin-top: 14px; font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #38bdf8; text-transform: uppercase;">MMC LAB</div>
-            <div style="font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #94a3b8; font-weight: 700; margin-top: 4px;">Controle Tecnológico &amp; Qualidade</div>
         </div>
     `
 }

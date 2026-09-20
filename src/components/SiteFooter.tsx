@@ -9,10 +9,7 @@ export function SiteFooter() {
                 {/* Brand & Sobre */}
                 <div className="space-y-6">
                     <MMCAnimatedLogo
-                        size="md"
-                        showText={true}
-                        subtitle="Controle Tecnológico e Engenharia"
-                        badgeText="BETA"
+                        size="lg"
                         href="/"
                     />
                     <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium text-justify transition-colors duration-300">

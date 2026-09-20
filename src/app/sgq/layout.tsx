@@ -333,7 +333,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 >
                     <span className="material-symbols-outlined text-[22px]">menu</span>
                 </button>
-                <MMCAnimatedLogo size="sm" showText={true} subtitle="SGQ" href="/sgq" />
+                <MMCAnimatedLogo size="md" href="/sgq" />
                 <div className="w-9 h-9 flex items-center justify-center">
                     <ThemeToggle />
                 </div>
@@ -389,27 +389,12 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     </span>
                 </button>
 
-                <div className={`h-20 flex items-center ${isCollapsed ? "justify-center" : "justify-between px-5"} border-b border-slate-100 dark:border-white/5 shrink-0 overflow-hidden`}>
-                    {isCollapsed ? (
-                        <div className="flex items-center justify-center">
-                            <MMCAnimatedLogo
-                                size="sm"
-                                showText={false}
-                                href="/sgq"
-                                priority
-                            />
-                        </div>
-                    ) : (
-                        <div className="flex items-center">
-                            <MMCAnimatedLogo
-                                size="md"
-                                showText={true}
-                                subtitle="Gestão da Qualidade"
-                                href="/sgq"
-                                priority
-                            />
-                        </div>
-                    )}
+                <div className="h-20 flex items-center justify-center border-b border-slate-100 dark:border-white/5 shrink-0 overflow-hidden px-4">
+                    <MMCAnimatedLogo
+                        size="md"
+                        href="/sgq"
+                        priority
+                    />
                 </div>
 
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
