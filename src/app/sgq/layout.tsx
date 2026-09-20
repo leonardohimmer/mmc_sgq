@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { BackButton } from "@/components/BackButton"
 import { ModalPasswordChange } from "@/components/ModalPasswordChange"
 import { format } from "date-fns"
+import { ptBR } from "date-fns/locale"
 import packageJson from "../../../package.json"
 
 export default function SGQLayout({ children }: { children: React.ReactNode }) {
@@ -241,6 +242,34 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     const userRole = session?.user?.role || ""
     const userRoles = userRole.split(',').map((r: string) => r.trim())
 
+    // Identifica o título e contexto da página atual a partir do pathname
+    const getPageInfo = () => {
+        for (const group of navGroups) {
+            for (const item of group.items) {
+                if (item.href && (pathname === item.href || (item.href !== "/sgq" && pathname.startsWith(`${item.href}/`)))) {
+                    return { group: group.title, label: item.label, icon: item.icon }
+                }
+                // @ts-ignore
+                if (item.subItems) {
+                    // @ts-ignore
+                    for (const sub of item.subItems) {
+                        if (sub.href && (pathname === sub.href || pathname.startsWith(`${sub.href}/`))) {
+                            return { group: group.title, label: `${item.label} › ${sub.label}`, icon: item.icon }
+                        }
+                    }
+                }
+            }
+        }
+        if (pathname === "/sgq") return { group: "Qualidade", label: "Painel de controle", icon: "dashboard" }
+        if (pathname.includes("/sgq/meus-ensaios")) return { group: "Técnico", label: "Meus Ensaios", icon: "science" }
+        if (pathname.includes("/sgq/agenda")) return { group: "Geral", label: "Minha Agenda", icon: "calendar_month" }
+        if (pathname.includes("/sgq/colaboradores")) return { group: "Geral", label: "Colaboradores Online", icon: "diversity_3" }
+        if (pathname.includes("/sgq/site")) return { group: "Institucional", label: "Gestão do Site", icon: "language" }
+        return { group: "SGQ", label: "Sistema de Gestão", icon: "verified" }
+    }
+
+    const pageInfo = getPageInfo()
+
     const handleSignOut = async () => {
         try {
             await fetch('/api/users/offline', { method: 'POST' })
@@ -325,17 +354,25 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
         <div className="min-h-screen bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex font-sans transition-colors duration-300">
 
             {/* Barra superior mobile */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 shadow-sm">
-                <button
-                    onClick={() => setIsMobileMenuOpen(true)}
-                    className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                    aria-label="Abrir menu"
-                >
-                    <span className="material-symbols-outlined text-[22px]">menu</span>
-                </button>
-                <MMCAnimatedLogo size="md" href="/sgq" />
-                <div className="w-9 h-9 flex items-center justify-center">
-                    <ThemeToggle />
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-3 shadow-xs">
+                <div className="flex items-center gap-1.5">
+                    <button
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        aria-label="Abrir menu"
+                    >
+                        <span className="material-symbols-outlined text-[22px]">menu</span>
+                    </button>
+                    <BackButton />
+                </div>
+                <div className="flex items-center gap-1.5 min-w-0 px-2">
+                    <span className="material-symbols-outlined text-[18px] text-primary shrink-0">{pageInfo.icon}</span>
+                    <span className="text-xs font-black text-slate-900 dark:text-slate-100 truncate max-w-[150px]">{pageInfo.label}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <div className="w-8 h-8 flex items-center justify-center scale-90">
+                        <ThemeToggle />
+                    </div>
                 </div>
             </div>
 
@@ -592,6 +629,77 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative lg:ml-0">
+                {/* Cabeçalho Fixo Superior com Informações Importantes */}
+                <header className="hidden lg:flex items-center justify-between px-6 py-3 bg-white/90 dark:bg-[#070b13]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/5 sticky top-0 z-20 shrink-0 transition-colors shadow-2xs">
+                    {/* Lado Esquerdo: Botão Voltar + Breadcrumb da Página */}
+                    <div className="flex items-center gap-3 min-w-0">
+                        <BackButton />
+                        <div className="h-4 w-px bg-slate-200 dark:bg-slate-800"></div>
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                            <span className="uppercase tracking-wider text-[11px] font-bold text-slate-400 dark:text-slate-500">{pageInfo.group}</span>
+                            <span className="text-slate-300 dark:text-slate-700">/</span>
+                            <span className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5 truncate">
+                                <span className="material-symbols-outlined text-[18px] text-primary">{pageInfo.icon}</span>
+                                {pageInfo.label}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Lado Direito: Status Online + Data em Tempo Real + Perfil do Usuário e Atalhos */}
+                    <div className="flex items-center gap-3">
+                        {/* Status de Conexão Online */}
+                        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/90 px-3 py-1.5 rounded-full border border-slate-200/70 dark:border-slate-800 text-xs shadow-2xs">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px]">Sistema Online</span>
+                        </div>
+
+                        {/* Data Atual */}
+                        <div className="hidden xl:flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-semibold bg-slate-50 dark:bg-slate-900/90 px-3 py-1.5 rounded-full border border-slate-200/70 dark:border-slate-800 shadow-2xs">
+                            <span className="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
+                            <span className="capitalize">{format(new Date(), "dd 'de' MMMM, yyyy", { locale: ptBR })}</span>
+                        </div>
+
+                        <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
+
+                        {/* Perfil do Usuário com Avatar e Cargo */}
+                        <div className="flex items-center gap-2.5 pl-1">
+                            {userAvatar ? (
+                                <img src={userAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20" />
+                            ) : (
+                                <span className="material-symbols-outlined text-[30px] text-slate-400">account_circle</span>
+                            )}
+                            <div className="hidden sm:flex flex-col text-left">
+                                <span className="text-xs font-black text-slate-900 dark:text-slate-100 leading-tight truncate max-w-[130px]">{session?.user?.name || "Usuário"}</span>
+                                <span className="text-[10px] text-primary font-black uppercase tracking-wider leading-tight truncate max-w-[130px]">{session?.user?.role || "TÉCNICO"}</span>
+                            </div>
+                        </div>
+
+                        {/* Ações Rápidas (Alterar Senha, Alternar Tema, Sair) */}
+                        <div className="flex items-center gap-1 ml-1">
+                            <button
+                                onClick={() => setIsPasswordModalOpen(true)}
+                                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                                title="Alterar Senha"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">key</span>
+                            </button>
+                            <div className="w-8 h-8 flex items-center justify-center scale-90">
+                                <ThemeToggle />
+                            </div>
+                            <button
+                                onClick={handleSignOut}
+                                className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                                title="Sair do Sistema"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
                 <div className="flex-1 overflow-y-auto p-4 sm:p-8 mt-14 lg:mt-0">
                     <div className="max-w-full mx-auto flex flex-col gap-4">
 

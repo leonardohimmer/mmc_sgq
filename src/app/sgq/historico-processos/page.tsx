@@ -8,21 +8,6 @@ import OrganogramaContratual from "@/components/OrganogramaContratual"
 import MMCLoadingScreen from "@/components/MMCLoadingScreen"
 
 export default function HistoricoProcessosPage() {
-    return (
-        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Histórico de Processos</h1>
-                <p className="text-slate-500 dark:text-slate-400 mt-2">
-                    Consulte todos os processos e pesquisas de satisfação que já foram finalizados e revisados.
-                </p>
-            </div>
-
-            <HistoricoTab />
-        </div>
-    )
-}
-
-function HistoricoTab() {
     const [surveys, setSurveys] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedSurvey, setSelectedSurvey] = useState<any | null>(null)
@@ -77,9 +62,17 @@ function HistoricoTab() {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Barra de Busca */}
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div>
+                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Histórico de Processos</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">
+                    Consulte todos os processos e pesquisas de satisfação que já foram finalizados e revisados.
+                </p>
+            </div>
+
+            <div className="space-y-6">
+                {/* Barra de Busca */}
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
                 <span className="material-symbols-outlined text-slate-400">search</span>
                 <input 
                     type="text"
@@ -176,6 +169,7 @@ function HistoricoTab() {
             {selectedSurvey && (
                 <SurveyModal survey={selectedSurvey} onClose={handleCloseModal} />
             )}
+            </div>
         </div>
     )
 }
