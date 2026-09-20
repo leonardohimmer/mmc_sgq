@@ -210,7 +210,6 @@ export default function ExecucaoEnsaiosPage() {
     if (loading) {
         return (
             <MMCLoadingScreen
-                compact={true}
                 message="Carregando ensaios em execução..."
                 submessage="Sincronizando tarefas de laboratório com a MMC LAB"
             />

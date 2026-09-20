@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo";
 
 interface MMCLoadingScreenProps {
     message?: string;
@@ -91,17 +92,9 @@ export default function MMCLoadingScreen({
                 <div className="flex items-center gap-4 bg-slate-900/90 backdrop-blur-md px-6 py-4 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 animate-pulse pointer-events-none" />
                     
-                    {/* Compact Spinning Logo Badge */}
-                    <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 p-1.5 border border-slate-800 shadow-md shrink-0">
-                        <Image
-                            src="/logo.png"
-                            alt="MMC LAB"
-                            width={32}
-                            height={16}
-                            className="object-contain animate-pulse"
-                            priority
-                        />
-                        <div className="absolute -inset-1 rounded-xl border border-primary/40 border-t-primary animate-spin" />
+                    {/* Compact Orbital Logo */}
+                    <div className="shrink-0 flex items-center justify-center">
+                        <MMCAnimatedLogo size="sm" priority />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -151,28 +144,7 @@ export default function MMCLoadingScreen({
                 style={{ transform: `translate(${mousePos.x}px, ${mousePos.y}px)` }}
             >
                 {/* LOGO CENTRALIZADO COM ANÉIS ORBITAIS E GLOW FUTURISTA */}
-                <div className="relative mb-8 flex items-center justify-center group cursor-pointer">
-                    {/* Brilho neon de fundo */}
-                    <div className="absolute -inset-6 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 opacity-40 blur-xl animate-pulse" />
-
-                    {/* Anel Orbital Externo */}
-                    <div className="absolute -inset-5 rounded-full border-2 border-transparent border-t-blue-400 border-r-indigo-500 animate-[spin_3s_linear_infinite] shadow-lg" />
-                    
-                    {/* Anel Orbital Interno (Sentido inverso) */}
-                    <div className="absolute -inset-2 rounded-full border-2 border-transparent border-b-emerald-400 border-l-purple-500 animate-[spin_2s_linear_infinite_reverse]" />
-
-                    {/* Card de Vidro da Logo Central */}
-                    <div className="relative w-28 h-28 rounded-3xl bg-slate-900/90 shadow-2xl border-2 border-slate-800 flex items-center justify-center p-2 backdrop-blur-md hover:scale-105 transition-transform duration-300">
-                        <Image
-                            src="/logo-trimmed.png"
-                            alt="MMC LAB"
-                            width={100}
-                            height={58}
-                            className="object-contain max-w-full max-h-full drop-shadow-[0_0_12px_rgba(59,130,246,0.65)] animate-pulse"
-                            priority
-                        />
-                    </div>
-                </div>
+                <MMCAnimatedLogo size="xl" className="mb-8" priority />
 
                 {/* Título Principal */}
                 <h3 className="text-xl font-black tracking-tight text-white mb-1 drop-shadow-md">
