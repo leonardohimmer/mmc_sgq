@@ -351,7 +351,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
     }, [session])
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex font-sans transition-colors duration-300">
+        <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background-light dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex font-sans transition-colors duration-300">
 
             {/* Barra superior mobile */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-3 shadow-xs">
@@ -373,6 +373,13 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     <div className="w-8 h-8 flex items-center justify-center scale-90">
                         <ThemeToggle />
                     </div>
+                    <button
+                        onClick={handleSignOut}
+                        className="w-8 h-8 flex items-center justify-center text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                        title="Sair do Sistema"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">logout</span>
+                    </button>
                 </div>
             </div>
 
@@ -388,7 +395,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
             <aside className={`
                 fixed lg:static inset-y-0 left-0 z-40
                 ${isCollapsed ? "w-20" : "w-72 lg:w-64"}
-                bg-white dark:bg-[#070b13]/85 dark:backdrop-blur-xl border-r border-slate-200 dark:border-white/5
+                h-full bg-white dark:bg-[#070b13]/85 dark:backdrop-blur-xl border-r border-slate-200 dark:border-white/5
                 flex flex-col shadow-sm transition-all duration-300 relative
                 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
             `}>
@@ -558,143 +565,86 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     })}
                 </nav>
 
-                <div className={`p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-tr-3xl shrink-0 transition-colors duration-300 ${isCollapsed ? 'flex flex-col items-center gap-3' : ''}`}>
-                    <div className={`flex ${isCollapsed ? 'flex-col justify-center items-center gap-3' : 'items-center justify-between gap-1'} w-full`}>
-                        <div className={`flex items-center gap-2 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex-1'}`}>
-                            {userAvatar ? (
-                                <img src={userAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shrink-0 ring-2 ring-slate-200 dark:ring-slate-700" />
-                            ) : (
-                                <span className="material-symbols-outlined text-[32px] text-slate-400 dark:text-slate-500 shrink-0">account_circle</span>
-                            )}
-                            {!isCollapsed && (
-                                <div className="overflow-hidden flex flex-col justify-center flex-1">
-                                    <p className="text-[13px] font-bold text-slate-900 dark:text-slate-100 truncate leading-tight">{session?.user?.name}</p>
-                                    <p className="text-[10px] text-primary font-bold tracking-wide uppercase truncate leading-tight">{session?.user?.role}</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {!isCollapsed && (
-                            <div className="flex items-center gap-0.5 shrink-0">
-                                <button
-                                    onClick={() => setIsPasswordModalOpen(true)}
-                                    className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors"
-                                    title="Alterar Senha"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">key</span>
-                                </button>
-                                <div className="w-7 h-7 flex items-center justify-center scale-90">
-                                    <ThemeToggle />
-                                </div>
-                                <button
-                                    onClick={handleSignOut}
-                                    className="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors"
-                                    title="Sair do Sistema"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">logout</span>
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    {isCollapsed && (
-                        <>
-                            <button
-                                onClick={() => setIsPasswordModalOpen(true)}
-                                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-blue-500 rounded-xl transition-colors"
-                                title="Alterar Senha"
-                            >
-                                <span className="material-symbols-outlined text-[18px]">key</span>
-                            </button>
-                            <div className="w-8 h-8 flex items-center justify-center scale-90">
-                                <ThemeToggle />
-                            </div>
-                            <button
-                                onClick={handleSignOut}
-                                title="Sair do Sistema"
-                                className="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-colors"
-                            >
-                                <span className="material-symbols-outlined text-[18px]">logout</span>
-                            </button>
-                        </>
-                    )}
-
-                    {!isCollapsed && (
-                        <div className="flex justify-center mt-2.5">
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">v{packageJson.version} • Atualizado: 13/09/2026</span>
-                        </div>
-                    )}
+                {/* Rodapé minimalista da Sidebar sem perfil */}
+                <div className="py-3 px-4 border-t border-slate-100 dark:border-slate-800/80 text-center shrink-0">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold tracking-wider">
+                        {isCollapsed ? `v${packageJson.version}` : `MMC LAB • v${packageJson.version}`}
+                    </span>
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative lg:ml-0">
+            <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative lg:ml-0">
                 {/* Cabeçalho Fixo Superior com Informações Importantes */}
-                <header className="hidden lg:flex items-center justify-between px-6 py-3 bg-white/90 dark:bg-[#070b13]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/5 sticky top-0 z-20 shrink-0 transition-colors shadow-2xs">
+                <header className="hidden lg:flex items-center justify-between px-8 h-20 bg-white/95 dark:bg-[#070b13]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 sticky top-0 z-30 shrink-0 transition-colors shadow-xs">
                     {/* Lado Esquerdo: Botão Voltar + Breadcrumb da Página */}
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-4 min-w-0">
                         <BackButton />
-                        <div className="h-4 w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-                            <span className="uppercase tracking-wider text-[11px] font-bold text-slate-400 dark:text-slate-500">{pageInfo.group}</span>
-                            <span className="text-slate-300 dark:text-slate-700">/</span>
-                            <span className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5 truncate">
-                                <span className="material-symbols-outlined text-[18px] text-primary">{pageInfo.icon}</span>
-                                {pageInfo.label}
+                        <div className="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                                {pageInfo.group}
                             </span>
+                            <span className="hidden sm:inline text-slate-300 dark:text-slate-700 font-bold">/</span>
+                            <div className="flex items-center gap-2 truncate">
+                                <span className="material-symbols-outlined text-[24px] text-primary shrink-0">{pageInfo.icon}</span>
+                                <h1 className="text-lg md:text-xl font-black text-slate-900 dark:text-white truncate tracking-tight">
+                                    {pageInfo.label}
+                                </h1>
+                            </div>
                         </div>
                     </div>
 
                     {/* Lado Direito: Status Online + Data em Tempo Real + Perfil do Usuário e Atalhos */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3.5">
                         {/* Status de Conexão Online */}
-                        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/90 px-3 py-1.5 rounded-full border border-slate-200/70 dark:border-slate-800 text-xs shadow-2xs">
-                            <span className="relative flex h-2 w-2">
+                        <div className="hidden sm:flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-950/40 px-3.5 py-2 rounded-full border border-emerald-200/80 dark:border-emerald-800/60 text-xs shadow-2xs">
+                            <span className="relative flex h-2.5 w-2.5">
                                 <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                             </span>
-                            <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px]">Sistema Online</span>
+                            <span className="font-bold text-emerald-800 dark:text-emerald-300 text-xs tracking-wide">Sistema Online</span>
                         </div>
 
                         {/* Data Atual */}
-                        <div className="hidden xl:flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-semibold bg-slate-50 dark:bg-slate-900/90 px-3 py-1.5 rounded-full border border-slate-200/70 dark:border-slate-800 shadow-2xs">
-                            <span className="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
+                        <div className="hidden xl:flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs font-bold bg-slate-50 dark:bg-slate-900/90 px-4 py-2 rounded-full border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                            <span className="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
                             <span className="capitalize">{format(new Date(), "dd 'de' MMMM, yyyy", { locale: ptBR })}</span>
                         </div>
 
-                        <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                        <div className="h-7 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block"></div>
 
                         {/* Perfil do Usuário com Avatar e Cargo */}
-                        <div className="flex items-center gap-2.5 pl-1">
+                        <div className="flex items-center gap-3 pl-1">
                             {userAvatar ? (
-                                <img src={userAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20" />
+                                <img src={userAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/30 shadow-xs" />
                             ) : (
-                                <span className="material-symbols-outlined text-[30px] text-slate-400">account_circle</span>
+                                <span className="material-symbols-outlined text-[36px] text-slate-400 dark:text-slate-500">account_circle</span>
                             )}
                             <div className="hidden sm:flex flex-col text-left">
-                                <span className="text-xs font-black text-slate-900 dark:text-slate-100 leading-tight truncate max-w-[130px]">{session?.user?.name || "Usuário"}</span>
-                                <span className="text-[10px] text-primary font-black uppercase tracking-wider leading-tight truncate max-w-[130px]">{session?.user?.role || "TÉCNICO"}</span>
+                                <span className="text-sm font-black text-slate-900 dark:text-white leading-tight truncate max-w-[160px]">{session?.user?.name || "Usuário"}</span>
+                                <span className="text-[11px] text-primary font-black uppercase tracking-wider leading-tight truncate max-w-[160px]">{session?.user?.role || "TÉCNICO"}</span>
                             </div>
                         </div>
 
                         {/* Ações Rápidas (Alterar Senha, Alternar Tema, Sair) */}
-                        <div className="flex items-center gap-1 ml-1">
+                        <div className="flex items-center gap-1.5 ml-1">
                             <button
                                 onClick={() => setIsPasswordModalOpen(true)}
-                                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                                className="w-10 h-10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
                                 title="Alterar Senha"
                             >
-                                <span className="material-symbols-outlined text-[18px]">key</span>
+                                <span className="material-symbols-outlined text-[20px]">key</span>
                             </button>
-                            <div className="w-8 h-8 flex items-center justify-center scale-90">
+                            <div className="w-10 h-10 flex items-center justify-center">
                                 <ThemeToggle />
                             </div>
                             <button
                                 onClick={handleSignOut}
-                                className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                                className="w-10 h-10 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors"
                                 title="Sair do Sistema"
                             >
-                                <span className="material-symbols-outlined text-[18px]">logout</span>
+                                <span className="material-symbols-outlined text-[20px]">logout</span>
                             </button>
                         </div>
                     </div>

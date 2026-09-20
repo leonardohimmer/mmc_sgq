@@ -7,32 +7,20 @@ import { format, differenceInDays, differenceInBusinessDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
 export default function PesquisaSatisfacaoPage() {
-    return (
-        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Pesquisa de Satisfação</h1>
-                <p className="text-slate-500 dark:text-slate-400 mt-2">
-                    Acompanhe e analise as avaliações de satisfação enviadas pelos clientes.
-                </p>
-            </div>
-
-            <RespostasTab />
-        </div>
-    )
-}
-
-function RespostasTab() {
     const [surveys, setSurveys] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedSurvey, setSelectedSurvey] = useState<any | null>(null)
 
     const fetchSurveys = async () => {
-        setLoading(true)
         try {
             const res = await fetch('/api/pesquisa-satisfacao?includePending=true')
             if (res.ok) {
                 const data = await res.json()
-                setSurveys(data.surveys || [])
+                const fetched = data.surveys || []
+                setSurveys(fetched)
+                try {
+                    localStorage.setItem("sgq_cache_pesquisa_satisfacao", JSON.stringify(fetched))
+                } catch (e) {}
             }
         } catch (error) {
             console.error("Erro ao buscar pesquisas:", error)
@@ -42,6 +30,16 @@ function RespostasTab() {
     }
 
     useEffect(() => {
+        try {
+            const cached = localStorage.getItem("sgq_cache_pesquisa_satisfacao")
+            if (cached) {
+                const parsed = JSON.parse(cached)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setSurveys(parsed)
+                    setLoading(false)
+                }
+            }
+        } catch (e) {}
         fetchSurveys()
     }, [])
 
@@ -68,7 +66,15 @@ function RespostasTab() {
     const pendentes = surveys.filter(s => s.status === 'PENDING')
 
     return (
-        <div className="space-y-12">
+        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div>
+                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Pesquisa de Satisfação</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">
+                    Acompanhe e analise as avaliações de satisfação enviadas pelos clientes.
+                </p>
+            </div>
+
+            <div className="space-y-12">
             {/* Seção de Respondidas */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -316,6 +322,7 @@ function RespostasTab() {
             {selectedSurvey && (
                 <SurveyModal survey={selectedSurvey} onClose={handleCloseModal} />
             )}
+            </div>
         </div>
     )
 }
