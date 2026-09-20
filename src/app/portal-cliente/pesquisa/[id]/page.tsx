@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import MMCAnimatedLogo from "@/components/MMCAnimatedLogo";
+import MMCLoadingScreen from "@/components/MMCLoadingScreen";
 import Link from "next/link";
 import { use } from "react";
 import { toast } from "sonner";
@@ -201,9 +202,11 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                message="Carregando pesquisa de satisfação..."
+                submessage="Preparando o formulário de avaliação"
+                fullScreen={true}
+            />
         );
     }
 

@@ -8,6 +8,7 @@ interface MMCLoadingScreenProps {
     submessage?: string;
     fullScreen?: boolean;
     compact?: boolean;
+    duration?: number;
 }
 
 const LOADING_STATUS_CYCLES = [
@@ -22,11 +23,51 @@ export default function MMCLoadingScreen({
     message = "Carregando informações...",
     submessage,
     fullScreen = true,
-    compact = false
+    compact = false,
+    duration = 2200
 }: MMCLoadingScreenProps) {
     const [statusIndex, setStatusIndex] = useState(0);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const [progress, setProgress] = useState(0);
 
+    // Simulação do progresso iniciando estritamente do zero e carregando até 100%
+    useEffect(() => {
+        setProgress(0);
+        const startTime = Date.now();
+        const totalDuration = duration || 2200;
+
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const factor = Math.min(elapsed / totalDuration, 1);
+
+            // Curva de progresso fluida e orgânica
+            let current = 0;
+            if (factor < 0.25) {
+                // Arrancada inicial de 0% a 40%
+                current = (factor / 0.25) * 40;
+            } else if (factor < 0.65) {
+                // Avanço constante de 40% a 78%
+                current = 40 + ((factor - 0.25) / 0.4) * 38;
+            } else if (factor < 0.9) {
+                // Desaceleração realista de 78% a 94%
+                current = 78 + ((factor - 0.65) / 0.25) * 16;
+            } else {
+                // Conclusão até 100%
+                current = 94 + ((factor - 0.9) / 0.1) * 6;
+            }
+
+            const clamped = Math.min(Math.round(current), 100);
+            setProgress(clamped);
+
+            if (factor >= 1) {
+                clearInterval(interval);
+            }
+        }, 30);
+
+        return () => clearInterval(interval);
+    }, [duration]);
+
+    // Rotação dinâmica de mensagens secundárias caso não fornecida explicitamente
     useEffect(() => {
         const interval = setInterval(() => {
             setStatusIndex((prev) => (prev + 1) % LOADING_STATUS_CYCLES.length);
@@ -51,7 +92,7 @@ export default function MMCLoadingScreen({
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 animate-pulse pointer-events-none" />
                     
                     {/* Compact Spinning Logo Badge */}
-                    <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 p-1.5 border border-slate-800 shadow-md">
+                    <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-slate-950 p-1.5 border border-slate-800 shadow-md shrink-0">
                         <Image
                             src="/logo.png"
                             alt="MMC LAB"
@@ -63,11 +104,20 @@ export default function MMCLoadingScreen({
                         <div className="absolute -inset-1 rounded-xl border border-primary/40 border-t-primary animate-spin" />
                     </div>
 
-                    <div>
+                    <div className="flex-1 min-w-0">
                         <p className="text-xs font-black text-white tracking-wide">{message}</p>
-                        <p className="text-[10px] text-blue-400 font-bold transition-all duration-500">
+                        <p className="text-[10px] text-blue-400 font-bold transition-all duration-500 truncate">
                             {currentSubmessage}
                         </p>
+                        {/* Mini Barra de Progresso Compacta */}
+                        <div className="w-44 h-1.5 bg-slate-950 rounded-full overflow-hidden relative border border-slate-800/80 mt-2 shadow-inner">
+                            <div
+                                className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 rounded-full transition-all duration-75 ease-out shadow-sm relative overflow-hidden"
+                                style={{ width: `${progress}%` }}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent animate-shimmer" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,9 +185,14 @@ export default function MMCLoadingScreen({
                     {currentSubmessage}
                 </p>
 
-                {/* Barra de Progresso Futurista com Shimmer Gradient */}
-                <div className="w-56 h-2 bg-slate-900 rounded-full overflow-hidden relative border border-slate-800 shadow-inner">
-                    <div className="absolute inset-y-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 w-1/2 rounded-full animate-[shimmer_1.5s_infinite] shadow-md shadow-blue-500/50" />
+                {/* Barra de Progresso Futurista com Simulação de Carregamento de 0% a 100% */}
+                <div className="w-64 sm:w-72 h-2.5 bg-slate-900/90 rounded-full overflow-hidden relative border border-slate-800/80 shadow-inner">
+                    <div 
+                        className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 rounded-full transition-all duration-75 ease-out shadow-[0_0_14px_rgba(59,130,246,0.6)] relative overflow-hidden" 
+                        style={{ width: `${progress}%` }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent animate-shimmer" />
+                    </div>
                 </div>
 
                 {/* Badge de Rodapé Informativo */}

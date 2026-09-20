@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import MMCLoadingScreen from "@/components/MMCLoadingScreen";
 import { downloadPdf, viewPdf } from "@/lib/pdf-utils";
 
 interface SharedProcessData {
@@ -625,9 +626,11 @@ function SharedProcessContent() {
 export default function SharedProcessPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
+            <MMCLoadingScreen
+                message="Carregando processo compartilhado..."
+                submessage="Sincronizando dados públicos do ensaio"
+                fullScreen={true}
+            />
         }>
             <SharedProcessContent />
         </Suspense>
