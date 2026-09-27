@@ -122,6 +122,67 @@ export default function EnsaioAderenciaPage() {
                                         </li>
                                     </ul>
                                 </div>
+
+                                {/* Selo de Aprovação CCB 2026-2028 (1ª Edição) */}
+                                <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/20 dark:via-amber-500/5 dark:to-transparent p-4 sm:p-5 shadow-[0_4px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.1)] transition-all duration-300 hover:border-amber-500/50 group flex flex-col gap-3">
+                                    
+                                    {/* Luzes de Fundo */}
+                                    <div className="absolute -right-12 -top-12 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl transition-transform duration-500 group-hover:scale-110"></div>
+                                    
+                                    {/* Topo do Card: Badges na Esquerda e CCB + Triângulo na Direita */}
+                                    <div className="flex items-center justify-between gap-3">
+                                        {/* Badges */}
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-amber-500/20 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-md border border-amber-500/20">
+                                                Proficiência Aprovada
+                                            </span>
+                                            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-500/20">
+                                                Ciclo 2026-2028
+                                            </span>
+                                        </div>
+
+                                        {/* CCB + Triângulo Laranja 1º */}
+                                        <div className="flex items-center gap-2">
+                                            {/* CCB Mini Logo */}
+                                            <div className="relative w-11 h-11 bg-[#0f4c81] rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-md">
+                                                <span className="text-white text-xs sm:text-sm font-black tracking-tight">CCB</span>
+                                                <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-amber-500"></div>
+                                            </div>
+
+                                            {/* Triângulo Laranja 1º */}
+                                            <div className="relative w-12 h-12 flex-shrink-0 animate-float-slow">
+                                                <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_4px_rgba(245,158,11,0.3)]">
+                                                    <path 
+                                                        d="M20,15 L80,45 A10,10 0 0 1 80,55 L20,85 A10,10 0 0 1 10,75 L10,25 A10,10 0 0 1 20,15 Z" 
+                                                        fill="#f59e0b" 
+                                                    />
+                                                    <text 
+                                                        x="40" 
+                                                        y="58" 
+                                                        textAnchor="middle"
+                                                        fill="white" 
+                                                        fontSize="32" 
+                                                        fontWeight="900" 
+                                                        fontFamily="sans-serif"
+                                                    >
+                                                        1º
+                                                    </text>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Corpo do Card */}
+                                    <div className="space-y-1.5">
+                                        <h4 className="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white tracking-tight leading-snug">
+                                            Selo de Excelência Técnica Interlaboratorial
+                                        </h4>
+                                        
+                                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                                            Desempenho satisfatório comprovado na <strong>1ª Edição do Programa de Ensaios de Proficiência de Resistência de Aderência à Tração (ABNT NBR 13528 / NBR 13755)</strong>, promovido pelo <strong>CCB</strong>.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

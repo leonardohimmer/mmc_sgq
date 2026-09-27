@@ -126,27 +126,27 @@ export default function EnsaiosAcusticosPage() {
                                 {/* Grupo de Selos de Proficiência ProAcústica */}
                                 <div className="space-y-3">
                                     {/* Selo de Aprovação ProAcústica 2025-2027 (Ativo) */}
-                                    <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/20 dark:via-amber-500/5 dark:to-transparent p-3.5 shadow-[0_4px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.1)] transition-all duration-300 hover:border-amber-500/50 group flex flex-col gap-2.5">
+                                    <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/20 dark:via-amber-500/5 dark:to-transparent p-4 sm:p-5 shadow-[0_4px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.1)] transition-all duration-300 hover:border-amber-500/50 group flex flex-col gap-3">
                                         
                                         {/* Luzes de Fundo */}
                                         <div className="absolute -right-12 -top-12 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl transition-transform duration-500 group-hover:scale-110"></div>
                                         
                                         {/* Topo do Card: Badges na Esquerda e ProAcústica + Triângulo na Direita */}
-                                        <div className="flex flex-wrap items-center justify-between gap-2.5">
-                                            {/* Badges Subidas */}
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            {/* Badges */}
                                             <div className="flex flex-wrap items-center gap-1.5">
-                                                <span className="text-[8px] font-black uppercase tracking-wider bg-amber-500/20 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">
+                                                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-amber-500/20 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-md border border-amber-500/20">
                                                     Proficiência Aprovada
                                                 </span>
-                                                <span className="text-[8px] font-black uppercase tracking-wider bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                                                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-500/20">
                                                     Ciclo 2025-2027
                                                 </span>
                                             </div>
 
                                             {/* ProAcústica + Triângulo Laranja 6º */}
-                                            <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center gap-2">
                                                 {/* ProAcústica Logo */}
-                                                <svg viewBox="0 0 100 100" className="w-8 h-8 rounded shrink-0 bg-[#1e5aa3]" aria-label="ProAcústica">
+                                                <svg viewBox="0 0 100 100" className="w-11 h-11 rounded-lg shrink-0 bg-[#1e5aa3] shadow-md" aria-label="ProAcústica">
                                                     <path d="M 0 100 A 100 100 0 0 1 100 0" fill="none" stroke="white" strokeWidth="10" />
                                                     <path d="M 0 80 A 80 80 0 0 1 80 0" fill="none" stroke="white" strokeWidth="10" />
                                                     <text x="50" y="55" fill="white" fontSize="20" fontWeight="bold" fontFamily="sans-serif">Pro</text>
@@ -154,7 +154,7 @@ export default function EnsaiosAcusticosPage() {
                                                 </svg>
 
                                                 {/* Triângulo Laranja 6º */}
-                                                <div className="relative w-10 h-10 flex-shrink-0 animate-float-slow">
+                                                <div className="relative w-12 h-12 flex-shrink-0 animate-float-slow">
                                                     <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_4px_rgba(245,158,11,0.3)]">
                                                         <path 
                                                             d="M20,15 L80,45 A10,10 0 0 1 80,55 L20,85 A10,10 0 0 1 10,75 L10,25 A10,10 0 0 1 20,15 Z" 
@@ -165,7 +165,7 @@ export default function EnsaiosAcusticosPage() {
                                                             y="58" 
                                                             textAnchor="middle"
                                                             fill="white" 
-                                                            fontSize="30" 
+                                                            fontSize="32" 
                                                             fontWeight="900" 
                                                             fontFamily="sans-serif"
                                                         >
@@ -177,36 +177,36 @@ export default function EnsaiosAcusticosPage() {
                                         </div>
 
                                         {/* Corpo do Card */}
-                                        <div className="space-y-1">
-                                            <h4 className="text-xs font-extrabold text-slate-950 dark:text-white tracking-tight leading-tight">
+                                        <div className="space-y-1.5">
+                                            <h4 className="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white tracking-tight leading-snug">
                                                 Selo de Excelência Técnica Interlaboratorial
                                             </h4>
                                             
-                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold leading-normal">
+                                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
                                                 Desempenho satisfatório comprovado no <strong>6º Programa de Ensaios de Proficiência (QualiLab/InterLab)</strong> para as normas ISO 16283, ISO 3382-2, ISO 16032 e NBR 10151, promovido pela <strong>ProAcústica</strong>.
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Selo de Aprovação Histórico ProAcústica 2023-2025 (Antigo 5º) */}
-                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 shadow-sm opacity-55 hover:opacity-85 transition-all duration-300 flex items-center justify-between gap-3 group/hist5">
+                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-3 sm:p-3.5 shadow-sm opacity-60 hover:opacity-90 transition-all duration-300 flex items-center justify-between gap-3 group/hist5">
                                         {/* Luz de fundo bronze sutil */}
                                         <div className="absolute -right-12 -top-12 w-20 h-20 bg-amber-900/5 rounded-full blur-xl"></div>
                                         
                                         {/* Badges Históricas */}
                                         <div className="flex flex-wrap items-center gap-1.5 z-10">
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-450 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Histórico Aprovado
                                             </span>
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-450 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Ciclo 2023-2025
                                             </span>
                                         </div>
 
                                         {/* Logos + Triângulo Histórico (Grayscale/Mudo) */}
-                                        <div className="flex items-center gap-1.5 shrink-0 z-10 grayscale group-hover/hist5:grayscale-0 opacity-70 group-hover/hist5:opacity-100 transition-all duration-300">
+                                        <div className="flex items-center gap-2 shrink-0 z-10 grayscale group-hover/hist5:grayscale-0 opacity-75 group-hover/hist5:opacity-100 transition-all duration-300">
                                             {/* ProAcústica Logo Histórico */}
-                                            <svg viewBox="0 0 100 100" className="w-8 h-8 rounded shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
+                                            <svg viewBox="0 0 100 100" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
                                                 <path d="M 0 100 A 100 100 0 0 1 100 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <path d="M 0 80 A 80 80 0 0 1 80 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <text x="50" y="55" fill="white" fontSize="20" fontWeight="bold" fontFamily="sans-serif">Pro</text>
@@ -214,7 +214,7 @@ export default function EnsaiosAcusticosPage() {
                                             </svg>
 
                                             {/* Triângulo Laranja Histórico 5º */}
-                                            <div className="relative w-10 h-10 flex-shrink-0">
+                                            <div className="relative w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0">
                                                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
                                                     <path 
                                                         d="M20,15 L80,45 A10,10 0 0 1 80,55 L20,85 A10,10 0 0 1 10,75 L10,25 A10,10 0 0 1 20,15 Z" 
@@ -225,7 +225,7 @@ export default function EnsaiosAcusticosPage() {
                                                         y="58" 
                                                         textAnchor="middle"
                                                         fill="white" 
-                                                        fontSize="30" 
+                                                        fontSize="32" 
                                                         fontWeight="900" 
                                                         fontFamily="sans-serif"
                                                     >
@@ -237,24 +237,24 @@ export default function EnsaiosAcusticosPage() {
                                     </div>
 
                                     {/* Selo de Aprovação Histórico ProAcústica 2021-2023 (Antigo 4º) */}
-                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 shadow-sm opacity-55 hover:opacity-85 transition-all duration-300 flex items-center justify-between gap-3 group/hist4">
+                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-3 sm:p-3.5 shadow-sm opacity-60 hover:opacity-90 transition-all duration-300 flex items-center justify-between gap-3 group/hist4">
                                         {/* Luz de fundo bronze sutil */}
                                         <div className="absolute -right-12 -top-12 w-20 h-20 bg-amber-900/5 rounded-full blur-xl"></div>
                                         
                                         {/* Badges Históricas */}
                                         <div className="flex flex-wrap items-center gap-1.5 z-10">
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-455 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Histórico Aprovado
                                             </span>
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-455 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Ciclo 2021-2023
                                             </span>
                                         </div>
 
                                         {/* Logos + Triângulo Histórico (Grayscale/Mudo) */}
-                                        <div className="flex items-center gap-1.5 shrink-0 z-10 grayscale group-hover/hist4:grayscale-0 opacity-70 group-hover/hist4:opacity-100 transition-all duration-300">
+                                        <div className="flex items-center gap-2 shrink-0 z-10 grayscale group-hover/hist4:grayscale-0 opacity-75 group-hover/hist4:opacity-100 transition-all duration-300">
                                             {/* ProAcústica Logo Histórico */}
-                                            <svg viewBox="0 0 100 100" className="w-8 h-8 rounded shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
+                                            <svg viewBox="0 0 100 100" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
                                                 <path d="M 0 100 A 100 100 0 0 1 100 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <path d="M 0 80 A 80 80 0 0 1 80 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <text x="50" y="55" fill="white" fontSize="20" fontWeight="bold" fontFamily="sans-serif">Pro</text>
@@ -262,7 +262,7 @@ export default function EnsaiosAcusticosPage() {
                                             </svg>
 
                                             {/* Triângulo Laranja Histórico 4º */}
-                                            <div className="relative w-10 h-10 flex-shrink-0">
+                                            <div className="relative w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0">
                                                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
                                                     <path 
                                                         d="M20,15 L80,45 A10,10 0 0 1 80,55 L20,85 A10,10 0 0 1 10,75 L10,25 A10,10 0 0 1 20,15 Z" 
@@ -273,7 +273,7 @@ export default function EnsaiosAcusticosPage() {
                                                         y="58" 
                                                         textAnchor="middle"
                                                         fill="white" 
-                                                        fontSize="30" 
+                                                        fontSize="32" 
                                                         fontWeight="900" 
                                                         fontFamily="sans-serif"
                                                     >
@@ -285,24 +285,24 @@ export default function EnsaiosAcusticosPage() {
                                     </div>
 
                                     {/* Selo de Aprovação Histórico ProAcústica 2019-2021 (Antigo 3º) */}
-                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 shadow-sm opacity-55 hover:opacity-85 transition-all duration-300 flex items-center justify-between gap-3 group/hist3">
+                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-3 sm:p-3.5 shadow-sm opacity-60 hover:opacity-90 transition-all duration-300 flex items-center justify-between gap-3 group/hist3">
                                         {/* Luz de fundo bronze sutil */}
                                         <div className="absolute -right-12 -top-12 w-20 h-20 bg-amber-900/5 rounded-full blur-xl"></div>
                                         
                                         {/* Badges Históricas */}
                                         <div className="flex flex-wrap items-center gap-1.5 z-10">
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-455 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Histórico Aprovado
                                             </span>
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-455 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Ciclo 2019-2021
                                             </span>
                                         </div>
 
                                         {/* Logos + Triângulo Histórico (Grayscale/Mudo) */}
-                                        <div className="flex items-center gap-1.5 shrink-0 z-10 grayscale group-hover/hist3:grayscale-0 opacity-70 group-hover/hist3:opacity-100 transition-all duration-300">
+                                        <div className="flex items-center gap-2 shrink-0 z-10 grayscale group-hover/hist3:grayscale-0 opacity-75 group-hover/hist3:opacity-100 transition-all duration-300">
                                             {/* ProAcústica Logo Histórico */}
-                                            <svg viewBox="0 0 100 100" className="w-8 h-8 rounded shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
+                                            <svg viewBox="0 0 100 100" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
                                                 <path d="M 0 100 A 100 100 0 0 1 100 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <path d="M 0 80 A 80 80 0 0 1 80 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <text x="50" y="55" fill="white" fontSize="20" fontWeight="bold" fontFamily="sans-serif">Pro</text>
@@ -310,7 +310,7 @@ export default function EnsaiosAcusticosPage() {
                                             </svg>
 
                                             {/* Triângulo Laranja Histórico 3º */}
-                                            <div className="relative w-10 h-10 flex-shrink-0">
+                                            <div className="relative w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0">
                                                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
                                                     <path 
                                                         d="M20,15 L80,45 A10,10 0 0 1 80,55 L20,85 A10,10 0 0 1 10,75 L10,25 A10,10 0 0 1 20,15 Z" 
@@ -321,7 +321,7 @@ export default function EnsaiosAcusticosPage() {
                                                         y="58" 
                                                         textAnchor="middle"
                                                         fill="white" 
-                                                        fontSize="30" 
+                                                        fontSize="32" 
                                                         fontWeight="900" 
                                                         fontFamily="sans-serif"
                                                     >
@@ -333,24 +333,24 @@ export default function EnsaiosAcusticosPage() {
                                     </div>
 
                                     {/* Selo de Aprovação Histórico ProAcústica 2017-2019 (Antigo 2º) */}
-                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-2.5 shadow-sm opacity-55 hover:opacity-85 transition-all duration-300 flex items-center justify-between gap-3 group/hist2">
+                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 p-3 sm:p-3.5 shadow-sm opacity-60 hover:opacity-90 transition-all duration-300 flex items-center justify-between gap-3 group/hist2">
                                         {/* Luz de fundo bronze sutil */}
                                         <div className="absolute -right-12 -top-12 w-20 h-20 bg-amber-900/5 rounded-full blur-xl"></div>
                                         
                                         {/* Badges Históricas */}
                                         <div className="flex flex-wrap items-center gap-1.5 z-10">
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-455 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Histórico Aprovado
                                             </span>
-                                            <span className="text-[8px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-500 dark:text-slate-455 px-2 py-0.5 rounded border border-slate-300/30">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-200/70 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded border border-slate-300/30">
                                                 Ciclo 2017-2019
                                             </span>
                                         </div>
 
                                         {/* Logos + Triângulo Histórico (Grayscale/Mudo) */}
-                                        <div className="flex items-center gap-1.5 shrink-0 z-10 grayscale group-hover/hist2:grayscale-0 opacity-70 group-hover/hist2:opacity-100 transition-all duration-300">
+                                        <div className="flex items-center gap-2 shrink-0 z-10 grayscale group-hover/hist2:grayscale-0 opacity-75 group-hover/hist2:opacity-100 transition-all duration-300">
                                             {/* ProAcústica Logo Histórico */}
-                                            <svg viewBox="0 0 100 100" className="w-8 h-8 rounded shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
+                                            <svg viewBox="0 0 100 100" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0 bg-[#4a6b8c] dark:bg-[#344d66]" aria-label="ProAcústica">
                                                 <path d="M 0 100 A 100 100 0 0 1 100 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <path d="M 0 80 A 80 80 0 0 1 80 0" fill="none" stroke="white" strokeWidth="10" />
                                                 <text x="50" y="55" fill="white" fontSize="20" fontWeight="bold" fontFamily="sans-serif">Pro</text>
@@ -358,7 +358,7 @@ export default function EnsaiosAcusticosPage() {
                                             </svg>
 
                                             {/* Triângulo Laranja Histórico 2º */}
-                                            <div className="relative w-10 h-10 flex-shrink-0">
+                                            <div className="relative w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0">
                                                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
                                                     <path 
                                                         d="M20,15 L80,45 A10,10 0 0 1 80,55 L20,85 A10,10 0 0 1 10,75 L10,25 A10,10 0 0 1 20,15 Z" 
@@ -369,7 +369,7 @@ export default function EnsaiosAcusticosPage() {
                                                         y="58" 
                                                         textAnchor="middle"
                                                         fill="white" 
-                                                        fontSize="30" 
+                                                        fontSize="32" 
                                                         fontWeight="900" 
                                                         fontFamily="sans-serif"
                                                     >
