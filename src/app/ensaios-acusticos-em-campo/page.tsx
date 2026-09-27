@@ -132,9 +132,9 @@ export default function EnsaiosAcusticosPage() {
                                         <div className="absolute -right-12 -top-12 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl transition-transform duration-500 group-hover:scale-110"></div>
                                         
                                         {/* Topo do Card: Badges na Esquerda e ProAcústica + Triângulo na Direita */}
-                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <div className="flex items-center justify-between gap-3">
                                             {/* Badges */}
-                                            <div className="flex flex-wrap items-center gap-1.5">
+                                            <div className="flex flex-col items-start gap-1.5">
                                                 <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-amber-500/20 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-md border border-amber-500/20">
                                                     Proficiência Aprovada
                                                 </span>
@@ -144,7 +144,7 @@ export default function EnsaiosAcusticosPage() {
                                             </div>
 
                                             {/* ProAcústica + Triângulo Laranja 6º */}
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 shrink-0">
                                                 {/* ProAcústica Logo */}
                                                 <svg viewBox="0 0 100 100" className="w-11 h-11 rounded-lg shrink-0 bg-[#1e5aa3] shadow-md" aria-label="ProAcústica">
                                                     <path d="M 0 100 A 100 100 0 0 1 100 0" fill="none" stroke="white" strokeWidth="10" />

@@ -135,7 +135,7 @@ export default function EnsaioGuardaCorpoPage() {
                                     {/* Topo do Card: Badges na Esquerda e CCB + Triângulo na Direita */}
                                     <div className="flex items-center justify-between gap-3">
                                         {/* Badges */}
-                                        <div className="flex flex-wrap items-center gap-1.5">
+                                        <div className="flex flex-col items-start gap-1.5">
                                             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-amber-500/20 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-md border border-amber-500/20">
                                                 Proficiência Aprovada
                                             </span>
@@ -145,7 +145,7 @@ export default function EnsaioGuardaCorpoPage() {
                                         </div>
 
                                         {/* CCB + Triângulo Laranja 2º */}
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 shrink-0">
                                             {/* CCB Mini Logo */}
                                             <div className="relative w-11 h-11 bg-[#0f4c81] rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-md">
                                                 <span className="text-white text-xs sm:text-sm font-black tracking-tight">CCB</span>
