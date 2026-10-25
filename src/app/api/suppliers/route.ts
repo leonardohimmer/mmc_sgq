@@ -22,7 +22,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions)
-        if (!session?.user || session.user.role !== 'DESENVOLVEDOR') {
+        if (!session?.user || session.user.role === 'CLIENTE') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
         }
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
             data: {
                 name: data.name,
                 qualified: data.qualified ?? true,
-                score: data.score ? parseFloat(data.score) : null,
+                score: data.score !== undefined && data.score !== "" && data.score !== null ? parseFloat(String(data.score)) : null,
                 active: data.active ?? true,
             }
         })
