@@ -112,9 +112,22 @@ export const ALL_ATTRIBUTES = F35_CATEGORIES.flatMap(c => c.attributes)
 export interface Supplier {
     id: string
     name: string
+    category?: string
     qualified: boolean
     score: number | null
     active: boolean
+}
+
+export function getSupplierF35CategoryIds(supplier?: Supplier | null): string[] {
+    if (!supplier || !supplier.category) return ["CALIBRACAO"]
+    const lower = supplier.category.toLowerCase()
+    const matched: string[] = []
+    if (lower.includes("calibra")) matched.push("CALIBRACAO")
+    if (lower.includes("profici") || lower.includes("ensaio") || lower.includes("ep")) matched.push("PROVEDOR_EP")
+    if (lower.includes("auditor") || lower.includes("consult")) matched.push("AUDITORIA")
+    if (lower.includes("equipamento") || lower.includes("insumo")) matched.push("EQUIPAMENTOS")
+    if (lower.includes("outro")) matched.push("OUTROS")
+    return matched.length > 0 ? matched : ["CALIBRACAO"]
 }
 
 export interface EvaluationItemState {
@@ -315,7 +328,7 @@ function AvaliacaoFornecedoresContent() {
     })
     const [referenceDoc, setReferenceDoc] = useState<string>("")
     const [otherDescription, setOtherDescription] = useState<string>("")
-    const [activeCategories, setActiveCategories] = useState<string[]>(F35_CATEGORIES.map(c => c.id))
+    const [activeCategories, setActiveCategories] = useState<string[]>(["CALIBRACAO"])
     const [items, setItems] = useState<Record<string, EvaluationItemState>>(buildDefaultItems)
     const [classObservations, setClassObservations] = useState<Record<"A" | "B" | "C" | "D", string>>({
         A: "",
@@ -334,6 +347,7 @@ function AvaliacaoFornecedoresContent() {
     // Modal de Novo Fornecedor Rápido
     const [isNewSupplierModalOpen, setIsNewSupplierModalOpen] = useState(false)
     const [newSupplierName, setNewSupplierName] = useState("")
+    const [newSupplierCategory, setNewSupplierCategory] = useState("Calibração")
     const [isCreatingSupplier, setIsCreatingSupplier] = useState(false)
 
     // Modal de Visualização / Impressão Oficial F35
@@ -383,6 +397,27 @@ function AvaliacaoFornecedoresContent() {
             setActiveTab("avaliar")
         }
     }, [preselectedSupplierId])
+
+    // Sincroniza automaticamente a categoria de avaliação F35 com a categoria cadastrada no fornecedor selecionado
+    useEffect(() => {
+        if (editingEvalId) return
+        if (suppliers.length === 0) return
+
+        if (selectedSupplierId) {
+            const sup = suppliers.find(s => s.id === selectedSupplierId)
+            if (sup) {
+                const supCats = getSupplierF35CategoryIds(sup)
+                setActiveCategories(supCats)
+                setFocusedCategory("ALL")
+            }
+        } else if (!preselectedSupplierId) {
+            const firstActive = suppliers.find(s => s.active)
+            if (firstActive) {
+                setSelectedSupplierId(firstActive.id)
+                setActiveCategories(getSupplierF35CategoryIds(firstActive))
+            }
+        }
+    }, [selectedSupplierId, suppliers, editingEvalId, preselectedSupplierId])
 
     // Carrega fornecedores e avaliações
     const fetchAllData = async () => {
@@ -548,7 +583,8 @@ function AvaliacaoFornecedoresContent() {
     const resetForm = () => {
         setEditingEvalId(null)
         setItems(buildDefaultItems())
-        setActiveCategories(F35_CATEGORIES.map(c => c.id))
+        const currentSup = suppliers.find(s => s.id === selectedSupplierId)
+        setActiveCategories(getSupplierF35CategoryIds(currentSup))
         setReferenceDoc("")
         setOtherDescription("")
         setClassObservations({ A: "", B: "", C: "", D: "" })
@@ -569,6 +605,7 @@ function AvaliacaoFornecedoresContent() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: newSupplierName.trim(),
+                    category: newSupplierCategory,
                     qualified: true,
                     score: 10,
                     active: true
@@ -578,12 +615,14 @@ function AvaliacaoFornecedoresContent() {
                 const created = await res.json()
                 setSuppliers(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
                 setSelectedSupplierId(created.id)
+                setActiveCategories(getSupplierF35CategoryIds(created))
                 setNewSupplierName("")
+                setNewSupplierCategory("Calibração")
                 setIsNewSupplierModalOpen(false)
                 setNotification({
                     isOpen: true,
                     title: "Fornecedor Cadastrado!",
-                    message: `"${created.name}" foi adicionado e selecionado para avaliação.`,
+                    message: `"${created.name}" (${created.category}) foi adicionado e selecionado para avaliação.`,
                     type: "success"
                 })
             } else {
@@ -971,7 +1010,7 @@ function AvaliacaoFornecedoresContent() {
                                             <option value="">-- Selecione um Fornecedor --</option>
                                             {suppliers.filter(s => s.active).map(s => (
                                                 <option key={s.id} value={s.id}>
-                                                    {s.name} {s.score !== null ? `(Nota atual: ${s.score.toFixed(2)})` : ""}
+                                                    {s.name} • {s.category || "Calibração"} {s.score !== null ? `(Nota atual: ${s.score.toFixed(2)})` : ""}
                                                 </option>
                                             ))}
                                         </select>
@@ -1054,16 +1093,16 @@ function AvaliacaoFornecedoresContent() {
                             </div>
                         </div>
 
-                        {/* 2. ESCALA OFICIAL DE NOTAS (F35) + SELETOR INTELIGENTE DE ESCOPO */}
+                        {/* 2. ESCALA OFICIAL DE NOTAS (F35) + CATEGORIA DO FORNECEDOR */}
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm space-y-5">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                 <div>
                                     <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                         <span className="material-symbols-outlined text-blue-600">tune</span>
-                                        2. Escala Oficial de Notas (F35) & Escopo Avaliado
+                                        2. Escala Oficial de Notas (F35) & Categoria Avaliada
                                     </h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        Ative apenas as categorias aplicáveis ao fornecedor ou mantenha todas ativas (260 pontos possíveis como na planilha padrão).
+                                        Exibindo exclusivamente os itens da categoria vinculada ao fornecedor selecionado.
                                     </p>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
@@ -1129,25 +1168,14 @@ function AvaliacaoFornecedoresContent() {
                                 </div>
                             </div>
 
-                            {/* Seletor Rápido de Escopo do Fornecedor */}
+                            {/* Categoria Ativa do Fornecedor */}
                             <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                                 <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
                                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                        Escopos Ativos no Cálculo (Clique para ativar/desativar categorias):
+                                        Categoria do Fornecedor Avaliado:
                                     </span>
                                     <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => selectPresetScope(F35_CATEGORIES.map(c => c.id))}
-                                            className={`text-xs font-bold px-2.5 py-1 rounded-lg border transition ${
-                                                activeCategories.length === F35_CATEGORIES.length
-                                                    ? "bg-[#2b5c92] text-white border-[#2b5c92]"
-                                                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700"
-                                            }`}
-                                        >
-                                            Planilha Completa (260 pts)
-                                        </button>
-                                        <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 cursor-pointer ml-2">
+                                        <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={onlyShowDeviations}
@@ -1159,28 +1187,20 @@ function AvaliacaoFornecedoresContent() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                                    {F35_CATEGORIES.map(cat => {
-                                        const isActive = activeCategories.includes(cat.id)
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    {F35_CATEGORIES.filter(cat => activeCategories.includes(cat.id)).map(cat => {
                                         const stats = calculation.categoryBreakdown[cat.id]
                                         return (
                                             <div
                                                 key={cat.id}
-                                                onClick={() => toggleCategoryScope(cat.id)}
-                                                className={`cursor-pointer rounded-xl p-3 border transition-all flex flex-col justify-between ${
-                                                    isActive
-                                                        ? "bg-blue-50/70 dark:bg-blue-950/30 border-blue-400 dark:border-blue-600 shadow-xs"
-                                                        : "bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-60 hover:opacity-90"
-                                                }`}
+                                                className="rounded-xl p-3 border bg-blue-50/70 dark:bg-blue-950/30 border-blue-400 dark:border-blue-600 shadow-xs flex flex-col justify-between"
                                             >
                                                 <div className="flex items-center justify-between gap-1">
                                                     <span className="material-symbols-outlined text-[18px] text-[#2b5c92] dark:text-blue-400">
                                                         {cat.icon}
                                                     </span>
-                                                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                                                        isActive ? "bg-blue-600 text-white" : "bg-slate-300 dark:bg-slate-700 text-slate-600"
-                                                    }`}>
-                                                        {isActive ? "✓" : ""}
+                                                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold bg-blue-600 text-white">
+                                                        ✓
                                                     </span>
                                                 </div>
                                                 <div className="mt-2">
@@ -1188,7 +1208,7 @@ function AvaliacaoFornecedoresContent() {
                                                         {cat.shortTitle}
                                                     </p>
                                                     <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
-                                                        {isActive ? `${stats.po} / ${stats.pp} pts (${stats.pct}%)` : "Fora do escopo (N/A)"}
+                                                        {stats.po} / {stats.pp} pts ({stats.pct}%)
                                                     </p>
                                                 </div>
                                             </div>
@@ -1198,10 +1218,10 @@ function AvaliacaoFornecedoresContent() {
                             </div>
                         </div>
 
-                        {/* 3. LISTA DE CATEGORIAS E ATRIBUTOS DA PLANILHA F35 */}
+                        {/* 3. LISTA DE CATEGORIAS E ATRIBUTOS DA PLANILHA F35 (APENAS DA CATEGORIA DO FORNECEDOR) */}
                         <div className="space-y-5">
-                            {F35_CATEGORIES.filter(cat => focusedCategory === "ALL" || cat.id === focusedCategory).map((cat) => {
-                                const isCatActive = activeCategories.includes(cat.id)
+                            {F35_CATEGORIES.filter(cat => activeCategories.includes(cat.id)).map((cat) => {
+                                const isCatActive = true
                                 const catStats = calculation.categoryBreakdown[cat.id]
 
                                 const visibleAttributes = cat.attributes.filter(attr => {
@@ -1213,70 +1233,44 @@ function AvaliacaoFornecedoresContent() {
                                 return (
                                     <div
                                         key={cat.id}
-                                        className={`bg-white dark:bg-slate-900 rounded-2xl border transition-all overflow-hidden shadow-sm ${
-                                            isCatActive
-                                                ? "border-slate-200 dark:border-slate-800"
-                                                : "border-dashed border-slate-200 dark:border-slate-800 opacity-65"
-                                        }`}
+                                        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all overflow-hidden shadow-sm"
                                     >
                                         {/* Header da Categoria */}
                                         <div className="bg-gradient-to-r from-slate-100 via-blue-50/50 to-slate-100 dark:from-slate-800/90 dark:via-slate-800/60 dark:to-slate-800/90 px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                             <div className="flex items-center gap-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleCategoryScope(cat.id)}
-                                                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition ${
-                                                        isCatActive
-                                                            ? "bg-[#2b5c92] text-white shadow-sm"
-                                                            : "bg-slate-200 dark:bg-slate-700 text-slate-500"
-                                                    }`}
-                                                    title={isCatActive ? "Clique para desativar este escopo" : "Clique para ativar este escopo"}
-                                                >
+                                                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#2b5c92] text-white shadow-sm">
                                                     <span className="material-symbols-outlined text-[20px]">{cat.icon}</span>
-                                                </button>
+                                                </div>
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight uppercase">
                                                             {cat.shortTitle}
                                                         </h3>
-                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                                                            isCatActive
-                                                                ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
-                                                                : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-                                                        }`}>
-                                                            {isCatActive ? `${cat.attributes.length} atributos • ${catStats.po}/${catStats.pp} pts` : "Escopo Não Aplicável"}
+                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                                                            {cat.attributes.length} atributos • {catStats.po}/${catStats.pp} pts
                                                         </span>
                                                     </div>
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">{cat.description}</p>
                                                 </div>
                                             </div>
 
-                                            {isCatActive && (
-                                                <div className="flex items-center gap-1.5 self-end sm:self-auto">
-                                                    <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden md:inline">Preencher bloco:</span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setCategoryAllScore(cat.id, 10)}
-                                                        className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 transition"
-                                                    >
-                                                        Tudo 10
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setCategoryAllScore(cat.id, 7.5)}
-                                                        className="px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20 transition"
-                                                    >
-                                                        Tudo 7,5
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => toggleCategoryScope(cat.id)}
-                                                        className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200/70 hover:bg-slate-300/70 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 transition"
-                                                    >
-                                                        Desativar
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                                                <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden md:inline">Preencher bloco:</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCategoryAllScore(cat.id, 10)}
+                                                    className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 transition"
+                                                >
+                                                    Tudo 10
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCategoryAllScore(cat.id, 7.5)}
+                                                    className="px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20 transition"
+                                                >
+                                                    Tudo 7,5
+                                                </button>
+                                            </div>
                                         </div>
 
                                         {/* Corpo dos Atributos */}
@@ -2031,6 +2025,20 @@ function AvaliacaoFornecedoresContent() {
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm outline-none focus:border-blue-500"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
+                                    Categoria do Fornecedor
+                                </label>
+                                <select
+                                    value={newSupplierCategory}
+                                    onChange={(e) => setNewSupplierCategory(e.target.value)}
+                                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm outline-none focus:border-blue-500"
+                                >
+                                    <option value="Calibração">Calibração</option>
+                                    <option value="Ensaio de Proficiência">Ensaio de Proficiência</option>
+                                    <option value="Auditoria">Auditoria</option>
+                                </select>
+                            </div>
                             <div className="flex justify-end gap-2 pt-2">
                                 <button
                                     type="button"
@@ -2190,8 +2198,8 @@ function AvaliacaoFornecedoresContent() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {F35_CATEGORIES.map((cat) => {
-                                        const isCatActive = previewEvaluation.activeCategories?.includes(cat.id) ?? true
+                                    {F35_CATEGORIES.filter((cat) => (previewEvaluation.activeCategories || ["CALIBRACAO"]).includes(cat.id)).map((cat) => {
+                                        const isCatActive = true
                                         return cat.attributes.map((attr, idx) => {
                                             const item = previewEvaluation.items?.[attr.id]
                                             const score: ScoreValue = isCatActive ? (item !== undefined ? item.score : 10) : null
