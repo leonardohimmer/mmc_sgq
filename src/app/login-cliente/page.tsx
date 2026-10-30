@@ -159,10 +159,10 @@ export default function LoginClientePage() {
 
             <div className="max-w-md w-full relative z-10">
                 <div className="mb-6 flex justify-center">
-                    <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-primary transition-colors bg-white/50 dark:bg-slate-900/50 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 backdrop-blur-sm">
+                    <button type="button" onClick={() => window.history.length > 1 ? router.back() : router.push("/")} className="inline-flex items-center gap-2 text-slate-500 hover:text-primary transition-colors bg-white/50 dark:bg-slate-900/50 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 backdrop-blur-sm cursor-pointer">
                         <span className="material-symbols-outlined text-sm">arrow_back</span>
                         <span className="text-sm font-bold">Voltar ao Site</span>
-                    </Link>
+                    </button>
                 </div>
 
                 <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-[0_0_40px_rgba(77,182,172,0.05)] transition-all relative overflow-hidden">

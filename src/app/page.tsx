@@ -416,13 +416,6 @@ export default function HomePage() {
                     <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </span>
                 </Link>
-                <Link
-                  href="/contato"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-200/50 dark:bg-white/5 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-white hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl font-bold transition-all backdrop-blur-sm text-base sm:text-lg hover:-translate-y-0.5"
-                >
-                  <PhoneCall className="w-5 h-5 text-primary dark:text-primary-light" />
-                  Fale com Especialista
-                </Link>
               </motion.div>
             </motion.div>
           </div>
@@ -592,42 +585,6 @@ export default function HomePage() {
                 </div>
               </motion.div>
             </div>
-          </div>
-        </section>
-
-        {/* CTA Moderno */}
-        <section className="py-32 relative overflow-hidden bg-slate-50 dark:bg-[#080d16] text-slate-800 dark:text-white border-t border-slate-200 dark:border-slate-900">
-          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-primary/10 via-transparent to-secondary/10 opacity-60 pointer-events-none" />
-          
-          <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl md:text-6xl font-extrabold mb-8 tracking-tight text-slate-900 dark:text-white font-sans">
-                Eleve o Padrão do Seu Empreendimento
-              </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-300 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-                Nossa equipe comercial está preparada para mapear suas necessidades e entregar propostas técnicas sob medida.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <Link 
-                  href="/contato" 
-                  className="px-10 py-5 bg-gradient-to-r from-primary to-primary-hover text-slate-950 rounded-xl font-bold text-lg hover:shadow-[0_0_30px_rgba(77,182,172,0.3)] transition-all transform hover:-translate-y-1 w-full sm:w-auto text-center"
-                >
-                  Solicitar Orçamento
-                </Link>
-                <a 
-                  href="tel:05131032929" 
-                  className="px-10 py-5 bg-slate-200/50 dark:bg-white/5 backdrop-blur-md border border-slate-300 dark:border-white/10 hover:bg-slate-200/80 dark:hover:bg-white/25 text-slate-800 dark:text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 w-full sm:w-auto hover:-translate-y-1"
-                >
-                  <PhoneCall className="w-5 h-5 text-primary dark:text-primary-light" />
-                  (51) 3103-2929
-                </a>
-              </div>
-            </motion.div>
           </div>
         </section>
 
