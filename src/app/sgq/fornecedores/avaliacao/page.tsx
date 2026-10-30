@@ -48,19 +48,36 @@ export const F35_CATEGORIES: CategoryDef[] = [
     },
     {
         id: "EQUIPAMENTOS",
-        title: "Equipamentos e Insumos",
+        title: "Equipamentos",
         shortTitle: "EQUIPAMENTOS",
         icon: "precision_manufacturing",
-        description: "Fornecedores de equipamentos de medição, ensaios, peças e insumos críticos",
+        description: "Avaliação de fornecedores que vendem equipamentos, instrumentos de medição e acessórios para o laboratório",
         color: "indigo",
         attributes: [
-            { id: "eq_1", categoryId: "EQUIPAMENTOS", label: "Qualidade dos equipamentos" },
-            { id: "eq_2", categoryId: "EQUIPAMENTOS", label: "Conformidade com Normas e Certificações" },
-            { id: "eq_3", categoryId: "EQUIPAMENTOS", label: "Garantia e suporte técnico" },
-            { id: "eq_4", categoryId: "EQUIPAMENTOS", label: "Preço em relação à qualidade e funcionalidades" },
-            { id: "eq_5", categoryId: "EQUIPAMENTOS", label: "Treinamento para a equipe de laboratório" },
-            { id: "eq_6", categoryId: "EQUIPAMENTOS", label: "Prazos de Entrega" },
-            { id: "eq_7", categoryId: "EQUIPAMENTOS", label: "Manutenção e Assistência Pós-Venda" },
+            { id: "eq_1", categoryId: "EQUIPAMENTOS", label: "Qualidade técnica, precisão e desempenho do equipamento fornecido" },
+            { id: "eq_2", categoryId: "EQUIPAMENTOS", label: "Conformidade com as especificações técnicas solicitadas e normas aplicáveis" },
+            { id: "eq_3", categoryId: "EQUIPAMENTOS", label: "Cumprimento do prazo de entrega acordado e integridade na entrega" },
+            { id: "eq_4", categoryId: "EQUIPAMENTOS", label: "Documentação técnica fornecida (manuais em português, certificados e termo de garantia)" },
+            { id: "eq_5", categoryId: "EQUIPAMENTOS", label: "Suporte técnico na instalação, configuração e treinamento operacional para a equipe" },
+            { id: "eq_6", categoryId: "EQUIPAMENTOS", label: "Garantia, assistência técnica pós-venda e disponibilidade de peças de reposição" },
+            { id: "eq_7", categoryId: "EQUIPAMENTOS", label: "Condições comerciais, relação custo-benefício e facilidade de negociação" },
+        ]
+    },
+    {
+        id: "SERVICOS_LAB",
+        title: "Serviços no Laboratório",
+        shortTitle: "SERVIÇOS NO LABORATÓRIO",
+        icon: "engineering",
+        description: "Avaliação de fornecedores que prestam serviços técnicos, manutenção ou instalações no laboratório",
+        color: "cyan",
+        attributes: [
+            { id: "srv_1", categoryId: "SERVICOS_LAB", label: "Qualidade técnica e eficácia do serviço executado no laboratório" },
+            { id: "srv_2", categoryId: "SERVICOS_LAB", label: "Pontualidade e cumprimento dos prazos agendados para execução do serviço" },
+            { id: "srv_3", categoryId: "SERVICOS_LAB", label: "Qualificação, competência técnica e postura profissional da equipe no laboratório" },
+            { id: "srv_4", categoryId: "SERVICOS_LAB", label: "Cumprimento das normas de segurança, limpeza, organização e regras do laboratório" },
+            { id: "srv_5", categoryId: "SERVICOS_LAB", label: "Clareza e detalhamento da Ordem de Serviço (OS) ou relatório técnico emitido" },
+            { id: "srv_6", categoryId: "SERVICOS_LAB", label: "Agilidade no atendimento a chamados, comunicação e garantia pós-serviço" },
+            { id: "srv_7", categoryId: "SERVICOS_LAB", label: "Custo-benefício e conformidade com o orçamento aprovado" },
         ]
     },
     {
@@ -126,6 +143,7 @@ export function getSupplierF35CategoryIds(supplier?: Supplier | null): string[] 
     if (lower.includes("profici") || lower.includes("ensaio") || lower.includes("ep")) matched.push("PROVEDOR_EP")
     if (lower.includes("auditor") || lower.includes("consult")) matched.push("AUDITORIA")
     if (lower.includes("equipamento") || lower.includes("insumo")) matched.push("EQUIPAMENTOS")
+    if (lower.includes("servi") || lower.includes("laborat")) matched.push("SERVICOS_LAB")
     if (lower.includes("outro")) matched.push("OUTROS")
     return matched.length > 0 ? matched : ["CALIBRACAO"]
 }
@@ -306,8 +324,10 @@ function AvaliacaoFornecedoresContent() {
 
     const preselectedSupplierId = searchParams.get("supplierId") || ""
 
-    // Abas principais
-    const [activeTab, setActiveTab] = useState<"avaliar" | "dashboard" | "historico">("avaliar")
+    // Abas principais (Inicia no Painel IQF & Homologação como página inicial de Fornecedores)
+    const [activeTab, setActiveTab] = useState<"avaliar" | "dashboard" | "historico">(
+        preselectedSupplierId ? "avaliar" : "dashboard"
+    )
 
     // Dados carregados
     const [suppliers, setSuppliers] = useState<Supplier[]>([])
@@ -782,6 +802,43 @@ function AvaliacaoFornecedoresContent() {
         })
     }
 
+    const handleDeleteSupplier = (supplier: Supplier) => {
+        setConfirmModal({
+            isOpen: true,
+            title: "Excluir Fornecedor",
+            message: `Tem certeza que deseja excluir o fornecedor "${supplier.name}" da Matriz de Homologação? Caso não deseje excluir, clique em "Cancelar".`,
+            onConfirm: async () => {
+                try {
+                    const res = await fetch(`/api/suppliers/${encodeURIComponent(supplier.id)}`, {
+                        method: "DELETE"
+                    })
+                    if (res.ok) {
+                        setSuppliers(prev => prev.filter(s => s.id !== supplier.id))
+                        if (selectedSupplierId === supplier.id) {
+                            const remaining = suppliers.filter(s => s.id !== supplier.id && s.active)
+                            setSelectedSupplierId(remaining[0]?.id || "")
+                        }
+                        setNotification({
+                            isOpen: true,
+                            title: "Fornecedor Excluído",
+                            message: `O fornecedor "${supplier.name}" foi removido com sucesso da matriz.`,
+                            type: "info"
+                        })
+                    } else {
+                        setNotification({
+                            isOpen: true,
+                            title: "Erro ao Excluir",
+                            message: "Não foi possível excluir o fornecedor. Verifique suas permissões.",
+                            type: "error"
+                        })
+                    }
+                } catch (err) {
+                    console.error("Erro ao excluir fornecedor:", err)
+                }
+            }
+        })
+    }
+
     // ========================================================================
     // ESTATÍSTICAS EXECUTIVAS (ESTILO QUALIEX / 8QUALI)
     // ========================================================================
@@ -852,83 +909,101 @@ function AvaliacaoFornecedoresContent() {
             {/* ================================================================
                 CABEÇALHO OFICIAL DO MÓDULO (F35 - REVISÃO 03 + QUALIEX/8QUALI)
             ================================================================ */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#1e3a5f] via-[#2b5c92] to-[#163252] text-white rounded-3xl p-6 md:p-8 shadow-xl border border-white/10">
-                <div className="absolute -right-12 -top-12 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
-                <div className="absolute right-24 -bottom-16 w-48 h-48 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#0f243c] via-[#1e4370] to-[#132c4a] text-white rounded-3xl p-6 md:p-8 shadow-2xl border border-blue-400/20">
+                {/* Efeitos visuais de iluminação no cabeçalho */}
+                <div className="absolute -right-16 -top-16 w-80 h-80 bg-blue-400/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute left-1/3 -top-24 w-64 h-64 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute right-24 -bottom-20 w-56 h-56 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-white/15 backdrop-blur-md border border-white/20 text-white">
-                                <span className="material-symbols-outlined text-[15px]">verified</span>
+                            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-white/15 backdrop-blur-md border border-white/25 text-white shadow-xs">
+                                <span className="material-symbols-outlined text-[15px] text-cyan-300">verified</span>
                                 Documento do Sistema de Gestão • F35 • Revisão 03
                             </span>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 border border-emerald-400/30 text-emerald-200">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 border border-emerald-400/35 text-emerald-200 shadow-xs">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                                 ISO/IEC 17025 & ISO 9001 (8.4)
                             </span>
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight flex items-center gap-3">
-                            Avaliação e Homologação de Fornecedores
-                        </h1>
-                        <p className="text-blue-100/85 text-sm md:text-base max-w-2xl">
-                            Pontue o desempenho técnico de provedores de Calibração, Equipamentos, Auditoria e Ensaios de Proficiência com cálculo automático de <strong>PO</strong>, <strong>PP</strong>, <strong>IQF (%)</strong> e <strong>Classificação A, B, C, D</strong>.
-                        </p>
+                        <div className="flex items-center gap-3.5">
+                            <div className="hidden sm:flex w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400/25 to-cyan-400/15 border border-white/20 items-center justify-center shadow-inner shrink-0">
+                                <span className="material-symbols-outlined text-2xl text-cyan-200">local_shipping</span>
+                            </div>
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white drop-shadow-xs">
+                                    Avaliação e Homologação de Fornecedores
+                                </h1>
+                                <p className="text-blue-100/90 text-xs sm:text-sm max-w-2xl mt-1 leading-relaxed">
+                                    Gestão e qualificação técnica de provedores de <strong>Calibração</strong>, <strong>Equipamentos</strong>, <strong>Serviços no Laboratório</strong>, <strong>Auditoria</strong> e <strong>Ensaios de Proficiência</strong> com cálculo automático de <strong>IQF (%)</strong> e <strong>Classes A, B, C, D</strong>.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Mini KPIs no Banner */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
-                        <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-3 text-center">
-                            <p className="text-[11px] uppercase tracking-wider text-blue-200 font-bold">IQF Médio Global</p>
-                            <p className="text-2xl font-black text-white mt-0.5">{dashboardStats.avgIqf}%</p>
-                            <span className="text-[10px] text-emerald-300 font-semibold">Meta SGQ ≥ 75%</span>
+                        <div className="bg-white/10 hover:bg-white/15 transition-colors backdrop-blur-md border border-white/20 rounded-2xl px-4 py-3.5 text-center shadow-lg shadow-slate-950/20">
+                            <div className="flex items-center justify-center gap-1 text-blue-200 mb-0.5">
+                                <span className="material-symbols-outlined text-[15px] text-emerald-300">Query_Stats</span>
+                                <p className="text-[10px] uppercase tracking-wider font-extrabold">IQF Médio Global</p>
+                            </div>
+                            <p className="text-2xl font-black text-white">{dashboardStats.avgIqf}%</p>
+                            <span className="text-[10px] text-emerald-300 font-bold">Meta SGQ ≥ 75%</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-3 text-center">
-                            <p className="text-[11px] uppercase tracking-wider text-blue-200 font-bold">Fornecedores Ativos</p>
-                            <p className="text-2xl font-black text-white mt-0.5">{dashboardStats.activeSuppliersCount}</p>
+                        <div className="bg-white/10 hover:bg-white/15 transition-colors backdrop-blur-md border border-white/20 rounded-2xl px-4 py-3.5 text-center shadow-lg shadow-slate-950/20">
+                            <div className="flex items-center justify-center gap-1 text-blue-200 mb-0.5">
+                                <span className="material-symbols-outlined text-[15px] text-cyan-300">domain_verification</span>
+                                <p className="text-[10px] uppercase tracking-wider font-extrabold">Fornecedores Ativos</p>
+                            </div>
+                            <p className="text-2xl font-black text-white">{dashboardStats.activeSuppliersCount}</p>
                             <span className="text-[10px] text-blue-200 font-semibold">Base Homologada</span>
                         </div>
-                        <div className="col-span-2 sm:col-span-1 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-3 text-center">
-                            <p className="text-[11px] uppercase tracking-wider text-blue-200 font-bold">Fichas F35</p>
-                            <p className="text-2xl font-black text-white mt-0.5">{dashboardStats.totalEvaluations}</p>
+                        <div className="col-span-2 sm:col-span-1 bg-white/10 hover:bg-white/15 transition-colors backdrop-blur-md border border-white/20 rounded-2xl px-4 py-3.5 text-center shadow-lg shadow-slate-950/20">
+                            <div className="flex items-center justify-center gap-1 text-blue-200 mb-0.5">
+                                <span className="material-symbols-outlined text-[15px] text-amber-300">fact_check</span>
+                                <p className="text-[10px] uppercase tracking-wider font-extrabold">Fichas F35</p>
+                            </div>
+                            <p className="text-2xl font-black text-white">{dashboardStats.totalEvaluations}</p>
                             <span className="text-[10px] text-blue-200 font-semibold">Avaliações salvas</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Navegação por Abas */}
+                {/* Navegação por Abas e Ações do Cabeçalho */}
                 <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 mt-7 pt-5 border-t border-white/15">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        {/* Botão Novo Fornecedor no lugar de Nova Avaliação */}
                         <button
                             type="button"
-                            onClick={() => setActiveTab("avaliar")}
-                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-                                activeTab === "avaliar"
-                                    ? "bg-white text-[#1e3a5f] shadow-lg"
-                                    : "bg-white/10 text-white hover:bg-white/20"
-                            }`}
+                            onClick={() => setIsNewSupplierModalOpen(true)}
+                            className="px-4 py-2.5 rounded-xl text-sm font-extrabold transition-all flex items-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg shadow-blue-950/40 border border-white/25 cursor-pointer active:scale-[0.99]"
                         >
-                            <span className="material-symbols-outlined text-[19px]">rate_review</span>
-                            {editingEvalId ? "Editando Avaliação F35" : "Nova Avaliação (Planilha F35)"}
+                            <span className="material-symbols-outlined text-[19px]">add_business</span>
+                            Novo Fornecedor
                         </button>
+
                         <button
                             type="button"
                             onClick={() => setActiveTab("dashboard")}
-                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                                 activeTab === "dashboard"
                                     ? "bg-white text-[#1e3a5f] shadow-lg"
-                                    : "bg-white/10 text-white hover:bg-white/20"
+                                    : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
                             }`}
                         >
                             <span className="material-symbols-outlined text-[19px]">monitoring</span>
                             Painel IQF & Homologação
                         </button>
+
                         <button
                             type="button"
                             onClick={() => setActiveTab("historico")}
-                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+                            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                                 activeTab === "historico"
                                     ? "bg-white text-[#1e3a5f] shadow-lg"
-                                    : "bg-white/10 text-white hover:bg-white/20"
+                                    : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
                             }`}
                         >
                             <span className="material-symbols-outlined text-[19px]">history_edu</span>
@@ -937,24 +1012,27 @@ function AvaliacaoFornecedoresContent() {
                                 {evaluations.length}
                             </span>
                         </button>
+
+                        {activeTab === "avaliar" && (
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab("avaliar")}
+                                className="px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 bg-white text-[#1e3a5f] shadow-lg"
+                            >
+                                <span className="material-symbols-outlined text-[19px]">rate_review</span>
+                                {editingEvalId ? "Editando Avaliação F35" : "Avaliação F35 em Andamento"}
+                            </button>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
                             onClick={() => setPreviewEvaluation(buildCurrentEvaluationRecord())}
-                            className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-white transition flex items-center gap-2 shadow-md shadow-emerald-950/30"
+                            className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-white transition flex items-center gap-2 shadow-md shadow-emerald-950/30 cursor-pointer"
                         >
                             <span className="material-symbols-outlined text-[18px]">print</span>
                             Visualizar / Imprimir F35 Oficial
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => router.push("/sgq/fornecedores")}
-                            className="px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/20 text-white transition flex items-center gap-1.5"
-                        >
-                            <span className="material-symbols-outlined text-[18px]">list_alt</span>
-                            Lista de Fornecedores
                         </button>
                     </div>
                 </div>
@@ -1584,20 +1662,16 @@ function AvaliacaoFornecedoresContent() {
                                                     )}
                                                 </td>
                                                 <td className="py-4 px-4 text-center">
-                                                    {latestEval ? (
-                                                        <div className="flex flex-wrap justify-center gap-1">
-                                                            {latestEval.activeCategories.map(cid => {
-                                                                const c = F35_CATEGORIES.find(x => x.id === cid)
-                                                                return c ? (
-                                                                    <span key={cid} className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                                                                        {c.shortTitle}
-                                                                    </span>
-                                                                ) : null
-                                                            })}
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-xs text-slate-400">Sem ficha F35</span>
-                                                    )}
+                                                    <div className="flex flex-wrap justify-center gap-1">
+                                                        {(latestEval ? latestEval.activeCategories : getSupplierF35CategoryIds(sup)).map(cid => {
+                                                            const c = F35_CATEGORIES.find(x => x.id === cid)
+                                                            return c ? (
+                                                                <span key={cid} className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+                                                                    {c.shortTitle}
+                                                                </span>
+                                                            ) : null
+                                                        })}
+                                                    </div>
                                                 </td>
                                                 <td className="py-4 px-4 text-center">
                                                     {pct !== null ? (
@@ -1647,7 +1721,7 @@ function AvaliacaoFornecedoresContent() {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setPreviewEvaluation(latestEval)}
-                                                                className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition"
+                                                                className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
                                                                 title="Visualizar F35"
                                                             >
                                                                 <span className="material-symbols-outlined text-[18px]">description</span>
@@ -1660,9 +1734,18 @@ function AvaliacaoFornecedoresContent() {
                                                                 setSelectedSupplierId(sup.id)
                                                                 setActiveTab("avaliar")
                                                             }}
-                                                            className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-bold transition"
+                                                            className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-bold transition cursor-pointer"
                                                         >
                                                             Avaliar F35
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteSupplier(sup)}
+                                                            className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200/70 dark:border-red-800/60 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                                            title={`Excluir fornecedor ${sup.name}`}
+                                                        >
+                                                            <span className="material-symbols-outlined text-[16px]">delete</span>
+                                                            Excluir
                                                         </button>
                                                     </div>
                                                 </td>
@@ -1862,6 +1945,8 @@ function AvaliacaoFornecedoresContent() {
                                     <option value="Calibração">Calibração</option>
                                     <option value="Ensaio de Proficiência">Ensaio de Proficiência</option>
                                     <option value="Auditoria">Auditoria</option>
+                                    <option value="Equipamentos">Equipamentos</option>
+                                    <option value="Serviços no Laboratório">Serviços no Laboratório</option>
                                 </select>
                             </div>
                             <div className="flex justify-end gap-2 pt-2">

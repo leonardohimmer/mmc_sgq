@@ -100,13 +100,7 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                 { label: "Processos Oper.", href: "/sgq/processos", icon: "work", permissionId: "qualidade_processos" },
                 { label: "Gestão de Riscos", href: "/sgq/riscos", icon: "gpp_maybe", permissionId: "qualidade_riscos" },
                 { label: "Indicadores", href: "/sgq/indicadores", icon: "bar_chart", permissionId: "qualidade_indicadores" },
-                {
-                    label: "Fornecedores", icon: "local_shipping", permissionId: "qualidade_fornecedores",
-                    subItems: [
-                        { label: "Lista de Fornecedores", href: "/sgq/fornecedores" },
-                        { label: "Avaliação", href: "/sgq/fornecedores/avaliacao" }
-                    ]
-                },
+                { label: "Fornecedores", href: "/sgq/fornecedores", icon: "local_shipping", permissionId: "qualidade_fornecedores" },
                 { label: "Equipamentos", href: "/sgq/equipamentos", icon: "build", permissionId: "qualidade_equipamentos" },
                 { label: "Não Conformidades", href: "/sgq/nc", icon: "report_problem", permissionId: "qualidade_nc" },
                 { label: "Reclamações", href: "/sgq/reclamacoes", icon: "feedback", permissionId: "qualidade_reclamacoes" },

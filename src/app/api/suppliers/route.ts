@@ -12,13 +12,17 @@ function inferDefaultCategory(name: string, evalCategories?: string[]): string {
         if (evalCategories.includes('CALIBRACAO')) mapped.push('Calibração')
         if (evalCategories.includes('PROVEDOR_EP')) mapped.push('Ensaio de Proficiência')
         if (evalCategories.includes('AUDITORIA')) mapped.push('Auditoria')
-        if (mapped.length > 0 && mapped.length < 3) {
+        if (evalCategories.includes('EQUIPAMENTOS')) mapped.push('Equipamentos')
+        if (evalCategories.includes('SERVICOS_LAB')) mapped.push('Serviços no Laboratório')
+        if (mapped.length > 0 && mapped.length < 5) {
             return mapped.join(', ')
         }
     }
     const lower = (name || '').toLowerCase()
     if (lower.includes('auditor') || lower.includes('consult')) return 'Auditoria'
     if (lower.includes('ccb') || lower.includes('profici') || lower.includes('ep')) return 'Ensaio de Proficiência'
+    if (lower.includes('equip') || lower.includes('solotest')) return 'Equipamentos'
+    if (lower.includes('servi') || lower.includes('manuten')) return 'Serviços no Laboratório'
     return 'Calibração'
 }
 

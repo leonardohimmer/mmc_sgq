@@ -19,6 +19,8 @@ const SUPPLIER_CATEGORIES = [
     "Calibração",
     "Ensaio de Proficiência",
     "Auditoria",
+    "Equipamentos",
+    "Serviços no Laboratório",
 ]
 
 export default function FornecedoresPage() {
