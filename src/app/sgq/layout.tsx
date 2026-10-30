@@ -9,8 +9,6 @@ import { useEffect, useState, useRef } from "react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { BackButton } from "@/components/BackButton"
 import { ModalPasswordChange } from "@/components/ModalPasswordChange"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import packageJson from "../../../package.json"
 
 export default function SGQLayout({ children }: { children: React.ReactNode }) {
@@ -595,25 +593,8 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                         </div>
                     </div>
 
-                    {/* Lado Direito: Status Online + Data em Tempo Real + Perfil do Usuário e Atalhos */}
+                    {/* Lado Direito: Perfil do Usuário e Atalhos */}
                     <div className="flex items-center gap-3.5">
-                        {/* Status de Conexão Online */}
-                        <div className="hidden sm:flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-950/40 px-3.5 py-2 rounded-full border border-emerald-200/80 dark:border-emerald-800/60 text-xs shadow-2xs">
-                            <span className="relative flex h-2.5 w-2.5">
-                                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                            </span>
-                            <span className="font-bold text-emerald-800 dark:text-emerald-300 text-xs tracking-wide">Sistema Online</span>
-                        </div>
-
-                        {/* Data Atual */}
-                        <div className="hidden xl:flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs font-bold bg-slate-50 dark:bg-slate-900/90 px-4 py-2 rounded-full border border-slate-200/80 dark:border-slate-800 shadow-2xs">
-                            <span className="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
-                            <span className="capitalize">{format(new Date(), "dd 'de' MMMM, yyyy", { locale: ptBR })}</span>
-                        </div>
-
-                        <div className="h-7 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block"></div>
-
                         {/* Perfil do Usuário com Avatar e Cargo */}
                         <div className="flex items-center gap-3 pl-1">
                             {userAvatar ? (
