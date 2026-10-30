@@ -359,18 +359,18 @@ export default function EnsaioAderenciaPage() {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <Link 
-                                    href="/contato" 
+                                    href="/login-cliente" 
                                     className="bg-[#00bfa5] hover:bg-[#00a68f] dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-bold text-center tracking-wider py-4 px-8 rounded-xl transition-all shadow-md shadow-[#00bfa5]/20 dark:shadow-none hover:shadow-lg hover:-translate-y-0.5"
                                 >
-                                    FALE COM A ENGENHARIA
+                                    SOLICITAR ORÇAMENTO PELO SISTEMA
                                 </Link>
                                 <a 
-                                    href="https://wa.me/555131032929" 
+                                    href="https://api.whatsapp.com/send/?phone=5551996334819&text&type=phone_number&app_absent=0" 
                                     target="_blank" 
                                     rel="noopener noreferrer" 
                                     className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-center tracking-wider py-4 px-8 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 flex items-center justify-center gap-2"
                                 >
-                                    FALE POR WHATSAPP
+                                    SOLICITAR ORÇAMENTO PELO WHATSAPP
                                 </a>
                             </div>
                         </div>
