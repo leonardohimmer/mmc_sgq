@@ -377,6 +377,19 @@ function AvaliacaoFornecedoresContent() {
     const [historySearch, setHistorySearch] = useState("")
     const [historyClassFilter, setHistoryClassFilter] = useState<string>("ALL")
 
+    // Ordenação da Matriz de Fornecedores (Fornecedor / Categorias)
+    const [matrixSortField, setMatrixSortField] = useState<"name" | "category">("name")
+    const [matrixSortOrder, setMatrixSortOrder] = useState<"asc" | "desc">("asc")
+
+    const handleToggleMatrixSort = (field: "name" | "category") => {
+        if (matrixSortField === field) {
+            setMatrixSortOrder(prev => (prev === "asc" ? "desc" : "asc"))
+        } else {
+            setMatrixSortField(field)
+            setMatrixSortOrder("asc")
+        }
+    }
+
     // Modais de feedback
     const [notification, setNotification] = useState<{
         isOpen: boolean
@@ -634,15 +647,25 @@ function AvaliacaoFornecedoresContent() {
             if (res.ok) {
                 const created = await res.json()
                 setSuppliers(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
+                setEditingEvalId(null)
+                setItems(buildDefaultItems())
+                setReferenceDoc("")
+                setOtherDescription("")
+                setClassObservations({ A: "", B: "", C: "", D: "" })
+                setGeneralNotes("")
+                setActionPlanRequired(false)
+                setActionPlanDescription("")
+                setEvaluationDate(new Date().toISOString().split("T")[0])
                 setSelectedSupplierId(created.id)
                 setActiveCategories(getSupplierF35CategoryIds(created))
                 setNewSupplierName("")
                 setNewSupplierCategory("Calibração")
                 setIsNewSupplierModalOpen(false)
+                setActiveTab("avaliar")
                 setNotification({
                     isOpen: true,
                     title: "Fornecedor Cadastrado!",
-                    message: `"${created.name}" (${created.category}) foi adicionado e selecionado para avaliação.`,
+                    message: `"${created.name}" (${created.category}) foi adicionado e o painel de avaliação em andamento foi aberto.`,
                     type: "success"
                 })
             } else {
@@ -846,19 +869,6 @@ function AvaliacaoFornecedoresContent() {
         const activeSuppliers = suppliers.filter(s => s.active)
         const totalEvaluations = evaluations.length
 
-        const avgIqf = totalEvaluations > 0
-            ? Number((evaluations.reduce((acc, ev) => acc + (ev.percentage || 0), 0) / totalEvaluations).toFixed(1))
-            : (activeSuppliers.filter(s => s.score !== null).length > 0
-                ? Number((activeSuppliers.filter(s => s.score !== null).reduce((acc, s) => acc + ((s.score || 0) * 10), 0) / activeSuppliers.filter(s => s.score !== null).length).toFixed(1))
-                : 100)
-
-        const classCounts = { A: 0, B: 0, C: 0, D: 0 }
-        evaluations.forEach(ev => {
-            if (ev.finalClass && classCounts[ev.finalClass] !== undefined) {
-                classCounts[ev.finalClass]++
-            }
-        })
-
         // Última avaliação de cada fornecedor
         const latestBySupplier = new Map<string, SupplierEvaluationRecord>()
         evaluations.forEach(ev => {
@@ -866,6 +876,31 @@ function AvaliacaoFornecedoresContent() {
                 latestBySupplier.set(ev.supplierId, ev)
             }
         })
+
+        // Contabiliza FORNECEDORES ATIVOS em cada Classe (A, B, C, D) e calcula IQF médio por fornecedor
+        const classCounts = { A: 0, B: 0, C: 0, D: 0 }
+        let totalSupplierPct = 0
+        let evaluatedSuppliersCount = 0
+
+        activeSuppliers.forEach(sup => {
+            const latestEval = latestBySupplier.get(sup.id)
+            const pct = latestEval
+                ? latestEval.percentage
+                : sup.score !== null && sup.score !== undefined
+                ? Number((sup.score * 10).toFixed(1))
+                : null
+
+            if (pct !== null) {
+                const cls = getClassificationInfo(pct).finalClass
+                classCounts[cls]++
+                totalSupplierPct += pct
+                evaluatedSuppliersCount++
+            }
+        })
+
+        const avgIqf = evaluatedSuppliersCount > 0
+            ? Number((totalSupplierPct / evaluatedSuppliersCount).toFixed(1))
+            : 100
 
         const pendingEvaluationSuppliers = activeSuppliers.filter(s => !latestBySupplier.has(s.id) && s.score === null)
 
@@ -878,6 +913,29 @@ function AvaliacaoFornecedoresContent() {
             pendingEvaluationSuppliers
         }
     }, [suppliers, evaluations])
+
+    const sortedMatrixSuppliers = useMemo(() => {
+        const list = suppliers.filter(s => s.active)
+        return [...list].sort((a, b) => {
+            if (matrixSortField === "name") {
+                const cmp = a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" })
+                return matrixSortOrder === "asc" ? cmp : -cmp
+            } else {
+                const getCatLabel = (sup: Supplier) => {
+                    const latestEval = dashboardStats.latestBySupplier.get(sup.id)
+                    const catIds = latestEval ? latestEval.activeCategories : getSupplierF35CategoryIds(sup)
+                    return catIds
+                        .map(cid => F35_CATEGORIES.find(x => x.id === cid)?.shortTitle || cid)
+                        .join(", ")
+                }
+                const catA = getCatLabel(a)
+                const catB = getCatLabel(b)
+                const cmp = catA.localeCompare(catB, "pt-BR", { sensitivity: "base" })
+                if (cmp !== 0) return matrixSortOrder === "asc" ? cmp : -cmp
+                return a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" })
+            }
+        })
+    }, [suppliers, matrixSortField, matrixSortOrder, dashboardStats.latestBySupplier])
 
     const filteredEvaluations = useMemo(() => {
         return evaluations.filter(ev => {
@@ -1636,8 +1694,40 @@ function AvaliacaoFornecedoresContent() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase border-b border-slate-200 dark:border-slate-800">
-                                        <th className="py-3.5 px-5">Fornecedor</th>
-                                        <th className="py-3.5 px-4 text-center">Escopos Avaliados</th>
+                                        <th className="py-3.5 px-5">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleToggleMatrixSort("name")}
+                                                className="inline-flex items-center gap-1.5 uppercase font-bold hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer select-none group"
+                                                title="Ordenar por Fornecedor (Crescente / Decrescente)"
+                                            >
+                                                <span>Fornecedor</span>
+                                                <span className={`material-symbols-outlined text-[16px] transition-colors ${matrixSortField === "name" ? "text-blue-600 dark:text-blue-400" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200"}`}>
+                                                    {matrixSortField === "name"
+                                                        ? matrixSortOrder === "asc"
+                                                            ? "arrow_upward"
+                                                            : "arrow_downward"
+                                                        : "unfold_more"}
+                                                </span>
+                                            </button>
+                                        </th>
+                                        <th className="py-3.5 px-4 text-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleToggleMatrixSort("category")}
+                                                className="inline-flex items-center justify-center gap-1.5 uppercase font-bold hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer select-none group mx-auto"
+                                                title="Ordenar por Categorias (Crescente / Decrescente)"
+                                            >
+                                                <span>Categorias</span>
+                                                <span className={`material-symbols-outlined text-[16px] transition-colors ${matrixSortField === "category" ? "text-blue-600 dark:text-blue-400" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200"}`}>
+                                                    {matrixSortField === "category"
+                                                        ? matrixSortOrder === "asc"
+                                                            ? "arrow_upward"
+                                                            : "arrow_downward"
+                                                        : "unfold_more"}
+                                                </span>
+                                            </button>
+                                        </th>
                                         <th className="py-3.5 px-4 text-center">IQF (%) / Nota</th>
                                         <th className="py-3.5 px-4 text-center">Classe F35</th>
                                         <th className="py-3.5 px-4 text-center">Status Homologação</th>
@@ -1646,7 +1736,7 @@ function AvaliacaoFornecedoresContent() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                                    {suppliers.filter(s => s.active).map((sup) => {
+                                    {sortedMatrixSuppliers.map((sup) => {
                                         const latestEval = dashboardStats.latestBySupplier.get(sup.id)
                                         const pct = latestEval ? latestEval.percentage : (sup.score !== null ? Number((sup.score * 10).toFixed(1)) : null)
                                         const clsInfo = pct !== null ? getClassificationInfo(pct) : null
