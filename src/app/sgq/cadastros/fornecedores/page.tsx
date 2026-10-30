@@ -9,10 +9,17 @@ import ConfirmModal from "@/components/ConfirmModal"
 type Supplier = {
     id: string
     name: string
+    category?: string
     qualified: boolean
     score: number | null
     active: boolean
 }
+
+const SUPPLIER_CATEGORIES = [
+    "Calibração",
+    "Ensaio de Proficiência",
+    "Auditoria",
+]
 
 export default function FornecedoresPage() {
     const { data: session, status } = useSession()
@@ -28,7 +35,7 @@ export default function FornecedoresPage() {
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
-    const [form, setForm] = useState({ name: "", qualified: true, score: "", active: true })
+    const [form, setForm] = useState({ name: "", category: "Calibração", qualified: true, score: "", active: true })
 
     // Notification states
     const [notification, setNotification] = useState<{
@@ -81,10 +88,16 @@ export default function FornecedoresPage() {
     const handleOpenModal = (supplier?: Supplier) => {
         if (supplier) {
             setEditingSupplier(supplier)
-            setForm({ name: supplier.name, qualified: supplier.qualified, score: supplier.score ? String(supplier.score) : "", active: supplier.active })
+            setForm({
+                name: supplier.name,
+                category: supplier.category || "Calibração",
+                qualified: supplier.qualified,
+                score: supplier.score ? String(supplier.score) : "",
+                active: supplier.active
+            })
         } else {
             setEditingSupplier(null)
-            setForm({ name: "", qualified: true, score: "", active: true })
+            setForm({ name: "", category: "Calibração", qualified: true, score: "", active: true })
         }
         setIsModalOpen(true)
     }
@@ -189,7 +202,7 @@ export default function FornecedoresPage() {
                         onClick={() => handleOpenModal()}
                         className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2 shadow-sm shadow-blue-500/10"
                     >
-                        <span className="text-lg font-bold">+</span> Adicionar Fornecedor
+                        <span className="text-lg font-bold">+</span> Novo Fornecedor
                     </button>
                     <button className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2 shadow-sm shadow-orange-500/10">
                         <span className="material-symbols-outlined text-[18px]">download_for_offline</span>
@@ -233,6 +246,7 @@ export default function FornecedoresPage() {
                     <thead>
                         <tr className="bg-[#2b5c92] text-white">
                             <th className="px-6 py-4 text-sm font-semibold">Nome</th>
+                            <th className="px-6 py-4 text-sm font-semibold text-center w-48">Categoria</th>
                             <th className="px-6 py-4 text-sm font-semibold text-center w-32">Qualificado</th>
                             <th className="px-6 py-4 text-sm font-semibold text-center w-32">Nota</th>
                             <th className="px-6 py-4 text-sm font-semibold text-center w-40">Ativar/Desativar</th>
@@ -248,6 +262,9 @@ export default function FornecedoresPage() {
                                     onClick={() => handleOpenModal(supplier)}
                                 >
                                     {supplier.name}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-center font-medium text-slate-600 dark:text-slate-300">
+                                    {supplier.category || "Calibração"}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-center">
                                     <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${supplier.qualified ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-100 dark:border-green-800/50' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-100 dark:border-red-800/50'}`}>
@@ -302,6 +319,9 @@ export default function FornecedoresPage() {
                                 <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${supplier.qualified ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-100 dark:border-green-800/50' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-100 dark:border-red-800/50'}`}>
                                     {supplier.qualified ? "Qualificado" : "Não Qualificado"}
                                 </span>
+                            </div>
+                            <div className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                                Categoria: {supplier.category || "Calibração"}
                             </div>
                             
                             <div className="flex items-center justify-between text-sm py-2 px-3 bg-slate-50 dark:bg-slate-950 rounded-xl">
@@ -360,6 +380,18 @@ export default function FornecedoresPage() {
                                     className="w-full px-3 py-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-700"
                                     value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Categoria</label>
+                                <select
+                                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700"
+                                    value={form.category}
+                                    onChange={e => setForm({ ...form, category: e.target.value })}
+                                >
+                                    {SUPPLIER_CATEGORIES.map(c => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="flex gap-4">
                                 <label className="flex items-center gap-2 cursor-pointer">
