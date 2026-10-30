@@ -1093,132 +1093,7 @@ function AvaliacaoFornecedoresContent() {
                             </div>
                         </div>
 
-                        {/* 2. ESCALA OFICIAL DE NOTAS (F35) + CATEGORIA DO FORNECEDOR */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm space-y-5">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                <div>
-                                    <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-blue-600">tune</span>
-                                        2. Escala Oficial de Notas (F35) & Categoria Avaliada
-                                    </h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        Exibindo exclusivamente os itens da categoria vinculada ao fornecedor selecionado.
-                                    </p>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setAllScoresGlobal(10)}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition flex items-center gap-1"
-                                    >
-                                        <span className="material-symbols-outlined text-[16px]">done_all</span>
-                                        Marcar Todos com 10 (Ótimo)
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Régua de Notas Fiel à Planilha Excel */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                                <div className="rounded-xl overflow-hidden border border-emerald-300 dark:border-emerald-800 shadow-xs">
-                                    <div className="bg-slate-100 dark:bg-slate-800 py-1 px-3 text-center font-black text-sm text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700">
-                                        10 Pontos
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-900 py-1 px-2 text-center text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                                        Atende Plenamente
-                                    </div>
-                                    <div className="bg-[#00b050] text-white py-1 px-2 text-center text-xs font-black uppercase tracking-wider">
-                                        Ótimo
-                                    </div>
-                                </div>
-
-                                <div className="rounded-xl overflow-hidden border border-yellow-400 dark:border-yellow-700 shadow-xs">
-                                    <div className="bg-slate-100 dark:bg-slate-800 py-1 px-3 text-center font-black text-sm text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700">
-                                        7,5 Pontos
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-900 py-1 px-2 text-center text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                                        Atende
-                                    </div>
-                                    <div className="bg-[#ffff00] text-slate-950 py-1 px-2 text-center text-xs font-black uppercase tracking-wider">
-                                        Bom
-                                    </div>
-                                </div>
-
-                                <div className="rounded-xl overflow-hidden border border-amber-400 dark:border-amber-700 shadow-xs">
-                                    <div className="bg-slate-100 dark:bg-slate-800 py-1 px-3 text-center font-black text-sm text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700">
-                                        5 Pontos
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-900 py-1 px-2 text-center text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                                        Atende parcialmente
-                                    </div>
-                                    <div className="bg-[#ffc000] text-slate-950 py-1 px-2 text-center text-xs font-black uppercase tracking-wider">
-                                        Regular
-                                    </div>
-                                </div>
-
-                                <div className="rounded-xl overflow-hidden border border-red-400 dark:border-red-800 shadow-xs">
-                                    <div className="bg-slate-100 dark:bg-slate-800 py-1 px-3 text-center font-black text-sm text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700">
-                                        2,5 Pontos
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-900 py-1 px-2 text-center text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                                        Não atende
-                                    </div>
-                                    <div className="bg-[#ff0000] text-white py-1 px-2 text-center text-xs font-black uppercase tracking-wider">
-                                        Ruim
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Categoria Ativa do Fornecedor */}
-                            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                                <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                        Categoria do Fornecedor Avaliado:
-                                    </span>
-                                    <div className="flex items-center gap-2">
-                                        <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={onlyShowDeviations}
-                                                onChange={(e) => setOnlyShowDeviations(e.target.checked)}
-                                                className="rounded border-slate-300"
-                                            />
-                                            Apenas itens com desvio (&lt; 10)
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    {F35_CATEGORIES.filter(cat => activeCategories.includes(cat.id)).map(cat => {
-                                        const stats = calculation.categoryBreakdown[cat.id]
-                                        return (
-                                            <div
-                                                key={cat.id}
-                                                className="rounded-xl p-3 border bg-blue-50/70 dark:bg-blue-950/30 border-blue-400 dark:border-blue-600 shadow-xs flex flex-col justify-between"
-                                            >
-                                                <div className="flex items-center justify-between gap-1">
-                                                    <span className="material-symbols-outlined text-[18px] text-[#2b5c92] dark:text-blue-400">
-                                                        {cat.icon}
-                                                    </span>
-                                                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold bg-blue-600 text-white">
-                                                        ✓
-                                                    </span>
-                                                </div>
-                                                <div className="mt-2">
-                                                    <p className="text-xs font-extrabold text-slate-800 dark:text-slate-100 leading-tight">
-                                                        {cat.shortTitle}
-                                                    </p>
-                                                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
-                                                        {stats.po} / {stats.pp} pts ({stats.pct}%)
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3. LISTA DE CATEGORIAS E ATRIBUTOS DA PLANILHA F35 (APENAS DA CATEGORIA DO FORNECEDOR) */}
+                        {/* 2. ITENS DE AVALIAÇÃO DA CATEGORIA DO FORNECEDOR */}
                         <div className="space-y-5">
                             {F35_CATEGORIES.filter(cat => activeCategories.includes(cat.id)).map((cat) => {
                                 const isCatActive = true
@@ -1233,40 +1108,48 @@ function AvaliacaoFornecedoresContent() {
                                 return (
                                     <div
                                         key={cat.id}
-                                        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all overflow-hidden shadow-sm"
+                                        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all overflow-hidden shadow-md hover:shadow-lg"
                                     >
                                         {/* Header da Categoria */}
-                                        <div className="bg-gradient-to-r from-slate-100 via-blue-50/50 to-slate-100 dark:from-slate-800/90 dark:via-slate-800/60 dark:to-slate-800/90 px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="bg-gradient-to-r from-slate-100 via-blue-50/60 to-slate-100 dark:from-slate-800/95 dark:via-blue-950/30 dark:to-slate-800/95 px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#2b5c92] text-white shadow-sm">
+                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#2b5c92] to-blue-700 text-white shadow-md shadow-blue-900/20">
                                                     <span className="material-symbols-outlined text-[20px]">{cat.icon}</span>
                                                 </div>
                                                 <div>
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex flex-wrap items-center gap-2">
                                                         <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight uppercase">
-                                                            {cat.shortTitle}
+                                                            2. Itens de Avaliação — {cat.shortTitle}
                                                         </h3>
-                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-                                                            {cat.attributes.length} atributos • {catStats.po}/${catStats.pp} pts
+                                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
+                                                            {cat.attributes.length} atributos • {catStats.po}/{catStats.pp} pts
                                                         </span>
                                                     </div>
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">{cat.description}</p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-1.5 self-end sm:self-auto">
-                                                <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden md:inline">Preencher bloco:</span>
+                                            <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
+                                                <label className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 cursor-pointer mr-1">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={onlyShowDeviations}
+                                                        onChange={(e) => setOnlyShowDeviations(e.target.checked)}
+                                                        className="rounded border-slate-300 accent-[#2b5c92]"
+                                                    />
+                                                    Apenas desvios (&lt; 10)
+                                                </label>
                                                 <button
                                                     type="button"
                                                     onClick={() => setCategoryAllScore(cat.id, 10)}
-                                                    className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 transition"
+                                                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 transition cursor-pointer"
                                                 >
                                                     Tudo 10
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => setCategoryAllScore(cat.id, 7.5)}
-                                                    className="px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20 transition"
+                                                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border border-yellow-500/25 transition cursor-pointer"
                                                 >
                                                     Tudo 7,5
                                                 </button>
@@ -1281,7 +1164,7 @@ function AvaliacaoFornecedoresContent() {
                                                         Nenhum desvio nesta categoria (todos os itens estão com nota 10).
                                                     </div>
                                                 ) : (
-                                                    visibleAttributes.map((attr, idx) => {
+                                                    visibleAttributes.map((attr) => {
                                                         const itemState = items[attr.id] || { score: 10, justification: "" }
                                                         const currentScore = itemState.score
                                                         const activeOption = SCORE_OPTIONS.find(o => o.value === currentScore) || SCORE_OPTIONS[0]
@@ -1290,16 +1173,16 @@ function AvaliacaoFornecedoresContent() {
                                                         return (
                                                             <div
                                                                 key={attr.id}
-                                                                className={`p-4 sm:p-5 transition-colors ${
+                                                                className={`p-4 sm:p-5 transition-all duration-200 ${
                                                                     needsAttention
                                                                         ? "bg-amber-50/40 dark:bg-amber-950/15"
-                                                                        : "hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
+                                                                        : "hover:bg-blue-50/30 dark:hover:bg-slate-800/35"
                                                                 }`}
                                                             >
                                                                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                                                                     {/* Nome do Atributo */}
                                                                     <div className="flex items-start gap-3 flex-1">
-                                                                        <span className={`w-7 h-7 rounded-lg text-xs font-black flex items-center justify-center shrink-0 mt-0.5 ${activeOption.badgeBg}`}>
+                                                                        <span className={`w-8 h-8 rounded-xl text-xs font-black flex items-center justify-center shrink-0 mt-0.5 shadow-xs transition-transform ${activeOption.badgeBg}`}>
                                                                             {activeOption.label}
                                                                         </span>
                                                                         <div className="flex-1 space-y-1">
@@ -1327,9 +1210,9 @@ function AvaliacaoFornecedoresContent() {
                                                                                     key={String(opt.value)}
                                                                                     type="button"
                                                                                     onClick={() => handleScoreChange(attr.id, opt.value)}
-                                                                                    className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all flex flex-col items-center min-w-[60px] border ${
+                                                                                    className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all flex flex-col items-center min-w-[60px] border cursor-pointer ${
                                                                                         isSelected
-                                                                                            ? `${opt.bgActive} ${opt.borderActive} scale-[1.03]`
+                                                                                            ? `${opt.bgActive} ${opt.borderActive} scale-[1.04]`
                                                                                             : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-400"
                                                                                     }`}
                                                                                 >
@@ -1344,7 +1227,7 @@ function AvaliacaoFornecedoresContent() {
                                                                 </div>
 
                                                                 {/* Campo de Justificativa (Preencher quando necessário - F35) */}
-                                                                <div className="mt-3 pl-0 lg:pl-10">
+                                                                <div className="mt-3 pl-0 lg:pl-11">
                                                                     <div className="relative">
                                                                         <input
                                                                             type="text"
@@ -1368,136 +1251,20 @@ function AvaliacaoFornecedoresContent() {
                                                     })
                                                 )}
                                             </div>
-                                        ) : (
-                                            <div className="p-5 text-center bg-slate-50/50 dark:bg-slate-950/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-                                                <span className="text-xs text-slate-500">
-                                                    Esta categoria está desativada para este fornecedor e não soma em Pontos Possíveis (PP).
-                                                </span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleCategoryScope(cat.id)}
-                                                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition"
-                                                >
-                                                    Incluir {cat.shortTitle} na Avaliação
-                                                </button>
-                                            </div>
-                                        )}
+                                        ) : null}
                                     </div>
                                 )
                             })}
                         </div>
-
-                        {/* 4. QUADRO DE CLASSIFICAÇÃO DE FORNECEDORES (F35) & PLANO DE AÇÃO (8QUALI/QUALIEX) */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm space-y-5">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-blue-600">workspace_premium</span>
-                                        4. Quadro de Classificação de Fornecedores e Observações (F35)
-                                    </h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        Preencha observações específicas da classificação ou registre um Plano de Ação / Não Conformidade se necessário.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-[#8ea9db] dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-extrabold uppercase">
-                                            <th className="py-3 px-4 w-20 text-center border-r border-slate-300 dark:border-slate-700">Classe</th>
-                                            <th className="py-3 px-4 w-44 text-center border-r border-slate-300 dark:border-slate-700">Pontuação</th>
-                                            <th className="py-3 px-4 w-36 text-center border-r border-slate-300 dark:border-slate-700">Avaliação</th>
-                                            <th className="py-3 px-4">Observação (preencher quando necessário)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
-                                        {([
-                                            { cls: "A" as const, range: "P ≥ 85 pontos", label: "ÓTIMO", badgeBg: "bg-[#00b050] text-white" },
-                                            { cls: "B" as const, range: "85 > P ≥ 75 pontos", label: "BOM", badgeBg: "bg-[#ffff00] text-slate-950" },
-                                            { cls: "C" as const, range: "75 > P ≥ 60 pontos", label: "REGULAR", badgeBg: "bg-[#ffc000] text-slate-950" },
-                                            { cls: "D" as const, range: "P < 60 pontos", label: "RUIM", badgeBg: "bg-[#ff0000] text-white" },
-                                        ]).map((row) => {
-                                            const isCurrentClass = calculation.classification.finalClass === row.cls
-                                            return (
-                                                <tr
-                                                    key={row.cls}
-                                                    className={`transition-colors ${
-                                                        isCurrentClass
-                                                            ? "bg-blue-50/70 dark:bg-blue-950/40 ring-2 ring-inset ring-blue-500"
-                                                            : "bg-white dark:bg-slate-900"
-                                                    }`}
-                                                >
-                                                    <td className={`py-3 px-4 font-black text-sm text-center border-r border-slate-200 dark:border-slate-800 ${row.badgeBg}`}>
-                                                        {row.cls}
-                                                    </td>
-                                                    <td className="py-3 px-4 font-bold text-center text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-800">
-                                                        {row.range}
-                                                    </td>
-                                                    <td className="py-3 px-4 font-extrabold text-center text-slate-900 dark:text-white border-r border-slate-200 dark:border-slate-800">
-                                                        {row.label}
-                                                        {isCurrentClass && (
-                                                            <span className="ml-1.5 inline-block px-1.5 py-0.5 text-[9px] rounded bg-blue-600 text-white uppercase">
-                                                                Atual
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="p-2">
-                                                        <input
-                                                            type="text"
-                                                            value={classObservations[row.cls]}
-                                                            onChange={(e) => setClassObservations(prev => ({ ...prev, [row.cls]: e.target.value }))}
-                                                            placeholder={`Observação para Classe ${row.cls} (${row.label})...`}
-                                                            className="w-full px-3 py-1.5 rounded-lg bg-yellow-50/60 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500"
-                                                        />
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Integração com Plano de Ação / Não Conformidade (Qualiex / 8Quali) */}
-                            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                    <label className="inline-flex items-center gap-2.5 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={actionPlanRequired}
-                                            onChange={(e) => setActionPlanRequired(e.target.checked)}
-                                            className="w-4 h-4 rounded text-blue-600"
-                                        />
-                                        <span className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                                            <span className="material-symbols-outlined text-amber-500 text-[18px]">report_problem</span>
-                                            Vincular Plano de Ação / Solicitação de Melhoria ao Fornecedor
-                                        </span>
-                                    </label>
-                                    {(calculation.classification.finalClass === "C" || calculation.classification.finalClass === "D") && (
-                                        <span className="text-[11px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-2.5 py-1 rounded-full">
-                                            Recomendado para Classificação {calculation.classification.finalClass}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {actionPlanRequired && (
-                                    <textarea
-                                        rows={3}
-                                        value={actionPlanDescription}
-                                        onChange={(e) => setActionPlanDescription(e.target.value)}
-                                        placeholder="Descreva as ações corretivas exigidas do fornecedor, prazos acordados ou número da RNC aberta..."
-                                        className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 dark:border-amber-700/70 bg-amber-50/30 dark:bg-amber-950/20 text-xs sm:text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-amber-500"
-                                    />
-                                )}
-                            </div>
-                        </div>
                     </div>
 
                     {/* ============================================================
-                        COLUNA LATERAL STICKY (DIREITA - 4 COLUNAS): TERMÔMETRO IQF F35
+                        COLUNA LATERAL STICKY (DIREITA - 4 COLUNAS): RESULTADO + QUADRO DE CLASSES F35
                     ============================================================ */}
                     <div className="xl:col-span-4 xl:sticky xl:top-6 space-y-5">
-                        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-lg space-y-6">
+                        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xl space-y-5 relative overflow-hidden">
+                            <div className="absolute -top-16 -right-16 w-40 h-40 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
+
                             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                                 <div>
                                     <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
@@ -1507,15 +1274,15 @@ function AvaliacaoFornecedoresContent() {
                                         Resultado da Avaliação
                                     </h3>
                                 </div>
-                                <div className={`px-3.5 py-1.5 rounded-xl font-black text-lg shadow-sm ${calculation.classification.bgClass}`}>
+                                <div className={`px-3.5 py-1.5 rounded-xl font-black text-lg shadow-sm transition-all ${calculation.classification.bgClass}`}>
                                     Classe {calculation.classification.finalClass}
                                 </div>
                             </div>
 
                             {/* Gauge Circular SVG + IQF (%) */}
-                            <div className="flex flex-col items-center justify-center py-2">
+                            <div className="flex flex-col items-center justify-center py-1">
                                 <div className="relative w-36 h-36 flex items-center justify-center">
-                                    <svg className="w-full h-full -rotate-90" viewBox="0 0 128 128">
+                                    <svg className="w-full h-full -rotate-90 drop-shadow-xs" viewBox="0 0 128 128">
                                         <circle
                                             cx="64"
                                             cy="64"
@@ -1548,7 +1315,7 @@ function AvaliacaoFornecedoresContent() {
                                         </span>
                                     </div>
                                 </div>
-                                <p className="text-[11px] font-semibold text-slate-400 mt-2">
+                                <p className="text-[11px] font-semibold text-slate-400 mt-1.5">
                                     Fórmula F35: <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-700 dark:text-slate-300">Resultado (%) = (PO × 100) / PP</code>
                                 </p>
                             </div>
@@ -1572,7 +1339,7 @@ function AvaliacaoFornecedoresContent() {
                             </div>
 
                             {/* Status de Homologação (Parecer Automático) */}
-                            <div className={`rounded-2xl p-4 border ${calculation.classification.softBgClass}`}>
+                            <div className={`rounded-2xl p-4 border transition-colors ${calculation.classification.softBgClass}`}>
                                 <div className="flex items-center justify-between gap-2 mb-1">
                                     <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-100">
                                         Classificação Final: Classe {calculation.classification.finalClass}
@@ -1587,6 +1354,64 @@ function AvaliacaoFornecedoresContent() {
                                 <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
                                     {calculation.classification.description}
                                 </p>
+                            </div>
+
+                            {/* Quadro de Classificação de Fornecedores (Classes A, B, C, D) */}
+                            <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                        <span className="material-symbols-outlined text-[16px] text-blue-500">workspace_premium</span>
+                                        Quadro de Classificação (F35)
+                                    </span>
+                                </div>
+                                <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+                                    <table className="w-full text-left border-collapse text-xs">
+                                        <thead>
+                                            <tr className="bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 text-[11px] font-extrabold uppercase">
+                                                <th className="py-2.5 px-3 w-16 text-center border-r border-slate-200 dark:border-slate-700/80">Classe</th>
+                                                <th className="py-2.5 px-3 text-center border-r border-slate-200 dark:border-slate-700/80">Pontuação</th>
+                                                <th className="py-2.5 px-3 text-center">Avaliação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                                            {([
+                                                { cls: "A" as const, range: "P ≥ 85 pontos", label: "ÓTIMO", badgeBg: "bg-[#00b050] text-white" },
+                                                { cls: "B" as const, range: "85 > P ≥ 75 pontos", label: "BOM", badgeBg: "bg-[#ffff00] text-slate-950" },
+                                                { cls: "C" as const, range: "75 > P ≥ 60 pontos", label: "REGULAR", badgeBg: "bg-[#ffc000] text-slate-950" },
+                                                { cls: "D" as const, range: "P < 60 pontos", label: "RUIM", badgeBg: "bg-[#ff0000] text-white" },
+                                            ]).map((row) => {
+                                                const isCurrentClass = calculation.classification.finalClass === row.cls
+                                                return (
+                                                    <tr
+                                                        key={row.cls}
+                                                        className={`transition-all ${
+                                                            isCurrentClass
+                                                                ? "bg-blue-50/80 dark:bg-blue-950/50 ring-1 ring-inset ring-blue-500/70"
+                                                                : "bg-white dark:bg-slate-900/80"
+                                                        }`}
+                                                    >
+                                                        <td className={`py-2.5 px-3 font-black text-sm text-center border-r border-slate-200 dark:border-slate-800 ${row.badgeBg}`}>
+                                                            {row.cls}
+                                                        </td>
+                                                        <td className="py-2.5 px-3 font-bold text-center text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-800">
+                                                            {row.range}
+                                                        </td>
+                                                        <td className="py-2.5 px-3 font-extrabold text-center text-slate-900 dark:text-white">
+                                                            <div className="inline-flex items-center justify-center gap-1.5">
+                                                                <span>{row.label}</span>
+                                                                {isCurrentClass && (
+                                                                    <span className="px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-600 text-white uppercase tracking-wider shadow-xs">
+                                                                        Atual
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
 
                             {/* Desempenho por Categoria Ativa */}
