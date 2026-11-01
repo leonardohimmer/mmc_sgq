@@ -89,7 +89,7 @@ function VerificarEmailContent() {
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-primary"></div>
 
                     <div className="flex justify-center mb-6 pt-2">
-                        <MMCAnimatedLogo size="lg" priority />
+                        <MMCAnimatedLogo size="xl" priority />
                     </div>
 
                     {status === "loading" && (

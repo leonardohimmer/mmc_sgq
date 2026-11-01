@@ -19,64 +19,54 @@ interface MMCAnimatedLogoProps {
 
 const SIZE_CONFIG = {
     xs: {
-        card: "w-7 h-7 rounded-lg p-0.5",
-        outerRing: "-inset-1 border-[1.5px]",
-        innerRing: "-inset-0.5 border-[1px]",
+        card: "w-14 h-11 rounded-xl p-1",
         glow: "-inset-1 blur-sm",
-        logoW: 24,
-        logoH: 14,
+        logoW: 48,
+        logoH: 28,
         title: "text-sm",
         subtitle: "text-[9px]",
         gap: "gap-2",
-        wrapperSize: "w-9 h-9"
+        wrapperSize: "w-15 h-12"
     },
     sm: {
-        card: "w-9 h-9 rounded-xl p-0.5",
-        outerRing: "-inset-1.5 border-[2px]",
-        innerRing: "-inset-0.5 border-[1.5px]",
-        glow: "-inset-2 blur-md",
-        logoW: 32,
-        logoH: 19,
+        card: "w-20 h-14 rounded-2xl p-1.5",
+        glow: "-inset-1.5 blur-md",
+        logoW: 68,
+        logoH: 40,
         title: "text-base",
         subtitle: "text-[10px]",
         gap: "gap-2.5",
-        wrapperSize: "w-12 h-12"
+        wrapperSize: "w-22 h-16"
     },
     md: {
-        card: "w-12 h-12 rounded-2xl p-1",
-        outerRing: "-inset-2 border-[2px]",
-        innerRing: "-inset-1 border-[1.5px]",
-        glow: "-inset-2.5 blur-lg",
-        logoW: 44,
-        logoH: 26,
+        card: "w-28 h-16 sm:w-32 sm:h-[70px] rounded-2xl px-2.5 py-1.5",
+        glow: "-inset-2 blur-md",
+        logoW: 112,
+        logoH: 65,
         title: "text-lg",
         subtitle: "text-xs",
         gap: "gap-3",
-        wrapperSize: "w-16 h-16"
+        wrapperSize: "w-30 h-18 sm:w-34 sm:h-[74px]"
     },
     lg: {
-        card: "w-24 h-24 rounded-3xl p-1.5",
-        outerRing: "-inset-4 border-[2.5px]",
-        innerRing: "-inset-2 border-[2px]",
-        glow: "-inset-5 blur-xl",
-        logoW: 86,
-        logoH: 50,
+        card: "w-40 h-26 rounded-3xl px-3.5 py-2.5",
+        glow: "-inset-2.5 blur-lg",
+        logoW: 140,
+        logoH: 82,
         title: "text-2xl",
         subtitle: "text-sm",
         gap: "gap-4",
-        wrapperSize: "w-32 h-32"
+        wrapperSize: "w-42 h-28"
     },
     xl: {
-        card: "w-28 h-28 rounded-3xl p-2",
-        outerRing: "-inset-5 border-[3px]",
-        innerRing: "-inset-2 border-[2px]",
-        glow: "-inset-6 blur-xl",
-        logoW: 100,
-        logoH: 58,
+        card: "w-48 h-32 rounded-3xl px-4 py-3",
+        glow: "-inset-3 blur-xl",
+        logoW: 168,
+        logoH: 98,
         title: "text-3xl",
         subtitle: "text-base",
         gap: "gap-5",
-        wrapperSize: "w-40 h-40"
+        wrapperSize: "w-50 h-34"
     },
 };
 
@@ -94,41 +84,23 @@ export default function MMCAnimatedLogo({
 
     const content = (
         <div className={`inline-flex items-center ${config.gap} select-none ${className}`}>
-            {/* Contêiner da Logo com Anéis Orbitais */}
+            {/* Contêiner da Logo com Efeito Pulsante Discreto (Sem Anéis Orbitais) */}
             <div className={`relative flex items-center justify-center shrink-0 ${config.wrapperSize}`}>
-                {/* Brilho Neon de Fundo */}
+                {/* Halo Pulsante Discreto */}
                 {animate && (
                     <div
-                        className={`absolute rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-400 opacity-40 ${config.glow} animate-orbit-pulse pointer-events-none`}
+                        className={`absolute rounded-3xl bg-primary/20 dark:bg-primary/25 ${config.glow} animate-orbit-pulse pointer-events-none`}
                     />
                 )}
 
-                {/* Anel Orbital Externo (Giro Horário) */}
-                <div
-                    className={`
-                        absolute rounded-full border-transparent border-t-blue-400 border-r-indigo-500 shadow-sm pointer-events-none
-                        ${config.outerRing}
-                        ${animate ? "animate-spin-slow" : ""}
-                    `}
-                />
-
-                {/* Anel Orbital Interno (Giro Anti-horário) */}
-                <div
-                    className={`
-                        absolute rounded-full border-transparent border-b-emerald-400 border-l-purple-500 pointer-events-none
-                        ${config.innerRing}
-                        ${animate ? "animate-spin-reverse-slow" : ""}
-                    `}
-                />
-
-                {/* Card de Vidro da Logo Central */}
+                {/* Card Central da Logo */}
                 <div
                     className={`
                         relative flex items-center justify-center
-                        bg-white/95 dark:bg-slate-900/90
+                        bg-white/95 dark:bg-slate-900/95
                         border border-slate-200/80 dark:border-slate-800
-                        shadow-md shadow-blue-500/10 backdrop-blur-md
-                        transition-all duration-300 group-hover:scale-105
+                        shadow-sm shadow-primary/10 backdrop-blur-md
+                        transition-all duration-300 group-hover:scale-[1.03]
                         ${config.card}
                     `}
                 >
@@ -137,8 +109,8 @@ export default function MMCAnimatedLogo({
                         alt="MMC LAB"
                         width={config.logoW}
                         height={config.logoH}
-                        className={`object-contain max-w-full max-h-full drop-shadow-[0_0_10px_rgba(59,130,246,0.65)] ${
-                            animate ? "animate-pulse" : ""
+                        className={`object-contain max-w-full max-h-full drop-shadow-[0_0_6px_rgba(77,182,172,0.25)] ${
+                            animate ? "animate-logo-pulse" : ""
                         }`}
                         priority={priority}
                     />

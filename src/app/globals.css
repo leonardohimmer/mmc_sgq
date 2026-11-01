@@ -104,8 +104,12 @@ body {
     to { transform: rotate(-360deg); }
   }
   @keyframes orbit-pulse {
-    0%, 100% { opacity: 0.35; transform: scale(1); }
-    50% { opacity: 0.65; transform: scale(1.06); }
+    0%, 100% { opacity: 0.18; transform: scale(0.98); }
+    50% { opacity: 0.38; transform: scale(1.04); }
+  }
+  @keyframes logo-subtle-pulse {
+    0%, 100% { opacity: 0.94; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.045); }
   }
   .animate-spin-slow {
     animation: spin-slow 3s linear infinite;
@@ -114,7 +118,10 @@ body {
     animation: spin-reverse-slow 2.2s linear infinite;
   }
   .animate-orbit-pulse {
-    animation: orbit-pulse 3s ease-in-out infinite;
+    animation: orbit-pulse 3.2s ease-in-out infinite;
+  }
+  .animate-logo-pulse {
+    animation: logo-subtle-pulse 3.2s ease-in-out infinite;
   }
 
   @keyframes bounce-short {

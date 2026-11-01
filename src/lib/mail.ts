@@ -34,21 +34,21 @@ function getPortalLoginUrl(customBaseUrl?: string) {
 }
 
 /**
- * Cabeçalho visual oficial com a logo estática da MMC LAB para e-mails de clientes
+ * Cabeçalho visual oficial com a logo estática da MMC LAB (mesmo card do sistema, maior e sem efeitos)
  */
 export function renderEmailLogo(baseUrl?: string) {
     const host = getBaseUrl(baseUrl)
     const logoUrl = `${host}/logo-trimmed.png`
     return `
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 20px auto; border-collapse: collapse;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 22px auto; border-collapse: collapse;">
             <tr>
-                <td align="center" valign="middle" style="background-color: #ffffff; padding: 14px 26px; border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);">
+                <td align="center" valign="middle" style="background-color: #ffffff; padding: 18px 28px; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);">
                     <img 
                         src="${logoUrl}" 
                         alt="MMC Lab - Controle Tecnológico" 
-                        width="148" 
-                        height="86" 
-                        style="display: block; width: 148px; height: auto; max-width: 148px; border: 0; outline: none; text-decoration: none; margin: 0 auto; -ms-interpolation-mode: bicubic;" 
+                        width="168" 
+                        height="98" 
+                        style="display: block; width: 168px; height: 98px; max-width: 168px; border: 0; outline: none; text-decoration: none; margin: 0 auto; -ms-interpolation-mode: bicubic;" 
                     />
                 </td>
             </tr>

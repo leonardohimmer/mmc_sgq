@@ -85,7 +85,7 @@ export default function LoginPage() {
                     <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
 
                     <div className="flex justify-center mb-6 pt-4">
-                        <MMCAnimatedLogo size="lg" priority />
+                        <MMCAnimatedLogo size="xl" priority />
                     </div>
                     <h2 className="text-2xl font-extrabold text-center mb-2 text-slate-900 dark:text-slate-100">Portal dos Colaboradores</h2>
                     <p className="text-center text-slate-500 dark:text-slate-400 text-sm font-medium mb-8">Gestão da Qualidade ISO/IEC 17025</p>

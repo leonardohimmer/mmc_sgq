@@ -170,7 +170,7 @@ export default function LoginClientePage() {
                     <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
 
                     <div className="flex justify-center mb-6 pt-4">
-                        <MMCAnimatedLogo size="lg" priority />
+                        <MMCAnimatedLogo size="xl" priority />
                     </div>
 
                     <h2 className="text-2xl font-extrabold text-center mb-2 text-slate-900 dark:text-white">Portal do Cliente</h2>

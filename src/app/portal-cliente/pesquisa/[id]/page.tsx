@@ -214,7 +214,7 @@ export default function PesquisaSatisfacaoPage({ params }: { params: Promise<{ i
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 py-12 px-4">
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-8 flex flex-col items-center justify-center">
-                    <MMCAnimatedLogo size="lg" className="mb-6" priority />
+                    <MMCAnimatedLogo size="xl" className="mb-6" priority />
                     <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">Pesquisa de Satisfação</h1>
                 </div>
 

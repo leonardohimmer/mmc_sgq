@@ -4,6 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MMCLoadingScreen from "@/components/MMCLoadingScreen";
+import MMCAnimatedLogo from "@/components/MMCAnimatedLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { downloadPdf, viewPdf } from "@/lib/pdf-utils";
 
@@ -170,11 +171,9 @@ function SharedProcessContent() {
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-primary selection:text-white transition-colors duration-300">
             {/* Top Navigation Bar */}
             <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black">
-                            M
-                        </div>
+                        <MMCAnimatedLogo size="md" href="/portal-cliente" priority />
                         <div>
                             <span className="font-extrabold tracking-tight text-slate-900 dark:text-white text-sm sm:text-base">MMC Lab</span>
                             <span className="text-[10px] text-primary block -mt-1 font-semibold uppercase tracking-wider">Acesso Compartilhado</span>

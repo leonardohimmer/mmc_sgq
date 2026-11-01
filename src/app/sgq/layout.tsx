@@ -425,9 +425,9 @@ export default function SGQLayout({ children }: { children: React.ReactNode }) {
                     </span>
                 </button>
 
-                <div className="h-20 flex items-center justify-center border-b border-slate-100 dark:border-white/5 shrink-0 overflow-hidden px-4">
+                <div className={`${isCollapsed ? "h-20 px-2" : "h-24 px-4"} flex items-center justify-center border-b border-slate-100 dark:border-white/5 shrink-0 overflow-hidden transition-all duration-300`}>
                     <MMCAnimatedLogo
-                        size="md"
+                        size={isCollapsed ? "xs" : "md"}
                         href="/sgq"
                         priority
                     />
