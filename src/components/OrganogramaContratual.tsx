@@ -303,7 +303,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
   return (
     <div
       ref={containerRef}
-      className="w-full bg-slate-950 text-white rounded-3xl p-4 sm:p-6 border border-slate-800 shadow-2xl relative overflow-hidden font-sans"
+      className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-3xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-2xl relative overflow-hidden font-sans transition-colors duration-300"
     >
       {/* Overlay SVG com Linhas de Conexão */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none z-20 hidden md:block overflow-visible">
@@ -324,8 +324,8 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
 
           const isPropostaLine = line.type === 'proposta-ensaio';
           const strokeColor = isHovered 
-            ? (isPropostaLine ? '#60a5fa' : '#c084fc')
-            : (isPropostaLine ? 'rgba(59, 130, 246, 0.4)' : 'rgba(168, 85, 247, 0.4)');
+            ? (isPropostaLine ? '#3b82f6' : '#a855f7')
+            : (isPropostaLine ? 'rgba(59, 130, 246, 0.45)' : 'rgba(168, 85, 247, 0.45)');
 
           const strokeWidth = isHovered ? 3 : 1.75;
 
@@ -365,32 +365,32 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
       <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header do Organograma */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-slate-800/80 relative z-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-slate-200 dark:border-slate-800/80 relative z-10">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center">
+            <span className="p-1.5 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">account_tree</span>
             </span>
-            <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-slate-100">
+            <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-slate-900 dark:text-slate-100">
               Organograma Contratual (Fluxo Horizontal)
             </h3>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Proposta Comercial (Esquerda) ➔ Ensaios Solicitados (Meio) ➔ Notas Fiscais Emitidas (Direita)
           </p>
         </div>
 
         {/* Resumo de Saldos Rápidos */}
         <div className="flex items-center gap-2 flex-wrap text-xs">
-          <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-blue-400 text-[16px]">science</span>
+          <span className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5 shadow-2xs dark:shadow-none">
+            <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[16px]">science</span>
             {laudosEntregues}/{totalEnsaios} Laudos
           </span>
 
           <span className={`px-3 py-1.5 rounded-xl border font-extrabold flex items-center gap-1.5 ${
             pendentesFaturamento > 0 
-              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse' 
-              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+              ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40 animate-pulse' 
+              : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40'
           }`}>
             <span className="material-symbols-outlined text-[16px]">receipt_long</span>
             {pendentesFaturamento > 0 ? `${pendentesFaturamento} Pendente(s) NF` : 'NFs em dia'}
@@ -398,8 +398,8 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
 
           <span className={`px-3 py-1.5 rounded-xl border font-extrabold flex items-center gap-1.5 ${
             pendentesPagamento > 0 
-              ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' 
-              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+              ? 'bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-500/40' 
+              : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40'
           }`}>
             <span className="material-symbols-outlined text-[16px]">payments</span>
             {pendentesPagamento > 0 ? `${pendentesPagamento} a Quitar` : '100% Quitados'}
@@ -415,14 +415,14 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
           <div className="flex flex-col justify-center h-full relative group">
             <div
               ref={proposalRef}
-              className="bg-gradient-to-br from-blue-950/80 via-slate-900 to-indigo-950 p-4 rounded-xl border-2 border-blue-500/50 shadow-xl relative flex flex-col justify-between hover:border-blue-400 transition-all duration-300 my-auto"
+              className="bg-gradient-to-br from-blue-50/90 via-white to-indigo-50/90 dark:from-blue-950/80 dark:via-slate-900 dark:to-indigo-950 p-4 rounded-xl border-2 border-blue-400/60 dark:border-blue-500/50 shadow-md dark:shadow-xl relative flex flex-col justify-between hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 my-auto"
             >
               {/* Tag do Topo */}
               <div className="flex items-center justify-between mb-2">
                 <span className="px-2.5 py-0.5 bg-blue-600 text-white font-black text-[9px] uppercase tracking-widest rounded-full shadow-md">
                   1 • Proposta Comercial
                 </span>
-                <span className="text-[10px] font-mono font-extrabold text-blue-400">
+                <span className="text-[10px] font-mono font-extrabold text-blue-600 dark:text-blue-400">
                   OS: #{osFormattedCode}
                 </span>
               </div>
@@ -430,38 +430,38 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
               {/* Conteúdo Principal da Proposta */}
               <div className="space-y-2.5 my-2">
                 <div className="flex items-start gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-400/30 shrink-0 shadow-inner">
+                  <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-400/30 shrink-0 shadow-inner">
                     <span className="material-symbols-outlined text-[18px]">assignment</span>
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white leading-snug">
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-snug">
                       {request.type || request.titulo || "Contrato de Ensaios Tecnológicos"}
                     </h4>
-                    <p className="text-[10px] text-slate-400 mt-0.5">
-                      Solicitado por: <strong className="text-slate-200">{request.type || "Cliente MMC"}</strong>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      Solicitado por: <strong className="text-slate-700 dark:text-slate-200">{request.type || "Cliente MMC"}</strong>
                     </p>
                   </div>
                 </div>
 
                 {/* Quadro de Métricas Contratuais */}
                 <div className="grid grid-cols-3 gap-1.5 text-center pt-1">
-                  <div className="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800">
-                    <span className="text-[8px] text-slate-400 uppercase font-bold block">Contratados</span>
-                    <span className="text-xs font-black text-blue-300">{totalEnsaios} Ensaio(s)</span>
+                  <div className="bg-white/90 dark:bg-slate-900/80 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <span className="text-[8px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Contratados</span>
+                    <span className="text-xs font-black text-blue-600 dark:text-blue-300">{totalEnsaios} Ensaio(s)</span>
                   </div>
-                  <div className="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800">
-                    <span className="text-[8px] text-slate-400 uppercase font-bold block">Entregues</span>
-                    <span className="text-xs font-black text-emerald-400">{laudosEntregues}/{totalEnsaios}</span>
+                  <div className="bg-white/90 dark:bg-slate-900/80 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <span className="text-[8px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Entregues</span>
+                    <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">{laudosEntregues}/{totalEnsaios}</span>
                   </div>
-                  <div className="bg-slate-900/80 p-1.5 rounded-lg border border-slate-800">
-                    <span className="text-[8px] text-slate-400 uppercase font-bold block">Quitação</span>
-                    <span className="text-xs font-black text-purple-300">{ensaiosPagos}/{totalEnsaios}</span>
+                  <div className="bg-white/90 dark:bg-slate-900/80 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <span className="text-[8px] text-slate-500 dark:text-slate-400 uppercase font-bold block">Quitação</span>
+                    <span className="text-xs font-black text-purple-600 dark:text-purple-300">{ensaiosPagos}/{totalEnsaios}</span>
                   </div>
                 </div>
               </div>
 
               {/* Botão Baixar Proposta PDF */}
-              <div className="pt-2 border-t border-slate-800/80 mt-auto">
+              <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800/80 mt-auto">
                 {request.proposalPdfUrl ? (
                   <button
                     onClick={() => openPdf(request.proposalPdfUrl)}
@@ -471,7 +471,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                     <span>Baixar</span>
                   </button>
                 ) : (
-                  <div className="w-full text-center py-1.5 bg-slate-900/60 rounded-lg border border-slate-800 text-[10px] text-slate-400 italic">
+                  <div className="w-full text-center py-1.5 bg-slate-100/80 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] text-slate-500 dark:text-slate-400 italic">
                     Proposta Registrada no Sistema
                   </div>
                 )}
@@ -482,10 +482,10 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
           {/* COLUNAS 2 & 3 AGRUPADAS POR CLUSTERS (MEIO & DIREITA) */}
           <div className="md:col-span-2 space-y-4">
             <div className="grid grid-cols-2 gap-4 text-center mb-1">
-              <span className="px-2.5 py-0.5 bg-indigo-950 border border-indigo-500/40 text-indigo-300 text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm">
+              <span className="px-2.5 py-0.5 bg-indigo-100 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-500/40 text-indigo-700 dark:text-indigo-300 text-[9px] font-black uppercase tracking-widest rounded-full shadow-2xs">
                 2 • Ensaios Solicitados ({totalEnsaios})
               </span>
-              <span className="px-2.5 py-0.5 bg-purple-950 border border-purple-500/40 text-purple-300 text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm">
+              <span className="px-2.5 py-0.5 bg-purple-100 dark:bg-purple-950 border border-purple-200 dark:border-purple-500/40 text-purple-700 dark:text-purple-300 text-[9px] font-black uppercase tracking-widest rounded-full shadow-2xs">
                 3 • Notas Fiscais Parciais ({processedInvoices.length})
               </span>
             </div>
@@ -498,7 +498,7 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
               return (
                 <div
                   key={cluster.id}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-2.5 rounded-2xl bg-slate-900/40 border border-slate-800/80"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-2.5 rounded-2xl bg-slate-100/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80"
                 >
                   {/* SUB-COLUNA MEIO: ENSAIOS DESTE CLUSTER */}
                   <div className="space-y-2">
@@ -516,14 +516,14 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                           ref={(el) => { ensaioRefs.current[ensaio.numeroSequencial] = el; }}
                           onMouseEnter={() => setHoveredSeq(ensaio.numeroSequencial)}
                           onMouseLeave={() => setHoveredSeq(null)}
-                          className={`p-2.5 rounded-xl border transition-all duration-300 relative bg-slate-900/90 ${
+                          className={`p-2.5 rounded-xl border transition-all duration-300 relative bg-white dark:bg-slate-900/90 ${
                             isEnsaioHighlighted
-                              ? 'border-purple-400 bg-purple-950/30 shadow-lg shadow-purple-950/40 scale-[1.01]'
+                              ? 'border-purple-400 bg-purple-50/70 dark:bg-purple-950/30 shadow-lg shadow-purple-500/10 dark:shadow-purple-950/40 scale-[1.01]'
                               : isLaudoEntregue && isPago
-                              ? 'border-emerald-500/50 hover:border-emerald-400'
+                              ? 'border-emerald-400 dark:border-emerald-500/50 hover:border-emerald-500 dark:hover:border-emerald-400'
                               : isLaudoEntregue
-                              ? 'border-blue-500/50 hover:border-blue-400'
-                              : 'border-slate-800 hover:border-slate-700'
+                              ? 'border-blue-400 dark:border-blue-500/50 hover:border-blue-500 dark:hover:border-blue-400'
+                              : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                           }`}
                         >
                           {/* Topo do Ensaio Card */}
@@ -531,32 +531,32 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                             <div className="flex items-center gap-1.5">
                               <span className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[10px] ${
                                 isLaudoEntregue
-                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                                  : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                  ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/40'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                               }`}>
                                 #{ensaio.numeroSequencial}
                               </span>
-                              <span className="font-bold text-white text-[11px]">
+                              <span className="font-bold text-slate-900 dark:text-white text-[11px]">
                                 Ensaio {ensaio.numeroSequencial} de {totalEnsaios}
                               </span>
                             </div>
 
                             <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-wider border ${
                               isLaudoEntregue 
-                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40'
                                 : isExecConcluida
-                                ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
-                                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-500/40'
+                                : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40'
                             }`}>
                               {isLaudoEntregue ? 'Laudo Entregue' : isExecConcluida ? 'Concluído' : 'Pendente'}
                             </span>
                           </div>
 
                           {/* Laudo Técnico + Botão Download */}
-                          <div className="bg-slate-950/70 p-1.5 px-2 rounded-lg border border-slate-800/80 flex items-center justify-between gap-1.5 text-[11px]">
+                          <div className="bg-slate-50 dark:bg-slate-950/70 p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between gap-1.5 text-[11px]">
                             <div className="truncate">
-                              <span className="text-[9px] text-slate-400 block leading-none">Laudo Técnico:</span>
-                              <span className="font-mono font-bold text-slate-200 text-[10px] truncate block">
+                              <span className="text-[9px] text-slate-500 dark:text-slate-400 block leading-none">Laudo Técnico:</span>
+                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-[10px] truncate block">
                                 {ensaio.reportNumber || (ensaio.reportPdfUrl ? `REL-${ensaio.numeroSequencial}` : 'Pendente')}
                               </span>
                             </div>
@@ -576,13 +576,13 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
 
                           {/* Status de Faturamento do Ensaio */}
                           <div className="mt-1.5 flex items-center justify-between text-[10px]">
-                            <span className="text-slate-400 font-medium">Faturamento:</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">Faturamento:</span>
                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
                               isPago 
-                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' 
+                                ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40' 
                                 : isFaturado 
-                                ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
-                                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                ? 'bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-500/40'
+                                : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40'
                             }`}>
                               {isPago ? 'Pago' : isFaturado ? (nf ? `Faturado (NF nº ${nf.numeroNf})` : 'Faturado') : 'Pendente NF'}
                             </span>
@@ -599,40 +599,40 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                         ref={(el) => { nfRefs.current[nf.id] = el; }}
                         onMouseEnter={() => setHoveredNfId(nf.id)}
                         onMouseLeave={() => setHoveredNfId(null)}
-                        className={`p-3 rounded-xl border transition-all duration-300 relative bg-purple-950/30 shadow-md ${
+                        className={`p-3 rounded-xl border transition-all duration-300 relative bg-purple-50/70 dark:bg-purple-950/30 shadow-sm dark:shadow-md ${
                           isNfHighlighted
-                            ? 'border-purple-400 bg-purple-950/60 shadow-lg shadow-purple-950/60 scale-[1.01]'
-                            : 'border-purple-500/40 hover:border-purple-400'
+                            ? 'border-purple-400 bg-purple-100/80 dark:bg-purple-950/60 shadow-lg shadow-purple-500/15 dark:shadow-purple-950/60 scale-[1.01]'
+                            : 'border-purple-300 dark:border-purple-500/40 hover:border-purple-400'
                         }`}
                       >
                         {/* Header da NF */}
                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
                           <div className="flex items-center gap-1.5">
-                            <span className="p-1 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
+                            <span className="p-1 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 flex items-center justify-center">
                               <span className="material-symbols-outlined text-[16px]">receipt_long</span>
                             </span>
-                            <span className="font-extrabold text-white text-[12px]">
+                            <span className="font-extrabold text-slate-900 dark:text-white text-[12px]">
                               Nota Fiscal nº {nf.numeroNf}
                             </span>
                           </div>
 
                           <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${
                             nf.statusPagamento === 'PAGO'
-                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                              : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                              ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40'
+                              : 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40'
                           }`}>
                             {nf.statusPagamento === 'PAGO' ? 'Quitada' : 'Aguardando Pgt'}
                           </span>
                         </div>
 
                         {/* DESTAQUE VISUAL DE MULTI-ENSAIO */}
-                        <div className="my-1.5 bg-slate-950/80 p-2 rounded-lg border border-purple-500/30 space-y-1">
+                        <div className="my-1.5 bg-white/90 dark:bg-slate-950/80 p-2 rounded-lg border border-purple-200 dark:border-purple-500/30 space-y-1">
                           <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-slate-400 font-medium">Abrangência:</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">Abrangência:</span>
                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold flex items-center gap-1 ${
                               isMultiEnsaio 
                                 ? 'bg-purple-600 text-white shadow-sm' 
-                                : 'bg-slate-800 text-purple-300 border border-purple-500/30'
+                                : 'bg-purple-100 dark:bg-slate-800 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30'
                             }`}>
                               <span className="material-symbols-outlined text-[11px]">link</span>
                               {isMultiEnsaio 
@@ -642,9 +642,9 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                           </div>
 
                           {nf.valorNota && (
-                            <div className="flex justify-between text-[10px] pt-1 border-t border-slate-800/80">
-                              <span className="text-slate-400">Valor Faturado:</span>
-                              <span className="font-bold text-purple-200">
+                            <div className="flex justify-between text-[10px] pt-1 border-t border-slate-200/80 dark:border-slate-800/80">
+                              <span className="text-slate-500 dark:text-slate-400">Valor Faturado:</span>
+                              <span className="font-bold text-purple-700 dark:text-purple-200">
                                 R$ {nf.valorNota.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </span>
                             </div>
@@ -661,18 +661,18 @@ export default function OrganogramaContratual({ request }: OrganogramaContratual
                             <span>Baixar</span>
                           </button>
                         ) : (
-                          <div className="w-full text-center py-1.5 bg-slate-950/60 rounded-md border border-slate-800 text-[9px] text-slate-400 italic">
+                          <div className="w-full text-center py-1.5 bg-white/80 dark:bg-slate-950/60 rounded-md border border-slate-200 dark:border-slate-800 text-[9px] text-slate-500 dark:text-slate-400 italic">
                             Aguardando postagem do PDF da NF
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="p-3.5 rounded-xl border border-dashed border-amber-500/40 bg-amber-950/10 text-center space-y-1.5">
-                        <div className="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-bold">
+                      <div className="p-3.5 rounded-xl border border-dashed border-amber-400/60 dark:border-amber-500/40 bg-amber-50/60 dark:bg-amber-950/10 text-center space-y-1.5">
+                        <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 text-xs font-bold">
                           <span className="material-symbols-outlined text-[18px]">warning</span>
                           <span>Pendente de NF</span>
                         </div>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[10px] text-slate-600 dark:text-slate-400">
                           {cluster.ensaios.length} ensaio(s) (# {cluster.ensaios.map(e => e.numeroSequencial).join(", #")}) aguardando emissão de NF.
                         </p>
                       </div>

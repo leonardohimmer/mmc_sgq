@@ -156,7 +156,7 @@ export default function ResetPasswordPage() {
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
             <div className="absolute -right-20 -top-20 w-96 h-96 bg-primary/10 rounded-full blur-[80px] pointer-events-none"></div>
             
-            <Suspense fallback={<div className="text-white">Carregando...</div>}>
+            <Suspense fallback={<div className="text-slate-700 dark:text-white">Carregando...</div>}>
                 <ResetPasswordForm />
             </Suspense>
         </div>

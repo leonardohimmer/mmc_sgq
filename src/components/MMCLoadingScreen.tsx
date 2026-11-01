@@ -91,7 +91,7 @@ export default function MMCLoadingScreen({
     if (compact) {
         return (
             <div className="flex items-center justify-center p-8 w-full animate-in fade-in duration-300">
-                <div className="flex items-center gap-4 bg-slate-900/90 backdrop-blur-md px-6 py-4 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="flex items-center gap-4 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-2xl relative overflow-hidden transition-colors duration-300">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 animate-pulse pointer-events-none" />
                     
                     {/* Compact Orbital Logo */}
@@ -100,12 +100,12 @@ export default function MMCLoadingScreen({
                     </div>
 
                     <div className="flex-1 min-w-0">
-                        <p className="text-xs font-black text-white tracking-wide">{message}</p>
-                        <p className="text-[10px] text-blue-400 font-bold transition-all duration-500 truncate">
+                        <p className="text-xs font-black text-slate-900 dark:text-white tracking-wide">{message}</p>
+                        <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold transition-all duration-500 truncate">
                             {currentSubmessage}
                         </p>
                         {/* Mini Barra de Progresso Compacta */}
-                        <div className="w-44 h-1.5 bg-slate-950 rounded-full overflow-hidden relative border border-slate-800/80 mt-2 shadow-inner">
+                        <div className="w-44 h-1.5 bg-slate-100 dark:bg-slate-950 rounded-full overflow-hidden relative border border-slate-200 dark:border-slate-800/80 mt-2 shadow-inner">
                             <div
                                 className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 rounded-full transition-all duration-75 ease-out shadow-sm relative overflow-hidden"
                                 style={{ width: `${progress}%` }}
@@ -123,21 +123,21 @@ export default function MMCLoadingScreen({
         <div 
             onMouseMove={handleMouseMove}
             className={`
-                ${fullScreen ? "fixed inset-0 z-30 min-h-screen" : "w-full py-20 min-h-[400px] rounded-3xl"} 
+                ${fullScreen ? "fixed inset-0 z-30 min-h-screen" : "w-full py-20 min-h-[400px] rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm"} 
                 flex flex-col items-center justify-center 
-                bg-slate-950/95 backdrop-blur-xl 
-                text-white select-none
+                bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-xl 
+                text-slate-900 dark:text-white select-none
                 transition-all duration-300 animate-in fade-in duration-300 relative overflow-hidden
                 ${className}
             `}
         >
             {/* Fundo com Orbes de Brilho Dinâmicos */}
             <div 
-                className="absolute w-96 h-96 bg-blue-600/20 rounded-full blur-3xl -top-20 -left-20 pointer-events-none animate-pulse duration-1000 transition-transform ease-out"
+                className="absolute w-96 h-96 bg-blue-500/15 dark:bg-blue-600/20 rounded-full blur-3xl -top-20 -left-20 pointer-events-none animate-pulse duration-1000 transition-transform ease-out"
                 style={{ transform: `translate(${mousePos.x * -1.5}px, ${mousePos.y * -1.5}px)` }}
             />
             <div 
-                className="absolute w-96 h-96 bg-purple-600/20 rounded-full blur-3xl -bottom-20 -right-20 pointer-events-none animate-pulse duration-1000 transition-transform ease-out"
+                className="absolute w-96 h-96 bg-purple-500/15 dark:bg-purple-600/20 rounded-full blur-3xl -bottom-20 -right-20 pointer-events-none animate-pulse duration-1000 transition-transform ease-out"
                 style={{ transform: `translate(${mousePos.x * 1.5}px, ${mousePos.y * 1.5}px)` }}
             />
             <div className="absolute w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none animate-ping duration-1000" />
@@ -150,18 +150,18 @@ export default function MMCLoadingScreen({
                 <MMCAnimatedLogo size="xl" className="mb-8" priority />
 
                 {/* Título Principal */}
-                <h3 className="text-xl font-black tracking-tight text-white mb-1 drop-shadow-md">
+                <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-white mb-1 drop-shadow-xs dark:drop-shadow-md">
                     {message}
                 </h3>
 
                 {/* Submensagem dinâmica com troca fluida */}
-                <p className="text-xs text-blue-400 font-bold mb-6 h-5 flex items-center justify-center transition-all duration-500 tracking-wide">
-                    <span className="material-symbols-outlined text-[14px] mr-1.5 animate-spin text-blue-400">sync</span>
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-6 h-5 flex items-center justify-center transition-all duration-500 tracking-wide">
+                    <span className="material-symbols-outlined text-[14px] mr-1.5 animate-spin text-blue-600 dark:text-blue-400">sync</span>
                     {currentSubmessage}
                 </p>
 
                 {/* Barra de Progresso Futurista com Simulação de Carregamento de 0% a 100% */}
-                <div className="w-64 sm:w-72 h-2.5 bg-slate-900/90 rounded-full overflow-hidden relative border border-slate-800/80 shadow-inner">
+                <div className="w-64 sm:w-72 h-2.5 bg-slate-200/90 dark:bg-slate-900/90 rounded-full overflow-hidden relative border border-slate-300/80 dark:border-slate-800/80 shadow-inner">
                     <div 
                         className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 rounded-full transition-all duration-75 ease-out shadow-[0_0_14px_rgba(59,130,246,0.6)] relative overflow-hidden" 
                         style={{ width: `${progress}%` }}
@@ -171,8 +171,8 @@ export default function MMCLoadingScreen({
                 </div>
 
                 {/* Badge de Rodapé Informativo */}
-                <div className="mt-8 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-[10px] font-extrabold uppercase tracking-widest text-slate-300 shadow-lg backdrop-blur-md">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <div className="mt-8 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-[10px] font-extrabold uppercase tracking-widest text-slate-600 dark:text-slate-300 shadow-md dark:shadow-lg backdrop-blur-md">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
                     <span>MMC LAB • TECNOLOGIA & QUALIDADE</span>
                 </div>
             </div>

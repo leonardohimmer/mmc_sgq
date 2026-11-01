@@ -125,10 +125,10 @@ export default function MMCAnimatedLogo({
                 <div
                     className={`
                         relative flex items-center justify-center
-                        bg-slate-900/95 dark:bg-slate-900/90
-                        border border-slate-700/70 dark:border-slate-800
+                        bg-white/95 dark:bg-slate-900/90
+                        border border-slate-200/80 dark:border-slate-800
                         shadow-md shadow-blue-500/10 backdrop-blur-md
-                        transition-transform duration-300 group-hover:scale-105
+                        transition-all duration-300 group-hover:scale-105
                         ${config.card}
                     `}
                 >

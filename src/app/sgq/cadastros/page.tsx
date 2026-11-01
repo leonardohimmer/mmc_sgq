@@ -592,17 +592,17 @@ export default function CadastrosPage() {
             {/* Modal de Perfis/Permissões */}
             {isProfileModalOpen && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-                    <div className="bg-[#0b1329] text-slate-100 rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-700/60 flex flex-col max-h-[85vh] transition-all">
+                    <div className="bg-white dark:bg-[#0b1329] text-slate-900 dark:text-slate-100 rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700/60 flex flex-col max-h-[85vh] transition-all">
                         
                         {/* Header */}
-                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
-                            <h2 className="text-xl font-extrabold text-slate-100 tracking-tight flex items-center gap-2">
-                                <span className="material-symbols-outlined text-teal-400">admin_panel_settings</span>
+                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+                            <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+                                <span className="material-symbols-outlined text-teal-600 dark:text-teal-400">admin_panel_settings</span>
                                 Gerenciar Permissões de Perfil
                             </h2>
                             <button
                                 onClick={() => setIsProfileModalOpen(false)}
-                                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             >
                                 <span className="material-symbols-outlined text-[20px]">close</span>
                             </button>
@@ -612,11 +612,11 @@ export default function CadastrosPage() {
                             
                             {/* Seleção de Perfil para Mobile (Dropdown) */}
                             <div className="block md:hidden shrink-0">
-                                <label className="block text-xs font-mono font-bold text-slate-400 uppercase tracking-widest mb-2">Selecionar Perfil</label>
+                                <label className="block text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Selecionar Perfil</label>
                                 <select
                                     value={selectedProfileId}
                                     onChange={(e) => handleProfileSelect(e.target.value)}
-                                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-bold text-slate-100 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-teal-500/30 transition"
+                                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-teal-500/30 transition"
                                 >
                                     {profiles.map(p => (
                                         <option key={p.id} value={p.id}>
@@ -627,7 +627,7 @@ export default function CadastrosPage() {
                             </div>
 
                             {/* Tabs Laterais para Desktop */}
-                            <div className="hidden md:block w-5/12 border-r border-slate-800/80 pr-4 overflow-y-auto space-y-1">
+                            <div className="hidden md:block w-5/12 border-r border-slate-200 dark:border-slate-800/80 pr-4 overflow-y-auto space-y-1">
                                 {profiles.map(p => {
                                     const isSelected = selectedProfileId === p.id
                                     return (
@@ -636,12 +636,12 @@ export default function CadastrosPage() {
                                             onClick={() => handleProfileSelect(p.id)}
                                             className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-between ${
                                                 isSelected
-                                                    ? 'bg-teal-500/10 text-teal-300 border-l-4 border-teal-400 bg-slate-800/80 shadow-sm'
-                                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                                                    ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 border-l-4 border-teal-500 dark:border-teal-400 shadow-xs'
+                                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
                                             }`}
                                         >
                                             <span className="truncate">{p.name}</span>
-                                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0 ml-2"></span>}
+                                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-teal-500 dark:bg-teal-400 shrink-0 ml-2"></span>}
                                         </button>
                                     )
                                 })}
@@ -649,7 +649,7 @@ export default function CadastrosPage() {
 
                             {/* Lista de Checkboxes de Permissões */}
                             <div className="flex-1 md:w-7/12 md:pl-2 overflow-y-auto pr-2">
-                                <h3 className="font-mono text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <h3 className="font-mono text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <span>ACESSOS PERMITIDOS</span>
                                 </h3>
                                 <div className="space-y-6">
@@ -659,12 +659,12 @@ export default function CadastrosPage() {
                                         const someSelected = groupPermIds.some(id => profilePermissions.includes(id))
 
                                         return (
-                                            <div key={group.title} className="space-y-3 bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/60">
-                                                <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                                            <div key={group.title} className="space-y-3 bg-slate-50 dark:bg-slate-950/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/60">
+                                                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
                                                     <label className="flex items-center gap-2.5 cursor-pointer group select-none">
-                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${allSelected ? 'bg-teal-500 border-teal-500' : someSelected ? 'bg-teal-500/40 border-teal-400' : 'border-slate-700 bg-slate-900 group-hover:border-teal-500'}`}>
-                                                            {allSelected && <span className="material-symbols-outlined text-[12px] text-slate-950 font-bold">check</span>}
-                                                            {!allSelected && someSelected && <span className="material-symbols-outlined text-[12px] text-teal-200 font-bold">remove</span>}
+                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${allSelected ? 'bg-teal-500 border-teal-500' : someSelected ? 'bg-teal-500/40 border-teal-400' : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 group-hover:border-teal-500'}`}>
+                                                            {allSelected && <span className="material-symbols-outlined text-[12px] text-white dark:text-slate-950 font-bold">check</span>}
+                                                            {!allSelected && someSelected && <span className="material-symbols-outlined text-[12px] text-teal-800 dark:text-teal-200 font-bold">remove</span>}
                                                         </div>
                                                         <input
                                                             type="checkbox"
@@ -672,16 +672,16 @@ export default function CadastrosPage() {
                                                             checked={allSelected}
                                                             onChange={() => toggleGroupPermissions(group.title)}
                                                         />
-                                                        <h4 className="text-sm font-bold text-slate-200 group-hover:text-teal-300 transition-colors">{group.title}</h4>
+                                                        <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors">{group.title}</h4>
                                                     </label>
                                                 </div>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                                                     {group.items.map(perm => {
                                                         const isChecked = profilePermissions.includes(perm.id)
                                                         return (
-                                                            <label key={perm.id} className="flex items-center gap-2.5 cursor-pointer group p-1.5 rounded-lg hover:bg-slate-800/60 transition select-none">
-                                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${isChecked ? 'bg-teal-500 border-teal-500' : 'border-slate-700 bg-slate-900 group-hover:border-slate-500'}`}>
-                                                                    {isChecked && <span className="material-symbols-outlined text-[12px] text-slate-950 font-bold">check</span>}
+                                                            <label key={perm.id} className="flex items-center gap-2.5 cursor-pointer group p-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition select-none">
+                                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${isChecked ? 'bg-teal-500 border-teal-500' : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 group-hover:border-slate-400 dark:group-hover:border-slate-500'}`}>
+                                                                    {isChecked && <span className="material-symbols-outlined text-[12px] text-white dark:text-slate-950 font-bold">check</span>}
                                                                 </div>
                                                                 <input
                                                                     type="checkbox"
@@ -689,7 +689,7 @@ export default function CadastrosPage() {
                                                                     checked={isChecked}
                                                                     onChange={() => togglePermission(perm.id)}
                                                                 />
-                                                                <span className="text-xs font-semibold text-slate-300 group-hover:text-slate-100 transition-colors leading-tight">{perm.label}</span>
+                                                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors leading-tight">{perm.label}</span>
                                                             </label>
                                                         )
                                                     })}
@@ -702,16 +702,16 @@ export default function CadastrosPage() {
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-slate-800 shrink-0">
+                        <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-slate-200 dark:border-slate-800 shrink-0">
                             <button
                                 onClick={() => setIsProfileModalOpen(false)}
-                                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-all"
+                                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleSaveProfilePerms}
-                                className="px-5 py-2 text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 rounded-xl shadow-lg shadow-teal-500/20 hover:-translate-y-0.5 transition-all"
+                                className="px-5 py-2 text-xs font-bold bg-teal-500 hover:bg-teal-400 text-white dark:text-slate-950 rounded-xl shadow-lg shadow-teal-500/20 hover:-translate-y-0.5 transition-all"
                             >
                                 Salvar Permissões
                             </button>
