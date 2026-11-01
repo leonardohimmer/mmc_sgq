@@ -17,41 +17,42 @@ function createTransporter() {
 
 function getSender() {
     const user = process.env.EMAIL_USER || "contato@mmclab.com.br"
-    return `"MMC Lab" <${user}>`
+    return `"MMC Lab - Controle Tecnológico" <${user}>`
 }
 
-function getPortalLoginUrl() {
-    const rawBase = process.env.NEXTAUTH_URL || "https://mmclab.vercel.app"
-    const baseUrl = rawBase.replace("site-sgq-six.vercel.app", "mmclab.vercel.app")
-    return `${baseUrl}/login-cliente`
-}
-
-/**
- * Cabeçalho visual oficial com a logo orbital animada da MMC LAB para e-mails de clientes
- */
-export function renderEmailLogo(baseUrl?: string) {
+export function getBaseUrl(customBaseUrl?: string) {
     const defaultHost = "https://mmclab.vercel.app"
-    let host = baseUrl || process.env.NEXTAUTH_URL || defaultHost
+    let host = (customBaseUrl || process.env.NEXTAUTH_URL || defaultHost).trim()
     if (host.includes("site-sgq-six.vercel.app")) {
         host = host.replace("site-sgq-six.vercel.app", "mmclab.vercel.app")
     }
-    const logoUrl = `${host}/logo-animated.gif?v=3.0`
+    return host.replace(/\/+$/, "")
+}
+
+function getPortalLoginUrl(customBaseUrl?: string) {
+    return `${getBaseUrl(customBaseUrl)}/login-cliente`
+}
+
+/**
+ * Cabeçalho visual oficial com a logo estática da MMC LAB para e-mails de clientes
+ */
+export function renderEmailLogo(baseUrl?: string) {
+    const host = getBaseUrl(baseUrl)
+    const logoUrl = `${host}/logo-trimmed.png`
     return `
-        <div style="text-align: center; margin-bottom: 24px;">
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto; border-collapse: collapse;">
-                <tr>
-                    <td align="center" valign="middle" style="padding: 0; margin: 0;">
-                        <img 
-                            src="${logoUrl}" 
-                            alt="MMC LAB" 
-                            width="180" 
-                            height="180" 
-                            style="display: block; width: 180px; height: 180px; max-width: 180px; border: 0; outline: none; text-decoration: none; margin: 0 auto; -ms-interpolation-mode: bicubic;" 
-                        />
-                    </td>
-                </tr>
-            </table>
-        </div>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 20px auto; border-collapse: collapse;">
+            <tr>
+                <td align="center" valign="middle" style="background-color: #ffffff; padding: 14px 26px; border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);">
+                    <img 
+                        src="${logoUrl}" 
+                        alt="MMC Lab - Controle Tecnológico" 
+                        width="148" 
+                        height="86" 
+                        style="display: block; width: 148px; height: auto; max-width: 148px; border: 0; outline: none; text-decoration: none; margin: 0 auto; -ms-interpolation-mode: bicubic;" 
+                    />
+                </td>
+            </tr>
+        </table>
     `
 }
 
@@ -66,28 +67,123 @@ export function normalizeRecipients(to: string | (string | null | undefined)[] |
 }
 
 /**
- * Bloco corporativo obrigatório de acompanhamento no sistema com link de acesso à conta
+ * Bloco corporativo de acompanhamento no sistema com link de acesso ao Portal do Cliente
  */
 export function renderProcessTrackingBanner(loginUrl?: string) {
     const targetUrl = loginUrl || getPortalLoginUrl()
     return `
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 24px; border-radius: 12px; margin: 28px 0; text-align: center; border: 1px solid #334155;">
-            <div style="display: inline-block; background-color: rgba(56, 189, 248, 0.15); border-radius: 50px; padding: 6px 16px; margin-bottom: 12px;">
-                <span style="font-size: 13px; font-weight: bold; color: #38bdf8;">🌐 Portal do Cliente MMC Lab</span>
-            </div>
-            <h3 style="margin: 0 0 10px 0; font-size: 17px; color: #ffffff;">Acompanhe todo o seu processo em tempo real</h3>
-            <p style="margin: 0 0 18px 0; font-size: 13px; color: #cbd5e1; line-height: 1.6; max-width: 480px; margin-left: auto; margin-right: auto;">
-                Pelo nosso sistema você tem total transparência: acompanhe o status de cada ensaio, aprove propostas, baixe seus relatórios técnicos e consulte suas notas fiscais a qualquer momento.
-            </p>
-            <div style="margin-top: 10px;">
-                <a href="${targetUrl}" style="background-color: #2563eb; color: #ffffff; padding: 13px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 14px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
-                    Acessar Minha Conta no Portal &rarr;
-                </a>
-            </div>
-            <p style="margin: 14px 0 0 0; font-size: 11px; color: #94a3b8;">
-                Link direto: <a href="${targetUrl}" style="color: #38bdf8; text-decoration: underline;">${targetUrl}</a>
-            </p>
-        </div>
+        <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 28px 0 8px 0; border-collapse: separate; border-spacing: 0; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden;">
+            <tr>
+                <td style="padding: 24px 22px; text-align: center;">
+                    <div style="display: inline-block; background-color: #e0f2fe; border: 1px solid #bae6fd; border-radius: 50px; padding: 5px 14px; margin-bottom: 10px;">
+                        <span style="font-size: 11px; font-weight: 800; color: #0369a1; text-transform: uppercase; letter-spacing: 0.6px;">🌐 Portal do Cliente MMC Lab</span>
+                    </div>
+                    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 800; color: #0f172a;">
+                        Acompanhe todo o seu processo em tempo real
+                    </h3>
+                    <p style="margin: 0 auto 18px auto; font-size: 13px; color: #475569; line-height: 1.6; max-width: 470px;">
+                        No Portal do Cliente você consulta o status de cada ensaio, aprova propostas, baixa relatórios técnicos assinados e acessa suas notas fiscais a qualquer momento.
+                    </p>
+                    <div style="margin: 4px 0 12px 0;">
+                        <a href="${targetUrl}" style="background-color: #0f172a; color: #ffffff; padding: 12px 26px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; font-size: 13px; letter-spacing: 0.2px;">
+                            Acessar Portal do Cliente &rarr;
+                        </a>
+                    </div>
+                    <p style="margin: 0; font-size: 11px; color: #64748b;">
+                        Link direto: <a href="${targetUrl}" style="color: #0284c7; text-decoration: underline; font-weight: 600;">${targetUrl}</a>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    `
+}
+
+/**
+ * Template base unificado para todos os e-mails enviados aos clientes
+ */
+function renderEmailLayout(params: {
+    baseUrl?: string
+    badgeText: string
+    badgeColor?: string
+    badgeBg?: string
+    title: string
+    subtitle: string
+    bodyHtml: string
+}) {
+    const {
+        baseUrl,
+        badgeText,
+        badgeColor = "#0d9488",
+        badgeBg = "#ccfbf1",
+        title,
+        subtitle,
+        bodyHtml
+    } = params
+
+    const portalUrl = getPortalLoginUrl(baseUrl)
+    const year = new Date().getFullYear()
+
+    return `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>${title}</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; -webkit-font-smoothing: antialiased;">
+            <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f1f5f9; padding: 28px 12px;">
+                <tr>
+                    <td align="center">
+                        <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);">
+                            <!-- Barra Superior Institucional -->
+                            <tr>
+                                <td style="height: 6px; background: linear-gradient(90deg, #0d9488 0%, #0284c7 50%, #2563eb 100%); background-color: #0d9488; font-size: 0; line-height: 0;">&nbsp;</td>
+                            </tr>
+
+                            <!-- Cabeçalho com Logo Estática -->
+                            <tr>
+                                <td style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 32px 28px 26px 28px; text-align: center;">
+                                    ${renderEmailLogo(baseUrl)}
+                                    <div style="display: inline-block; background-color: ${badgeBg}; border-radius: 50px; padding: 4px 14px; margin-bottom: 10px;">
+                                        <span style="font-size: 11px; font-weight: 800; color: ${badgeColor}; text-transform: uppercase; letter-spacing: 0.6px;">${badgeText}</span>
+                                    </div>
+                                    <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px; line-height: 1.3;">
+                                        ${title}
+                                    </h1>
+                                    <p style="margin: 8px auto 0 auto; font-size: 14px; color: #475569; max-width: 480px; line-height: 1.5;">
+                                        ${subtitle}
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Corpo Principal -->
+                            <tr>
+                                <td style="padding: 32px 30px; line-height: 1.65; color: #1e293b; font-size: 15px;">
+                                    ${bodyHtml}
+                                </td>
+                            </tr>
+
+                            <!-- Rodapé Corporativo -->
+                            <tr>
+                                <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 28px; text-align: center; font-size: 12px; color: #64748b; line-height: 1.6;">
+                                    <p style="margin: 0 0 4px 0; font-weight: 800; color: #0f172a; font-size: 13px;">
+                                        MMC Lab &bull; Controle Tecnológico e Engenharia
+                                    </p>
+                                    <p style="margin: 0 0 8px 0; color: #64748b;">
+                                        Em caso de dúvidas, basta responder diretamente a este e-mail ou acessar o <a href="${portalUrl}" style="color: #0284c7; text-decoration: none; font-weight: 600;">Portal do Cliente</a>.
+                                    </p>
+                                    <p style="margin: 0; font-size: 11px; color: #94a3b8;">
+                                        &copy; ${year} MMC Lab &mdash; Sistema de Gestão da Qualidade. Todos os direitos reservados.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
     `
 }
 
@@ -125,60 +221,57 @@ export function getPdfAttachment(dataUrlOrBase64: string | null | undefined, def
  * 1) E-mail de Verificação de Conta & Boas-Vindas ao Cliente
  */
 export async function sendVerificationEmail(to: string, name: string, token: string) {
-    const baseUrl = process.env.NEXTAUTH_URL || "https://site-sgq-six.vercel.app"
+    const baseUrl = getBaseUrl()
     const verifyUrl = `${baseUrl}/verificar-email?token=${token}`
-    const loginUrl = getPortalLoginUrl()
+    const loginUrl = getPortalLoginUrl(baseUrl)
 
     const transporter = createTransporter()
+
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá, <strong>${name}</strong>! Sua conta no <strong>Portal do Cliente MMC Lab</strong> foi criada com sucesso.
+        </p>
+        <p style="color: #475569;">
+            Para garantir a segurança das suas informações e liberar seu acesso completo ao painel, confirme seu endereço de e-mail clicando no botão abaixo:
+        </p>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="${verifyUrl}" style="background-color: #059669; color: #ffffff; padding: 15px 34px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+                &check; Confirmar Meu E-mail
+            </a>
+        </div>
+
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 24px 0; font-size: 13px; color: #475569;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #0f172a;"><strong>O que você encontra no Portal do Cliente:</strong></p>
+            <ul style="margin: 0; padding-left: 20px; line-height: 1.7;">
+                <li>Solicitação rápida de novos ensaios tecnológicos</li>
+                <li>Consulta e aceite digital de propostas comerciais</li>
+                <li>Acompanhamento em tempo real do cronograma e execução</li>
+                <li>Download imediato de laudos técnicos e notas fiscais</li>
+            </ul>
+        </div>
+
+        ${renderProcessTrackingBanner(loginUrl)}
+
+        <div style="background-color: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin-top: 20px; font-size: 12px; color: #64748b; word-break: break-all;">
+            <span>Caso o botão acima não funcione, copie e cole este link no navegador:</span><br/>
+            <a href="${verifyUrl}" style="color: #0284c7; font-weight: 600;">${verifyUrl}</a>
+        </div>
+    `
 
     const mailOptions = {
         from: getSender(),
         to,
         subject: "Confirme seu e-mail e ative sua conta - MMC Lab",
-        html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
-                    ${renderEmailLogo(baseUrl)}
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Bem-vindo(a), ${name}!</h1>
-                    <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Estamos muito felizes em ter você conosco.</p>
-                </div>
-
-                <div style="padding: 36px 30px; line-height: 1.6;">
-                    <p style="font-size: 15px; margin-top: 0;">Sua conta no <strong>Portal do Cliente MMC Lab</strong> foi criada com sucesso!</p>
-                    
-                    <p style="font-size: 15px; color: #475569;">
-                        Para garantir a segurança dos seus dados e ativar seu acesso completo ao sistema, confirme seu endereço de e-mail clicando no botão abaixo:
-                    </p>
-
-                    <div style="text-align: center; margin: 32px 0;">
-                        <a href="${verifyUrl}" style="background-color: #059669; color: #ffffff; padding: 15px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);">
-                            &check; Confirmar Meu E-mail
-                        </a>
-                    </div>
-
-                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin: 24px 0; font-size: 13px; color: #64748b;">
-                        <p style="margin: 0 0 6px 0;"><strong>O que você pode fazer no portal?</strong></p>
-                        <ul style="margin: 0; padding-left: 20px; line-height: 1.6;">
-                            <li>Solicitar novos ensaios com facilidade</li>
-                            <li>Receber, avaliar e dar aceite em propostas comerciais</li>
-                            <li>Acompanhar a execução dos seus ensaios em tempo real</li>
-                            <li>Acessar e baixar relatórios técnicos e notas fiscais</li>
-                        </ul>
-                    </div>
-
-                    ${renderProcessTrackingBanner(loginUrl)}
-
-                    <p style="font-size: 12px; color: #94a3b8; margin-top: 24px;">
-                        Se o botão não funcionar, copie e cole o seguinte link no seu navegador:<br/>
-                        <a href="${verifyUrl}" style="color: #2563eb; word-break: break-all;">${verifyUrl}</a>
-                    </p>
-                </div>
-
-                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e2e8f0;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Controle Tecnológico e Engenharia</p>
-                </div>
-            </div>
-        `,
+        html: renderEmailLayout({
+            baseUrl,
+            badgeText: "Ativação de Conta",
+            badgeColor: "#047857",
+            badgeBg: "#d1fae5",
+            title: `Bem-vindo(a) à MMC Lab, ${name}!`,
+            subtitle: "Confirme seu e-mail para ativar seu acesso ao Portal do Cliente.",
+            bodyHtml
+        }),
     }
 
     try {
@@ -212,7 +305,7 @@ export async function sendProposalEmail(params: {
     quantidadeEnsaios?: string | null
     proposalPdfUrl?: string | null
 }) {
-    const { to, name, requestId, osCode, proposalCode, type, workName, location, quantidadeEnsaios, proposalPdfUrl } = params
+    const { to, name, osCode, proposalCode, type, workName, location, quantidadeEnsaios, proposalPdfUrl } = params
     const recipients = normalizeRecipients(to)
     if (recipients.length === 0) {
         console.warn("Nenhum destinatário válido para proposta:", to)
@@ -230,75 +323,79 @@ export async function sendProposalEmail(params: {
         attachments.push(attachment)
     }
 
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá, <strong>${name}</strong>!
+        </p>
+        <p style="color: #475569;">
+            Elaboramos a proposta técnica-comercial referente à sua solicitação de <strong>${type}</strong>. Confira abaixo o resumo do atendimento:
+        </p>
+
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; margin: 24px 0;">
+            <div style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px;">
+                📋 Resumo da Proposta Comercial
+            </div>
+            <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; width: 42%; border-bottom: 1px solid #f1f5f9;">Código da Proposta:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 700; border-bottom: 1px solid #f1f5f9;">${proposalCode}</td>
+                </tr>
+                ${osCode ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f1f5f9;">Ordem de Serviço (OS):</td>
+                    <td style="padding: 8px 0; color: #2563eb; font-weight: 700; border-bottom: 1px solid #f1f5f9;">#${osCode}</td>
+                </tr>
+                ` : ''}
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f1f5f9;">Ensaio / Serviço:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${type}</td>
+                </tr>
+                ${workName || location ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f1f5f9;">Obra / Local:</td>
+                    <td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #f1f5f9;">${workName || location}</td>
+                </tr>
+                ` : ''}
+                ${quantidadeEnsaios ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b;">Qtd. de Ensaios:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${quantidadeEnsaios}</td>
+                </tr>
+                ` : ''}
+            </table>
+        </div>
+
+        ${attachment ? `
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin: 18px 0; font-size: 13px; color: #1e40af;">
+            📎 <strong>Arquivo em anexo:</strong> O documento PDF da proposta comercial também está anexado diretamente a este e-mail.
+        </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 28px 0;">
+            <a href="${proposalDownloadUrl}" style="background-color: #2563eb; color: #ffffff; padding: 15px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+                📄 Visualizar / Aprovar Proposta no Portal
+            </a>
+        </div>
+
+        <p style="font-size: 13px; color: #475569; text-align: center; margin: 0 0 20px 0;">
+            Para registrar seu aceite comercial e liberar o agendamento do ensaio, acesse o Portal do Cliente ou responda a este e-mail.
+        </p>
+
+        ${renderProcessTrackingBanner(loginUrl)}
+    `
+
     const mailOptions = {
         from: getSender(),
         to: recipients.join(", "),
         subject: `Proposta Comercial - ${type} [${proposalCode || osCode || "MMC Lab"}]`,
-        html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
-                    ${renderEmailLogo()}
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Proposta Comercial Disponível</h1>
-                    <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Olá, ${name}! Analise os detalhes da proposta enviada para o seu ensaio.</p>
-                </div>
-
-                <div style="padding: 36px 30px; line-height: 1.6;">
-                    <p style="font-size: 15px; margin-top: 0;">
-                        Elaboramos a proposta técnica-comercial para o atendimento da sua solicitação de <strong>${type}</strong>.
-                    </p>
-
-                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; margin: 24px 0;">
-                        <h2 style="margin: 0 0 14px 0; font-size: 16px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-                            📋 Dados da Proposta:
-                        </h2>
-                        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b; width: 40%;"><strong>Código da Proposta:</strong></td>
-                                <td style="padding: 6px 0; color: #0f172a; font-weight: bold;">${proposalCode}</td>
-                            </tr>
-                            ${osCode ? `
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Ordem de Serviço (OS):</strong></td>
-                                <td style="padding: 6px 0; color: #2563eb; font-weight: bold;">${osCode}</td>
-                            </tr>
-                            ` : ''}
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Serviço Solicitado:</strong></td>
-                                <td style="padding: 6px 0; color: #0f172a;">${type}</td>
-                            </tr>
-                            ${workName || location ? `
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Obra / Local:</strong></td>
-                                <td style="padding: 6px 0; color: #0f172a;">${workName || location}</td>
-                            </tr>
-                            ` : ''}
-                            ${quantidadeEnsaios ? `
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Qtd. de Ensaios:</strong></td>
-                                <td style="padding: 6px 0; color: #0f172a;">${quantidadeEnsaios}</td>
-                            </tr>
-                            ` : ''}
-                        </table>
-                    </div>
-
-                    <div style="text-align: center; margin: 28px 0;">
-                        <a href="${proposalDownloadUrl}" style="background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
-                            📄 Visualizar / Baixar Proposta (PDF)
-                        </a>
-                    </div>
-
-                    ${renderProcessTrackingBanner(loginUrl)}
-
-                    <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
-                        Para dar o aceite comercial e agendar a execução do ensaio, basta acessar sua conta no portal ou responder a este e-mail.
-                    </p>
-                </div>
-
-                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e2e8f0;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Controle Tecnológico e Engenharia</p>
-                </div>
-            </div>
-        `,
+        html: renderEmailLayout({
+            badgeText: "Proposta Comercial",
+            badgeColor: "#1d4ed8",
+            badgeBg: "#dbeafe",
+            title: "Proposta Comercial Disponível",
+            subtitle: `Olá, ${name}! Confira os detalhes da proposta elaborada para o seu ensaio.`,
+            bodyHtml
+        }),
         attachments
     }
 
@@ -318,43 +415,51 @@ export async function sendProposalEmail(params: {
     }
 }
 
+/**
+ * 3) E-mail de Boas-Vindas com Credenciais de Acesso
+ */
 export async function sendWelcomeEmail(to: string, name: string, rawPassword: string) {
-    const loginUrl = `${process.env.NEXTAUTH_URL}/login-cliente`
-
+    const loginUrl = getPortalLoginUrl()
     const transporter = createTransporter()
 
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá, <strong>${name}</strong>!
+        </p>
+        <p style="color: #475569;">
+            Recebemos sua solicitação e preparamos seu acesso exclusivo ao <strong>Portal do Cliente MMC Lab</strong> para que você acompanhe todas as etapas dos seus ensaios em tempo real.
+        </p>
+
+        <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; padding: 22px; border-radius: 10px; margin: 24px 0;">
+            <div style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+                🔐 Suas Credenciais de Acesso
+            </div>
+            <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>E-mail de Login:</strong> ${to}</p>
+            <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Senha Inicial:</strong> <code style="background-color: #e2e8f0; padding: 3px 8px; border-radius: 6px; font-weight: 700; color: #0f172a;">${rawPassword}</code></p>
+            <p style="font-size: 12px; color: #64748b; margin: 12px 0 0 0;">
+                * Para sua segurança, recomendamos alterar a senha após o primeiro acesso.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin: 28px 0;">
+            <a href="${loginUrl}" style="background-color: #2563eb; color: #ffffff; padding: 15px 34px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+                Acessar o Portal do Cliente &rarr;
+            </a>
+        </div>
+    `
+
     const mailOptions = {
-        from: `"MMC Lab" <${process.env.EMAIL_USER}>`,
+        from: getSender(),
         to,
         subject: "Bem-vindo ao Portal do Cliente - MMC Lab",
-        html: `
-            <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
-                    ${renderEmailLogo()}
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Olá, ${name}!</h1>
-                    <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Seu acesso ao Portal do Cliente está pronto.</p>
-                </div>
-                <div style="padding: 40px; line-height: 1.6;">
-                    <p>Recebemos sua solicitação através do nosso site e já criamos uma conta para você acompanhar o andamento dos seus ensaios em tempo real.</p>
-                    
-                    <div style="background-color: #f8fafc; padding: 25px; border-radius: 8px; margin: 25px 0;">
-                        <h2 style="margin-top: 0; font-size: 18px; color: #0f172a;">Suas Credenciais de Acesso:</h2>
-                        <p style="margin: 5px 0;"><strong>E-mail:</strong> ${to}</p>
-                        <p style="margin: 5px 0;"><strong>Senha Inicial:</strong> ${rawPassword}</p>
-                        <p style="font-size: 12px; color: #64748b; margin-top: 10px;">* Recomendamos alterar sua senha no primeiro acesso.</p>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 30px;">
-                        <a href="${loginUrl}" style="background-color: #2563eb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Acessar o Portal</a>
-                    </div>
-
-                    <p style="margin-top: 40px;">Se tiver qualquer dúvida, basta responder a este e-mail ou entrar em contato pelo nosso WhatsApp.</p>
-                </div>
-                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Sistema de Gestão de Qualidade</p>
-                </div>
-            </div>
-        `,
+        html: renderEmailLayout({
+            badgeText: "Credenciais de Acesso",
+            badgeColor: "#0369a1",
+            badgeBg: "#e0f2fe",
+            title: `Olá, ${name}!`,
+            subtitle: "Seu acesso ao Portal do Cliente MMC Lab já está liberado.",
+            bodyHtml
+        }),
     }
 
     try {
@@ -379,44 +484,51 @@ export async function sendWelcomeEmail(to: string, name: string, rawPassword: st
     }
 }
 
+/**
+ * 4) E-mail de Processo Finalizado
+ */
 export async function sendFinalizedEmail(to: string, name: string, requestId: string, type: string) {
-    const portalUrl = `${process.env.NEXTAUTH_URL}/login-cliente`
+    const portalUrl = getPortalLoginUrl()
     const transporter = createTransporter()
 
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá, <strong>${name}</strong>!
+        </p>
+        <p style="color: #475569;">
+            Informamos que o processo referente ao ensaio de <strong>${type}</strong> foi concluído com sucesso pela nossa equipe técnica.
+        </p>
+        
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #10b981; padding: 20px 22px; border-radius: 10px; margin: 24px 0;">
+            <h2 style="margin: 0 0 10px 0; font-size: 16px; color: #065f46;">O que já está disponível para você:</h2>
+            <ul style="padding-left: 20px; margin: 0; color: #1e293b; font-size: 14px; line-height: 1.7;">
+                <li>Relatórios técnicos finais revisados e liberados para consulta.</li>
+                <li>Download imediato dos documentos em PDF diretamente pelo Portal.</li>
+                <li>Histórico completo de execução e faturamento da Ordem de Serviço.</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 28px 0;">
+            <a href="${portalUrl}" style="background-color: #059669; color: #ffffff; padding: 15px 34px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+                Acessar Documentos no Portal &rarr;
+            </a>
+        </div>
+
+        ${renderProcessTrackingBanner(portalUrl)}
+    `
+
     const mailOptions = {
-        from: `"MMC Lab" <${process.env.EMAIL_USER}>`,
+        from: getSender(),
         to,
         subject: `Processo Finalizado - ${type} - MMC Lab`,
-        html: `
-            <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center; border-bottom: 3px solid #10b981;">
-                    ${renderEmailLogo()}
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Olá, ${name}!</h1>
-                    <p style="margin: 8px 0 0; opacity: 0.9; font-size: 14px; color: #34d399; font-weight: 600;">Temos ótimas notícias: seu processo foi finalizado!</p>
-                </div>
-                <div style="padding: 40px; line-height: 1.6;">
-                    <p>Informamos que o seu ensaio de <strong>${type}</strong> foi concluído com sucesso.</p>
-                    
-                    <div style="background-color: #f0fdf4; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981;">
-                        <h2 style="margin-top: 0; font-size: 18px; color: #065f46;">O que isso significa?</h2>
-                        <ul style="padding-left: 20px; margin: 10px 0;">
-                            <li>O relatório técnico já está disponível para visualização.</li>
-                            <li>Você pode baixar o documento PDF diretamente pelo portal.</li>
-                            <li>Sua pesquisa de satisfação está aguardando seu feedback.</li>
-                        </ul>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 30px;">
-                        <a href="${portalUrl}" style="background-color: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Ver Resultado no Portal</a>
-                    </div>
-
-                    <p style="margin-top: 40px;">Sua opinião é muito importante para nós. Ao acessar o portal, não esqueça de avaliar nosso atendimento.</p>
-                </div>
-                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Sistema de Gestão de Qualidade</p>
-                </div>
-            </div>
-        `,
+        html: renderEmailLayout({
+            badgeText: "Processo Concluído",
+            badgeColor: "#047857",
+            badgeBg: "#d1fae5",
+            title: "Seu Processo Foi Finalizado!",
+            subtitle: `Olá, ${name}! Todos os documentos do ensaio de ${type} estão disponíveis.`,
+            bodyHtml
+        }),
     }
 
     try {
@@ -435,6 +547,9 @@ export async function sendFinalizedEmail(to: string, name: string, requestId: st
     }
 }
 
+/**
+ * 5) Envio de Relatório Técnico Parcial/Final + Pesquisa de Satisfação
+ */
 export async function sendReportWithSurveyEmail(params: {
     to: string | string[];
     name: string;
@@ -452,8 +567,8 @@ export async function sendReportWithSurveyEmail(params: {
         return { success: false, error: "Nenhum e-mail válido" };
     }
 
-    const baseUrl = process.env.NEXTAUTH_URL || "https://site-sgq-six.vercel.app";
-    const loginUrl = getPortalLoginUrl();
+    const baseUrl = getBaseUrl();
+    const loginUrl = getPortalLoginUrl(baseUrl);
     const surveyUrl = `${baseUrl}/portal-cliente/pesquisa/${requestId}`;
     const pdfUrl = reportPdfUrl && !reportPdfUrl.startsWith('/api/') && !reportPdfUrl.startsWith('data:') ? reportPdfUrl : loginUrl;
 
@@ -465,58 +580,76 @@ export async function sendReportWithSurveyEmail(params: {
         attachments.push(attachment);
     }
 
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá, <strong>${name}</strong>!
+        </p>
+        <p style="color: #475569;">
+            Informamos que o relatório técnico referente ao ensaio de <strong>${type}</strong> (Ensaio <strong>${itemNumber} de ${totalItems}</strong> contratados) foi aprovado pelo nosso corpo técnico e já está disponível.
+        </p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; margin: 24px 0;">
+            <div style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px;">
+                📄 Detalhes do Laudo Técnico
+            </div>
+            <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; width: 42%; border-bottom: 1px solid #f1f5f9;">Ordem de Serviço (OS):</td>
+                    <td style="padding: 8px 0; color: #2563eb; font-weight: 700; border-bottom: 1px solid #f1f5f9;">#${osCode || requestId.substring(0, 8)}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f1f5f9;">Ensaio Entregue:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 700; border-bottom: 1px solid #f1f5f9;">Ensaio ${itemNumber} de ${totalItems}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b;">Serviço Técnico:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${type}</td>
+                </tr>
+            </table>
+        </div>
+
+        ${attachment ? `
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin: 18px 0; font-size: 13px; color: #1e40af;">
+            📎 <strong>Laudo em anexo:</strong> O arquivo PDF deste relatório técnico também segue anexado a este e-mail.
+        </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 26px 0;">
+            <a href="${pdfUrl}" style="background-color: #2563eb; color: #ffffff; padding: 15px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+                📄 Baixar Relatório Técnico (PDF)
+            </a>
+        </div>
+
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #10b981; padding: 20px; border-radius: 10px; margin: 26px 0;">
+            <h3 style="margin: 0 0 8px 0; font-size: 15px; color: #065f46;">
+                ⭐ Pesquisa de Satisfação (${itemNumber} de ${totalItems})
+            </h3>
+            <p style="font-size: 13px; color: #334155; margin: 0 0 16px 0; line-height: 1.55;">
+                Sua avaliação é fundamental para mantermos a excelência técnica do nosso laboratório. Leva menos de 1 minuto:
+            </p>
+            <div style="text-align: center;">
+                <a href="${surveyUrl}" style="background-color: #059669; color: #ffffff; padding: 11px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; font-size: 13px;">
+                    Avaliar Atendimento &rarr;
+                </a>
+            </div>
+        </div>
+
+        ${renderProcessTrackingBanner(loginUrl)}
+    `;
+
     const mailOptions = {
         from: getSender(),
         to: recipients.join(", "),
-        subject: `Relatório de Ensaio (${itemNumber} de ${totalItems}) & Pesquisa de Satisfação - ${osCode || 'MMC Lab'}`,
-        html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
-                    ${renderEmailLogo(baseUrl)}
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Relatório Técnico Disponível</h1>
-                    <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Olá, ${name}! Seu laudo de ensaio já foi concluído e disponibilizado.</p>
-                </div>
-
-                <div style="padding: 36px 30px; line-height: 1.6;">
-                    <p style="font-size: 15px; margin-top: 0;">
-                        Informamos que o relatório referente ao ensaio de <strong>${type}</strong> (Ensaio <strong>${itemNumber} de ${totalItems}</strong> contratados) foi aprovado pelo nosso corpo técnico e está pronto para consulta.
-                    </p>
-                    
-                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin: 22px 0;">
-                        <h2 style="margin: 0 0 12px 0; font-size: 15px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-                            📄 Detalhes da Entrega:
-                        </h2>
-                        <p style="margin: 6px 0; font-size: 14px;"><strong>OS:</strong> <span style="color: #2563eb; font-weight: bold;">${osCode || requestId.substring(0, 8)}</span></p>
-                        <p style="margin: 6px 0; font-size: 14px;"><strong>Ensaio Entregue:</strong> ${itemNumber} de ${totalItems}</p>
-                        <p style="margin: 6px 0; font-size: 14px;"><strong>Serviço:</strong> ${type}</p>
-                    </div>
-
-                    <div style="text-align: center; margin: 26px 0;">
-                        <a href="${pdfUrl}" style="background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
-                            📄 Baixar Relatório Técnico (PDF)
-                        </a>
-                    </div>
-
-                    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #10b981; padding: 20px; border-radius: 8px; margin: 24px 0;">
-                        <h3 style="margin: 0 0 8px 0; font-size: 15px; color: #065f46;">⭐ Pesquisa de Satisfação (${itemNumber} de ${totalItems} ensaios realizados)</h3>
-                        <p style="font-size: 13px; color: #334155; margin-bottom: 14px; line-height: 1.5;">
-                            Sua opinião é fundamental para a melhoria contínua dos nossos serviços de controle tecnológico. Por favor, dedique 1 minuto para avaliar este ensaio:
-                        </p>
-                        <div style="text-align: center;">
-                            <a href="${surveyUrl}" style="background-color: #10b981; color: white; padding: 11px 22px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 13px;">
-                                Responder Pesquisa de Satisfação
-                            </a>
-                        </div>
-                    </div>
-
-                    ${renderProcessTrackingBanner(loginUrl)}
-                </div>
-
-                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e2e8f0;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Controle Tecnológico e Engenharia</p>
-                </div>
-            </div>
-        `,
+        subject: `Relatório de Ensaio (${itemNumber} de ${totalItems}) - ${osCode || 'MMC Lab'}`,
+        html: renderEmailLayout({
+            baseUrl,
+            badgeText: "Laudo Técnico Liberado",
+            badgeColor: "#1d4ed8",
+            badgeBg: "#dbeafe",
+            title: "Relatório Técnico Disponível",
+            subtitle: `Olá, ${name}! O laudo técnico do ensaio ${itemNumber} de ${totalItems} foi concluído.`,
+            bodyHtml
+        }),
         attachments
     };
 
@@ -537,7 +670,7 @@ export async function sendReportWithSurveyEmail(params: {
 }
 
 /**
- * 4) Envio da Nota Fiscal para o cliente
+ * 6) Envio da Nota Fiscal para o cliente
  */
 export async function sendInvoiceEmail(params: {
     to: string | string[];
@@ -551,7 +684,7 @@ export async function sendInvoiceEmail(params: {
     invoicePdfUrl?: string | null;
     observacoes?: string | null;
 }) {
-    const { to, name, requestId, osCode, invoiceNumber, valorNota, qtdFaturada, type, invoicePdfUrl, observacoes } = params;
+    const { to, name, osCode, invoiceNumber, valorNota, qtdFaturada, type, invoicePdfUrl, observacoes } = params;
     const recipients = normalizeRecipients(to);
     if (recipients.length === 0) {
         console.warn("Nenhum destinatário válido para nota fiscal:", to);
@@ -573,77 +706,85 @@ export async function sendInvoiceEmail(params: {
         ? valorNota.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
         : null;
 
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá, <strong>${name}</strong>!
+        </p>
+        <p style="color: #475569;">
+            Informamos que a <strong>Nota Fiscal de Serviços (NF nº ${invoiceNumber})</strong> referente ao atendimento de <strong>${type}</strong> foi emitida e disponibilizada em sua conta.
+        </p>
+
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; margin: 24px 0;">
+            <div style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px;">
+                🧾 Resumo do Faturamento
+            </div>
+            <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; width: 42%; border-bottom: 1px solid #f1f5f9;">Número da NF:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 800; border-bottom: 1px solid #f1f5f9;">NF nº ${invoiceNumber}</td>
+                </tr>
+                ${valorFormatado ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f1f5f9;">Valor Total da NF:</td>
+                    <td style="padding: 8px 0; color: #059669; font-weight: 800; font-size: 16px; border-bottom: 1px solid #f1f5f9;">${valorFormatado}</td>
+                </tr>
+                ` : ''}
+                ${osCode ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f1f5f9;">Ordem de Serviço (OS):</td>
+                    <td style="padding: 8px 0; color: #2563eb; font-weight: 700; border-bottom: 1px solid #f1f5f9;">#${osCode}</td>
+                </tr>
+                ` : ''}
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f1f5f9;">Serviço Prestado:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${type}</td>
+                </tr>
+                ${qtdFaturada ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; ${observacoes ? 'border-bottom: 1px solid #f1f5f9;' : ''}">Ensaios Faturados:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 600; ${observacoes ? 'border-bottom: 1px solid #f1f5f9;' : ''}">${qtdFaturada} ensaio(s)</td>
+                </tr>
+                ` : ''}
+                ${observacoes ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b;">Observações:</td>
+                    <td style="padding: 8px 0; color: #334155;">${observacoes}</td>
+                </tr>
+                ` : ''}
+            </table>
+        </div>
+
+        ${attachment ? `
+        <div style="background-color: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 10px; padding: 12px 16px; margin: 18px 0; font-size: 13px; color: #5b21b6;">
+            📎 <strong>Nota Fiscal em anexo:</strong> O arquivo PDF da Nota Fiscal nº ${invoiceNumber} segue anexado diretamente a este e-mail.
+        </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 28px 0;">
+            <a href="${invoiceDownloadUrl}" style="background-color: #7c3aed; color: #ffffff; padding: 15px 32px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);">
+                🧾 Visualizar / Baixar Nota Fiscal
+            </a>
+        </div>
+
+        <p style="font-size: 13px; color: #475569; text-align: center; margin: 0 0 20px 0;">
+            Você também pode consultar suas notas fiscais e informar o comprovante de pagamento diretamente no Portal do Cliente.
+        </p>
+
+        ${renderProcessTrackingBanner(loginUrl)}
+    `;
+
     const mailOptions = {
         from: getSender(),
         to: recipients.join(", "),
         subject: `Nota Fiscal Emitida - ${type} [NF nº ${invoiceNumber}] - MMC Lab`,
-        html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
-                    ${renderEmailLogo()}
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Nota Fiscal de Serviços Emitida</h1>
-                    <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Olá, ${name}! Disponibilizamos a nota fiscal referente aos serviços prestados.</p>
-                </div>
-
-                <div style="padding: 36px 30px; line-height: 1.6;">
-                    <p style="font-size: 15px; margin-top: 0;">
-                        Informamos que a <strong>Nota Fiscal de Serviços (NF nº ${invoiceNumber})</strong> referente ao atendimento de <strong>${type}</strong> foi emitida com sucesso.
-                    </p>
-
-                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; margin: 24px 0;">
-                        <h2 style="margin: 0 0 14px 0; font-size: 16px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-                            🧾 Detalhes do Faturamento:
-                        </h2>
-                        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b; width: 40%;"><strong>Número da NF:</strong></td>
-                                <td style="padding: 6px 0; color: #0f172a; font-weight: bold;">${invoiceNumber}</td>
-                            </tr>
-                            ${valorFormatado ? `
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Valor Total da NF:</strong></td>
-                                <td style="padding: 6px 0; color: #059669; font-weight: 800; font-size: 16px;">${valorFormatado}</td>
-                            </tr>
-                            ` : ''}
-                            ${osCode ? `
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Ordem de Serviço:</strong></td>
-                                <td style="padding: 6px 0; color: #2563eb; font-weight: bold;">${osCode}</td>
-                            </tr>
-                            ` : ''}
-                            ${qtdFaturada ? `
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Ensaios Faturados:</strong></td>
-                                <td style="padding: 6px 0; color: #0f172a;">${qtdFaturada} ensaio(s)</td>
-                            </tr>
-                            ` : ''}
-                            ${observacoes ? `
-                            <tr>
-                                <td style="padding: 6px 0; color: #64748b;"><strong>Observações:</strong></td>
-                                <td style="padding: 6px 0; color: #0f172a;">${observacoes}</td>
-                            </tr>
-                            ` : ''}
-                        </table>
-                    </div>
-
-                    <div style="text-align: center; margin: 28px 0;">
-                        <a href="${invoiceDownloadUrl}" style="background-color: #7c3aed; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
-                            📄 Baixar Nota Fiscal (PDF)
-                        </a>
-                    </div>
-
-                    ${renderProcessTrackingBanner(loginUrl)}
-
-                    <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
-                        Caso necessite de segunda via ou informações adicionais sobre o pagamento, responda a este e-mail ou consulte diretamente no seu portal.
-                    </p>
-                </div>
-
-                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e2e8f0;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Controle Tecnológico e Engenharia</p>
-                </div>
-            </div>
-        `,
+        html: renderEmailLayout({
+            badgeText: "Faturamento • Nota Fiscal",
+            badgeColor: "#6d28d9",
+            badgeBg: "#ede9fe",
+            title: "Nota Fiscal de Serviços Emitida",
+            subtitle: `Olá, ${name}! Disponibilizamos a Nota Fiscal nº ${invoiceNumber} referente aos serviços prestados.`,
+            bodyHtml
+        }),
         attachments
     };
 
@@ -663,42 +804,51 @@ export async function sendInvoiceEmail(params: {
     }
 }
 
+/**
+ * 7) E-mail de Recuperação de Senha
+ */
 export async function sendResetPasswordEmail(to: string, name: string, token: string) {
-    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
+    const baseUrl = getBaseUrl()
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`
     const transporter = createTransporter()
 
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá, <strong>${name}</strong>!
+        </p>
+        <p style="color: #475569;">
+            Recebemos uma solicitação para redefinir a senha da sua conta no sistema da <strong>MMC Lab</strong>. Para criar uma nova senha, clique no botão abaixo:
+        </p>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #2563eb; color: #ffffff; padding: 15px 34px; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+                🔑 Redefinir Minha Senha
+            </a>
+        </div>
+
+        <p style="font-size: 13px; color: #64748b; text-align: center;">
+            Este link é válido por <strong>1 hora</strong>. Caso você não tenha solicitado esta alteração, ignore este e-mail com segurança.
+        </p>
+        
+        <div style="background-color: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin-top: 24px; font-size: 12px; color: #64748b; word-break: break-all;">
+            <span>Se o botão acima não funcionar, copie e cole o link abaixo no seu navegador:</span><br/>
+            <a href="${resetUrl}" style="color: #0284c7; font-weight: 600;">${resetUrl}</a>
+        </div>
+    `
+
     const mailOptions = {
-        from: `"MMC Lab" <${process.env.EMAIL_USER}>`,
+        from: getSender(),
         to,
         subject: "Recuperação de Senha - MMC Lab",
-        html: `
-            <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-                <div style="background: #0f172a linear-gradient(#0f172a, #0f172a); background-color: #0f172a !important; color: white; padding: 36px 24px; text-align: center;">
-                    ${renderEmailLogo()}
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Olá, ${name}!</h1>
-                    <p style="margin: 8px 0 0; opacity: 0.85; font-size: 14px;">Você solicitou a recuperação de sua senha.</p>
-                </div>
-                <div style="padding: 40px; line-height: 1.6;">
-                    <p>Recebemos uma solicitação para redefinir a senha da sua conta no Sistema de Gestão de Qualidade da MMC Lab.</p>
-                    
-                    <p>Para prosseguir com a redefinição, clique no botão abaixo:</p>
-
-                    <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
-                        <a href="${resetUrl}" style="background-color: #2563eb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Redefinir Minha Senha</a>
-                    </div>
-
-                    <p style="font-size: 14px; color: #64748b;">Este link é válido por 1 hora. Se você não solicitou esta alteração, por favor ignore este e-mail.</p>
-                    
-                    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
-                    
-                    <p style="font-size: 12px; color: #94a3b8;">Se o botão acima não funcionar, copie e cole o link abaixo no seu navegador:</p>
-                    <p style="font-size: 12px; color: #94a3b8; word-break: break-all;">${resetUrl}</p>
-                </div>
-                <div style="background-color: #f1f5f9; color: #64748b; padding: 20px; text-align: center; font-size: 12px;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} MMC Lab - Sistema de Gestão de Qualidade</p>
-                </div>
-            </div>
-        `,
+        html: renderEmailLayout({
+            baseUrl,
+            badgeText: "Segurança da Conta",
+            badgeColor: "#1d4ed8",
+            badgeBg: "#dbeafe",
+            title: "Recuperação de Senha",
+            subtitle: `Olá, ${name}! Redefina sua senha de acesso com segurança.`,
+            bodyHtml
+        }),
     }
 
     try {
@@ -736,98 +886,91 @@ export async function sendShareProcessEmail(params: {
     const codeDisplay = osCode || processId.split('-')[0].toUpperCase()
     const portalUrl = getPortalLoginUrl()
 
+    const bodyHtml = `
+        <p style="margin-top: 0; color: #334155;">
+            Olá,
+        </p>
+        <p style="color: #475569;">
+            <strong>${sharedByName}</strong> compartilhou com você o acompanhamento técnico do ensaio abaixo no sistema da <strong>MMC Lab</strong>:
+        </p>
+
+        <!-- Card de Detalhes do Ensaio -->
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 22px; margin: 24px 0;">
+            <div style="font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px;">
+                🔬 Dados do Processo Compartilhado
+            </div>
+            <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; width: 40%; border-bottom: 1px solid #f1f5f9;">Código / OS:</td>
+                    <td style="padding: 8px 0; color: #0284c7; font-weight: 800; border-bottom: 1px solid #f1f5f9;">OS #${codeDisplay}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b; ${(workName || contractorName) ? 'border-bottom: 1px solid #f1f5f9;' : ''}">Tipo de Ensaio:</td>
+                    <td style="padding: 8px 0; color: #0f172a; font-weight: 700; ${(workName || contractorName) ? 'border-bottom: 1px solid #f1f5f9;' : ''}">${processType}</td>
+                </tr>
+                ${(workName || contractorName) ? `
+                <tr>
+                    <td style="padding: 8px 0; color: #64748b;">Obra / Local:</td>
+                    <td style="padding: 8px 0; color: #334155; font-weight: 600;">${workName || contractorName}</td>
+                </tr>
+                ` : ''}
+            </table>
+        </div>
+
+        <!-- Box Explicativo de Permissões -->
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 10px; padding: 18px 20px; margin: 24px 0;">
+            <div style="font-size: 14px; font-weight: 800; color: #1e40af; margin-bottom: 8px;">
+                🔒 Regras de Acesso e Permissões
+            </div>
+            <ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #1e3a8a; line-height: 1.65;">
+                <li style="margin-bottom: 6px;">
+                    <strong>Visualização e Download Liberados:</strong> Acompanhe o status, cronograma de execução e baixe propostas, relatórios técnicos e notas fiscais.
+                </li>
+                <li>
+                    <strong>Modo Somente Consulta:</strong> Como este é um link de acompanhamento compartilhado, alterações cadastrais ou exclusões permanecem restritas ao titular.
+                </li>
+            </ul>
+        </div>
+
+        <!-- Botão de Acesso Rápido -->
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="${accessUrl}" style="background-color: #0284c7; color: #ffffff; padding: 15px 34px; text-decoration: none; border-radius: 10px; font-weight: 800; display: inline-block; font-size: 15px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);">
+                🚀 Acessar Dados do Ensaio
+            </a>
+            <p style="margin: 10px 0 0 0; font-size: 12px; color: #64748b;">
+                Acesso direto pelo navegador (sem necessidade de senha inicial).
+            </p>
+        </div>
+
+        <!-- Fallback Link -->
+        <div style="background-color: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin-bottom: 22px; font-size: 12px; color: #64748b; word-break: break-all;">
+            <span>Caso o botão acima não funcione, copie e cole o link no seu navegador:</span><br/>
+            <a href="${accessUrl}" style="color: #0284c7; text-decoration: underline; font-weight: 600;">${accessUrl}</a>
+        </div>
+
+        <!-- Dica para criar conta -->
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 18px; font-size: 13px; color: #64748b;">
+            <p style="margin: 0 0 6px 0; color: #334155;">
+                <strong>💡 Ainda não tem conta no Portal MMC Lab?</strong>
+            </p>
+            <p style="margin: 0; line-height: 1.55;">
+                Para centralizar todos os seus ensaios em um único painel, você pode criar uma conta gratuita a qualquer momento com este mesmo e-mail: <a href="${portalUrl}" style="color: #0284c7; font-weight: 700; text-decoration: none;">Cadastrar-se no Portal do Cliente &rarr;</a>
+            </p>
+        </div>
+    `
+
     const mailOptions = {
         from: getSender(),
         to,
         subject: `[MMC Lab] Ensaio Compartilhado com Você - OS #${codeDisplay}`,
-        html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
-                {/* Header */}
-                <div style="background: #0f172a linear-gradient(135deg, #0f172a 0%, #1e293b 100%); background-color: #0f172a !important; color: white; padding: 36px 30px; text-align: center;">
-                    ${renderEmailLogo()}
-                    <div style="display: inline-block; background-color: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 50px; padding: 5px 14px; margin-bottom: 14px;">
-                        <span style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🌐 Portal do Cliente MMC Lab</span>
-                    </div>
-                    <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Ensaio Técnico Compartilhado com Você</h1>
-                    <p style="margin: 8px 0 0; font-size: 14px; color: #94a3b8;">Acompanhe o andamento e acesse os laudos e documentos em tempo real.</p>
-                </div>
-
-                {/* Conteúdo Principal */}
-                <div style="padding: 32px 28px; line-height: 1.6;">
-                    <p style="font-size: 15px; margin: 0 0 16px 0; color: #334155;">
-                        Olá,
-                    </p>
-                    <p style="font-size: 15px; margin: 0 0 24px 0; color: #334155;">
-                        <strong>${sharedByName}</strong> concedeu permissão para você acompanhar o processo técnico do ensaio abaixo no sistema da <strong>MMC Lab</strong>:
-                    </p>
-
-                    {/* Card de Detalhes do Ensaio */}
-                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                        <div style="margin-bottom: 12px;">
-                            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Código / OS:</span>
-                            <div style="font-size: 16px; font-weight: 800; color: #0284c7; margin-top: 2px;">OS #${codeDisplay}</div>
-                        </div>
-                        <div style="margin-bottom: 12px;">
-                            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Tipo de Ensaio:</span>
-                            <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 2px;">${processType}</div>
-                        </div>
-                        ${(workName || contractorName) ? `
-                        <div>
-                            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Obra / Local:</span>
-                            <div style="font-size: 13px; font-weight: 600; color: #334155; margin-top: 2px;">${workName || contractorName}</div>
-                        </div>
-                        ` : ''}
-                    </div>
-
-                    {/* Box Explicativo de Permissões e Regras de Segurança */}
-                    <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 10px; padding: 18px; margin-bottom: 28px;">
-                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 14px; font-weight: 800; color: #1e40af;">🔒 Regras de Acesso e Permissões</span>
-                        </div>
-                        <ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #1e3a8a; line-height: 1.6;">
-                            <li style="margin-bottom: 6px;">
-                                <strong>Apenas Visualização e Download:</strong> Você pode acompanhar o status, cronograma de execução e realizar o download dos arquivos técnicos (como propostas, relatórios técnicos e notas fiscais).
-                            </li>
-                            <li>
-                                <strong>Sem Permissão de Alteração:</strong> Como este é um acesso compartilhado de consulta, não é permitido editar dados, aprovar alterações, excluir ou modificar nada do processo original.
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Botão de Acesso Rápido em Destaque */}
-                    <div style="text-align: center; margin: 32px 0;">
-                        <a href="${accessUrl}" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 16px 36px; text-decoration: none; border-radius: 10px; font-weight: 800; display: inline-block; font-size: 15px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35); text-transform: uppercase; letter-spacing: 0.3px;">
-                            🚀 Acessar Dados do Ensaio
-                        </a>
-                        <p style="margin: 12px 0 0 0; font-size: 12px; color: #64748b;">
-                            Acesso rápido direto pelo navegador (sem necessidade de senha inicial).
-                        </p>
-                    </div>
-
-                    {/* Fallback Link */}
-                    <div style="background-color: #f1f5f9; padding: 14px; border-radius: 8px; margin-bottom: 24px; font-size: 12px; color: #64748b; word-break: break-all;">
-                        <span>Caso o botão acima não funcione, copie e cole o link no seu navegador:</span><br/>
-                        <a href="${accessUrl}" style="color: #0284c7; text-decoration: underline; font-weight: 600;">${accessUrl}</a>
-                    </div>
-
-                    {/* Dica para criar conta */}
-                    <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 13px; color: #64748b;">
-                        <p style="margin: 0 0 8px 0;">
-                            <strong>💡 Ainda não tem conta no Portal MMC Lab?</strong>
-                        </p>
-                        <p style="margin: 0; line-height: 1.5;">
-                            Se você desejar centralizar e gerenciar seus ensaios em um painel completo, você pode criar uma conta gratuita a qualquer momento com este mesmo e-mail (<a href="${portalUrl}" style="color: #0284c7; font-weight: 600; text-decoration: none;">Cadastrar-se no Portal do Cliente</a>).
-                        </p>
-                    </div>
-                </div>
-
-                {/* Footer Corporativo */}
-                <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; color: #64748b; padding: 22px; text-align: center; font-size: 12px; line-height: 1.5;">
-                    <p style="margin: 0 0 4px 0; font-weight: 700; color: #334155;">MMC Engenharia & Laboratório Tecnológico</p>
-                    <p style="margin: 0;">Sistema de Gestão da Qualidade &bull; Todos os direitos reservados</p>
-                </div>
-            </div>
-        `,
+        html: renderEmailLayout({
+            badgeText: "Acesso Compartilhado",
+            badgeColor: "#0369a1",
+            badgeBg: "#e0f2fe",
+            title: "Ensaio Técnico Compartilhado com Você",
+            subtitle: "Acompanhe o andamento e acesse os laudos e documentos em tempo real.",
+            bodyHtml
+        }),
     }
 
     try {
@@ -845,4 +988,3 @@ export async function sendShareProcessEmail(params: {
         return { success: false, error }
     }
 }
-
